@@ -89,15 +89,6 @@ fn write_csv_header2(path: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn init_pop(n: u32, agent: Agent) -> Vec<Agent> {
-    // returns vector with new agents
-    let mut pop = Vec::new();
-    for _i in 0..n {
-        pop.push(agent.clone());
-    }
-    return pop;
-}
-
 fn try_print(vec:Vec<f64>, file:&str) -> Result<(), Box<dyn Error>> {
     let strings: Vec<String> = vec.iter().map(|n| n.to_string()).collect();
 
@@ -117,6 +108,7 @@ fn try_print(vec:Vec<f64>, file:&str) -> Result<(), Box<dyn Error>> {
 const NS: usize = 10;
 const NPI: usize = 10;
 const NM: usize = 10;
+const LENPI: usize = (NPI-1)*(NPI-2)/2;
 
 #[derive(Clone, Debug)]
 struct Environment {
@@ -141,6 +133,14 @@ struct Environment {
     p_g_i: Vec<Vec<f64>>,
     P_stay: f64,
     P_change: f64,
+    Beliefs: Vec<BeliefState>,
+}
+
+#[derive(Clone, Debug)]
+struct BeliefState {
+    pi0: usize,
+    pi1: usize,
+    pi2: usize,
 }
 
 // Implementations
@@ -154,10 +154,31 @@ fn bernouli(prob:f64) -> f64 {
 }
 
 fn idx(s:usize, pi:usize, m:usize) -> usize {
-    s * NPI * NM + pi * NM + m
+    s * LENPI * NM + pi * NM + m
+}
+
+fn vectorise_pi(n0:usize,n1:usize)->usize{
+    // first term tells you which row (n0) if it were a 2x2 grid, 
+    // second term accounts for missing lower triangle given simplex
+    // third term gives the column (n1)
+    return n0*(NPI+1) - (n0*(n0-1))/2 + n1
 }
 
 impl Environment { 
+    fn init_beliefs(&mut self){
+        // Run at the beginning to initialise the vector of belief states
+        for n0 in 0..NPI{
+            for n1 in 0..NPI{
+                if NPI >= n0+n1{
+                    let j = vectorise_pi(n0, n1);
+                    self.Beliefs[j].pi0=n0;
+                    self.Beliefs[j].pi1=n1;
+                    self.Beliefs[j].pi2=NPI-n0-n1;
+                }
+            }
+        }
+    }
+
     fn q(&self, i: usize)->f64{
         return self.n_max*(i as f64)/(self.I as f64)
     }
@@ -172,14 +193,17 @@ impl Environment {
         return (d1 as usize,d2 as usize,p1,p2)
     }
 
-    fn interpolate_pi(&self, mut prime:f64) -> (usize,usize,f64,f64) {
-        prime = prime.min(1.0).max(0.0);
-        let d1 = ((NPI as f64) * prime).floor();
-        let d2 = d1 + 1.0;
-        let p2 = ((NPI as f64) * prime) - d1;
-        let p1 = 1.0 - p2;
+    fn f_pi(&self, prime1:f64, prime2:f64, prime3:f64) -> (usize,usize,usize,f64,f64,f64) {
+        
+        let d1 = ((NPI as f64) * prime1).floor();
+        let d2 = ((NPI as f64) * prime2).floor();
+        let d3 = ((NPI as f64) * prime3).floor();
 
-        return (d1 as usize,d2 as usize,p1,p2)
+        let p1 = (NPI as f64) * prime1 - d1;
+        let p2 = (NPI as f64) * prime2 - d2;
+        let p3 = (NPI as f64) * prime3 - d3;
+
+        return (d1 as usize, d2 as usize, d3 as usize, p1, p2, p3)
     }
 
     fn update_r(&mut self){
@@ -198,18 +222,38 @@ impl Environment {
 
     fn newborns(&mut self){
         self.rhotilde.fill(0.0);
-        
-        let mut approx = 0.;
 
-        for i in 0..self.I/2{
-            approx += self.hi[i]; // Equation 3
+        // interpolating priors onto the grid
+        let (d1, d2, d3, f1, f2, f3) = self.f_pi(self.hi[0],self.hi[1],self.hi[2]);
+        let mut pi;
+        if (f1+f2+f3) as usize == 0{
+
+            pi = vectorise_pi(d1, d2);
+            self.rhotilde[idx(0,pi,0)] = 1.;
+
+        } else if (f1+f2+f3) as usize == 1{
+
+            pi = vectorise_pi(d1+1, d2);
+            self.rhotilde[idx(0,pi,0)] += f1;
+
+            pi = vectorise_pi(d1, d2+1);
+            self.rhotilde[idx(0,pi,0)] += f2;
+
+            pi = vectorise_pi(d1, d2);
+            self.rhotilde[idx(0,pi,0)] += f3;
+            
+        } else if (f1+f2+f3) as usize == 2{
+
+            pi = vectorise_pi(d1, d2+1);
+            self.rhotilde[idx(0,pi,0)] += 1.-f1;
+
+            pi = vectorise_pi(d1+1, d2);
+            self.rhotilde[idx(0,pi,0)] += 1.-f2;
+
+            pi = vectorise_pi(d1+1, d2+1);
+            self.rhotilde[idx(0,pi,0)] += 1.-f3;
+ 
         }
-
-        let (d1, d2, p1, p2) = self.interpolate_pi(approx);
-        
-        //Equations 4 & 5
-        self.rhotilde[idx(0,d1,0)] = p1;
-        self.rhotilde[idx(0,d2,0)] = p2;
     }
 
     fn pop_growth(&mut self){
@@ -237,7 +281,7 @@ impl Environment {
                 for pi in 0..self.PI {
                     for m in 0..self.M {
                         let pi_prime = pi * self.P_stay + (1. - pi) * self.P_change;
-                        let (dpi1, dpi2, ppi1, ppi2) = self.interpolate_pi(pi_prime);
+                        let (dpi1, dpi2, ppi1, ppi2) = self.f_pi(pi_prime);
 
                          //Equations 14 and 15
                         rhoiprime[idx(s,dpi1,m)][d1] += ppi1 * p1 * (((i as f64)/(d1 as f64)) * self.rhoi[idx(s,pi,m)][i] + (((d1 as f64)-(i as f64))/(d1 as f64)) * self.rhotilde[idx(s,pi,m)]);

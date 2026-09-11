@@ -374,19 +374,25 @@ State dimensions
 \end_layout
 
 \begin_layout Itemize
-Patch population size state, 
-\begin_inset Formula $q_{i}\in\{q_{0},q_{1},...,q_{N}\}$
+Patch population density state, 
+\begin_inset Formula $i\in\{0,1,2\}$
 \end_inset
 
-.
+, corresponding to low, medium, and high population densities respectively.
+ We assume that 
+\begin_inset Formula $i$
+\end_inset
+
+ determines the probability of patch quality decline and determining the
+ availability of food.
 \end_layout
 
 \begin_layout Itemize
 Size state, 
-\begin_inset Formula $s\in(0,S)$
+\begin_inset Formula $s\in\{1,2,...,S\}$
 \end_inset
 
- where 
+, where 
 \begin_inset Formula $S$
 \end_inset
 
@@ -394,27 +400,60 @@ Size state,
 \end_layout
 
 \begin_layout Itemize
-Patch information state, 
-\begin_inset Formula $\pi=\{P(q_{0}),P(q_{1}),...,P(q_{N})\}$
+Patch belief state, 
+\begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
 \end_inset
 
-, where each position 
-\begin_inset Formula $P(q_{i})\in(0,1)$
+, is an individual's implicit and subjective probability distribution over
+ patch population density states, where 
+\begin_inset Formula $\pi_{i}=P(i)$
 \end_inset
 
- and 
-\begin_inset Formula $\sum_{q_{i}}P(q_{i})=1$
+, 
+\begin_inset Formula $\pi_{i}\in\{0/L,1/L,...,L/L\}$
 \end_inset
 
-.
+, and 
+\begin_inset Formula $\pi_{0}+\pi_{1}+\pi_{2}=1$
+\end_inset
+
+, where 
+\begin_inset Formula $L$
+\end_inset
+
+ determines the resolution of the belief state.
+ Thus, note that 
+\begin_inset Formula $\pi$
+\end_inset
+
+ is best represented as co-ordinates within a discretised probability 2-simplex
+ (i.e.
+ an equalateral triangle where each vertex represents each possible state
+ of certainty), rather than representing 
+\begin_inset Formula $\pi$
+\end_inset
+
+ with a 3D cube (which would include impossible probability distributions
+ and so waste state space).
 \end_layout
 
 \begin_layout Itemize
 Reproductive quality state, 
-\begin_inset Formula $m\in(0,1).$
+\begin_inset Formula $m\in\{0,1/M,2/M,...,M/M\}$
 \end_inset
 
+, corresponding to the quality of an individual's physiology and so the
+ mass of their offspring.
+ Further, any investment in quality above the quality threshold 
+\begin_inset Formula $m_{switch}$
+\end_inset
 
+, results in an individual developing an alternative fighter phenotype,
+ giving additional reproductive benefit 
+\begin_inset Formula $r_{fighter}$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Part
@@ -488,23 +527,41 @@ Adults, individuals of size state
 , as 
 \begin_inset Formula 
 \begin{equation}
-R(s,m)=\begin{cases}
-\text{if \ensuremath{s\geq S}}: & r_{b}+m\cdot r_{\text{fighter}}\\
+R(s,m,i)=\begin{cases}
+\text{if \ensuremath{s\geq S} and }m\geq m_{switch}: & \sum_{g}p(g|q_{i})\cdot g\cdot(r_{b}+m\cdot r_{m}+r_{fighter})\\
+\text{if \ensuremath{s\geq S} and }m<m_{switch} & \sum_{g}p(g|q_{i})\cdot g\cdot(r_{b}+m\cdot r_{m})\\
 \text{else}: & 0
 \end{cases}\label{eq:-1-1}
 \end{equation}
 
 \end_inset
 
+or if you want a one liner
+\begin_inset Formula 
+\[
+R(s,m,i)=max(s-S,0)\cdot\sum_{g}[p(g|q_{i})\cdot g\cdot(r_{b}+m\cdot r_{m}+r_{fighter}\cdot min(1,max(m-m_{switch},0)))]
+\]
+
+\end_inset
+
 where S is their size at maturity, 
+\begin_inset Formula $m_{switch}$
+\end_inset
+
+ is the threshold investment in quality above which the fighter polyphenism
+ is expressed, 
 \begin_inset Formula $r_{b}$
 \end_inset
 
  is the baseline reproductive rate, 
+\begin_inset Formula $r_{m}$
+\end_inset
+
+ is the reproductive benefit of greater somatic quality, and 
 \begin_inset Formula $r_{fighter}$
 \end_inset
 
- is the maximum benefit of reproductive quality boosting phenotypes.
+ is reproductive benefit of expressing the fighter polymorphism.
 \end_layout
 
 \begin_layout Subsection
@@ -526,71 +583,101 @@ Ideally, individuals would be born with precise and accurate prior information
 \begin_inset Formula $0$
 \end_inset
 
- and reproductive quality state 0.
- However, to form a discrete grid of states that we can solve a Markov decision
+ and reproductive quality state 0, and a belief state over population densities,
+ 
+\begin_inset Formula $\forall i$
+\end_inset
+
+ of
+\begin_inset Formula 
+\begin{equation}
+\pi_{i}\approx h(q_{i})\label{eq:-3}
+\end{equation}
+
+\end_inset
+
+However, to form a discrete grid of states that we can solve a Markov decision
  process for we need interpolate each 
 \begin_inset Formula $\pi_{i}$
 \end_inset
 
- onto a grid of possible discrete probability values (e.g.
+ onto a grid of possible discrete probability values, 
+\begin_inset Formula $\pi_{i}\in\{0/L,1/L,2/L,...,L/L\}$
+\end_inset
+
+, where 
+\begin_inset Formula $L$
+\end_inset
+
+ is an integer determining the finess of the grid.then needs to be interpolated
+ onto a discrete grid of possible values of 
+\begin_inset Formula $\pi_{i}$
+\end_inset
+
+ which (because it represent a probability distribution) lies on a unit
+ simplex (i.e.
+ all values are positive and they add up to 1), requiring a grid of barycentric
+ co-ordinates.
+ To this end, the first step is to decompose each 
+\begin_inset Formula $\pi_{i}^{\prime}$
+\end_inset
+
+ into it's integer and fractional parts, with the integer part defined by
+\begin_inset Formula 
+\[
+n_{i}=floor(h(q_{i})\cdot L),
+\]
+
+\end_inset
+
+and subsequently the fractional part defined as
+\begin_inset Formula 
+\[
+f_{i}=h(q_{i})\cdot L-\iota_{i}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that just as 
+\begin_inset Formula 
+\[
+\sum_{i}h(q_{i})=1
+\]
+
+\end_inset
+
+so does
+\begin_inset Formula 
+\[
+L=\sum_{i}h(q_{i})\cdot L,
+\]
+
+\end_inset
+
+and so 
+\begin_inset Formula 
+\[
+L=\sum_{i}n_{i}+f_{i}
+\]
+
+\end_inset
+
+and therefore the sum of the fractional parts must equal an integer because
  
-\begin_inset Formula $l\in\{0.0,0.1,0.2,...,1.0\}$
+\begin_inset Formula $L$
 \end_inset
 
-).
- Assuming want a fine grid of possible patch densities and of subjective
- probability states, this would generate an intractably large state space
- for us to solve for, and so instead we assume individuals have a more course
- gid of subjective probability states, binning multiple patch density states
- into a fewer state dimensions, with the simplest case being that individuals
- perceive the population density simply as being either low or high and
- so will inherit a binomial prior belief.
- The value that needs to be discretised will therefore be defined as
-\begin_inset Formula 
-\begin{equation}
-\eta=\sum_{i}^{I/2}h(q_{i})\label{eq:-3}
-\end{equation}
-
+ is an integer.
+ Therefore, assuming 
+\begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
 \end_inset
 
-such that we sum probabilities over all population densities up to which
- will interpolate on the grid of belief states 
-\begin_inset Formula $l\in\{0/L,1/L,...,L/L\}$
-\end_inset
-
- by using the following algorithm
-\begin_inset Formula 
-\[
-d_{1}=\text{floor}(\eta\cdot L)
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-d_{2}=d_{1}+1
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-p_{2}=\eta\cdot L-d_{1}
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\begin{equation}
-p_{1}=1-p_{2}\label{eq:-19}
-\end{equation}
-
-\end_inset
-
-and so for all states 
+, the fractional parts must add up to 0, 1 or 2.
+ And so for all states 
 \family roman
 \series medium
 \shape up
@@ -624,19 +711,68 @@ the proportion of dispersors that are of state
 \begin_inset Formula $\tilde{\rho}(s,\pi,m)=0$
 \end_inset
 
-, and then update given these interpolated priors
+.
+ Then we update given these fractional parts.
+ If the fractional parts add up to 
+\begin_inset Formula $0$
+\end_inset
+
+, all offspring have initial state
 \begin_inset Formula 
 \[
-\tilde{\rho}(s=1,\pi=d_{1},m=0)+=p_{1}
+\tilde{\rho}(s=1,\pi=\{n_{1},n_{2},n_{3}\},m)=1
+\]
+
+\end_inset
+
+Else, if the fractional parts add up to 1 we know exactly one dimension
+ of their prior belief state has to be rounded up, with weightings given
+ to their respective fractional parts and so 
+\begin_inset Formula 
+\[
+\tilde{\rho}(s=1,\pi=\{n_{0}+1,n_{1},n_{2}\},m=0)=f_{0}
 \]
 
 \end_inset
 
 
 \begin_inset Formula 
-\begin{equation}
-\tilde{\rho}(s=1,\pi=d_{2},m=0)+=p_{2}\label{eq:-20}
-\end{equation}
+\[
+\tilde{\rho}(s=1,\pi=\{n_{0},n_{1}+1,n_{2}\},m=0)=f_{1},
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\tilde{\rho}(s=1,\pi=\{n_{0},n_{1},n_{2}+1\},m=0)=f_{2}.
+\]
+
+\end_inset
+
+Else and finally, if the fractional parts add up to 2, exactly 2 dimensions
+ have to be rounded up
+\begin_inset Formula 
+\[
+\tilde{\rho}(s=1,\pi=\{n_{0},n_{1}+1,n_{2}+1\},m=0)=1-f_{0},
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\tilde{\rho}(s=1,\pi=\{n_{0}+1,n_{1},n_{2}+1\},m=0)=1-f_{1},
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\tilde{\rho}(s=1,\pi=\{n_{0}+1,n_{1}+1,n_{2}\},m=0)=1-f_{2}.
+\]
 
 \end_inset
 
@@ -994,47 +1130,47 @@ Given the food mass
 , individuals observe the resulting nutrient data and update their population
  density information states (i.e.
  their belief states).
- Assuming Bayesian optimal updating, their posterior belief is defined as
+ Assuming Bayesian optimal updating, their posterior belief is defined 
+\begin_inset Formula $\forall i$
+\end_inset
+
+ as
 \begin_inset Formula 
 \begin{equation}
-\pi^{\prime}=\frac{\pi\cdot\sum_{i=I/2}^{I}p(g|q_{i})\cdot p(q_{i}|\pi)}{(1-\pi)\cdot\sum_{i=0}^{I/2}p(g|q_{i})\cdot p(q_{i}|\pi)+\pi\sum_{i=I/2}^{I}p(g|q_{i})\cdot p(q_{i}|\pi)}\label{eq:-16}
+\pi_{i}^{\prime}=\frac{\pi_{i}\cdot p(g|q_{i})}{\sum_{j}\pi_{j}\cdot p(g|q_{j})}.\label{eq:-16}
 \end{equation}
 
 \end_inset
 
-which then needs to be interpolated onto the grid of possible values of
+The posterior belief state 
+\begin_inset Formula $\pi_{i}^{\prime}$
+\end_inset
+
+ then needs to be interpolated onto a discrete grid of possible values of
  
-\begin_inset Formula $\pi$
+\begin_inset Formula $\pi_{i}$
 \end_inset
 
+ which (because it represent a probability distribution) lies on a unit
+ simplex (i.e.
+ all values are positive and they add up to 1), requiring a grid of barycentric
+ co-ordinates.
+ To this end, the first step is to decompose each 
+\begin_inset Formula $\pi_{i}^{\prime}$
+\end_inset
 
+ into it's integer and fractional parts, with the integer part defined by
 \begin_inset Formula 
 \[
-d_{1}=floor(\pi^{\prime}\cdot L)
+n_{i}=floor(\pi_{i}^{\prime}\cdot L),
 \]
 
 \end_inset
 
-
+and subsequently the fractional part defined as
 \begin_inset Formula 
 \[
-d_{2}=d_{1}+1
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-p_{2}=\pi^{\prime}\cdot L-d_{1}
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-p_{1}=1-p_{2}
+f_{i}=\pi_{i}^{\prime}\cdot L-\iota_{i}.
 \]
 
 \end_inset
@@ -1043,14 +1179,59 @@ p_{1}=1-p_{2}
 \end_layout
 
 \begin_layout Standard
-we can then determine the state transition probability, 
-\begin_inset Formula $p(\pi^{\prime}|\pi,g)$
-\end_inset
-
- as 
+Note that just as 
 \begin_inset Formula 
 \[
-p(\pi^{\prime}=d_{1}|\pi,g)=p_{1}
+\sum_{i}\pi_{i}^{\prime}=1
+\]
+
+\end_inset
+
+so does
+\begin_inset Formula 
+\[
+L=\sum_{i}\pi_{i}^{\prime}\cdot L,
+\]
+
+\end_inset
+
+and so 
+\begin_inset Formula 
+\[
+L=\sum_{i}n_{i}+f_{i}
+\]
+
+\end_inset
+
+and therefore the sum of the fractional parts must equal an integer because
+ 
+\begin_inset Formula $L$
+\end_inset
+
+ is an integer.
+ Therefore, assuming 
+\begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
+\end_inset
+
+, the fractional parts must add up to 0, 1 or 2.
+ If they add up to 
+\begin_inset Formula $0$
+\end_inset
+
+ 
+\begin_inset Formula 
+\[
+p(\pi^{\prime}=\{n_{1},n_{2},n_{3}\}|\pi,g\}=1
+\]
+
+\end_inset
+
+If the fractional parts add up to 1 we know exactly one dimension of the
+ posterior beleif state has to be rounded up, with weightings given to their
+ respective fractional parts and so 
+\begin_inset Formula 
+\[
+p(\pi^{\prime}=\{n_{0}+1,n_{1},n_{2}\}|\pi,g)=f_{0}
 \]
 
 \end_inset
@@ -1058,12 +1239,46 @@ p(\pi^{\prime}=d_{1}|\pi,g)=p_{1}
 
 \begin_inset Formula 
 \[
-p(\pi^{\prime}=d_{2}|\pi,g)=p_{2}.
+p(\pi^{\prime}=\{n_{0},n_{1}+1,n_{2}\}|\pi,g)=f_{1},
 \]
 
 \end_inset
 
-else 
+
+\begin_inset Formula 
+\[
+p(\pi^{\prime}=\{n_{0},n_{1},n_{2}+1\}|\pi,g)=f_{2}.
+\]
+
+\end_inset
+
+Else if the fractional parts add up to 2, exactly 2 dimensions have to be
+ rounded up
+\begin_inset Formula 
+\[
+p(\pi^{\prime}=\{n_{0},n_{1}+1,n_{2}+1\}|\pi,g)=1-f_{0},
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+p(\pi^{\prime}=\{n_{0}+1,n_{1},n_{2}+1\}|\pi,g)=1-f_{1},
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+p(\pi^{\prime}=\{n_{0}+1,n_{1}+1,n_{2}\}|\pi,g)=1-f_{2}.
+\]
+
+\end_inset
+
+Finally, for all other possible posterior co-ordinates on the belief grid,
+ the transition probability is 
 \begin_inset Formula 
 \[
 p(\pi^{\prime}|\pi,g)=0.
@@ -1558,73 +1773,32 @@ Bayesian updating between growth cycles
 
 \begin_layout Standard
 Individuals also know the transition probabilities between patch population
- density states at demographic stability resulting from these growth and
- death processes, and so individuals that survive to the next growth cycle
- will update their information states accordingly for all 
+ density states at demographic stability in their evolutionary history,
+ 
+\begin_inset Formula $\tilde{p}(q_{i}|q_{j})$
+\end_inset
+
+, resulting from these growth and death processes, and so individuals that
+ survive to the next growth cycle will update their information states according
+ly for all 
 \begin_inset Formula $i$
-\end_inset
-
-
-\begin_inset Formula 
-\[
-P(stay)=\sum_{i=I/2}^{I}\sum_{j=I/2}^{I}\tilde{p}(q_{i}|q_{j}),
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-P(change)=\sum_{i=I/2}^{I}\sum_{j=0}^{I/2}\tilde{p}(q_{i}|q_{j}),
-\]
-
 \end_inset
 
 
 \begin_inset Formula 
 \begin{equation}
-\pi^{\prime}=\pi\cdot P(stay)+(1-\pi)\cdot P(change),\label{eq:-1}
+\pi_{i}^{\prime}=\sum_{j}\pi_{j}\cdot\tilde{p}(q_{i}|q_{j}).\label{eq:-1}
 \end{equation}
 
 \end_inset
 
-where 
-\begin_inset Formula $\tilde{p}(q_{i}|q_{j})$
-\end_inset
-
- is their prior for the transition probability for a patch of population
- density 
-\begin_inset Formula $j$
-\end_inset
-
- to a density of 
-\begin_inset Formula $i$
-\end_inset
-
- between cycles, adapted to their mean values at demographic stability over
- their evolutionary history.
- These priors are summed in the first expression, 
-\begin_inset Formula $P(stay)$
-\end_inset
-
-, such that it finds the probability of a high density patch remaining high
- density and which are summed in the second expression, 
-\begin_inset Formula $P(change)$
-\end_inset
-
-, such that it finds the probability of a low density patch becoming a high
- density patch.
- For the first instance, when we have not yet found demographic stability,
+For the first instance, when we have not yet found demographic stability,
  we will assume that their priors are that 
-\begin_inset Formula $P(stay)=1$
+\begin_inset Formula $\forall i\forall j,\tilde{p}(q_{i}|q_{j})=0$
 \end_inset
 
- and 
-\begin_inset Formula $P(change)=0$
-\end_inset
-
- (this should not have a strong influence on the long term adaptive dynamics
- assuming that the dynamics are ordered rather than chaotic).
+, as this should not have a strong influence on the long term adaptive dynamics
+ assuming that the dynamics are ordered rather than chaotic.
 \end_layout
 
 \begin_layout Subsection
