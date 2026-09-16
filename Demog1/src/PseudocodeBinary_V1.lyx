@@ -414,19 +414,27 @@ Patch belief state,
 \end_inset
 
 , and 
-\begin_inset Formula $\pi_{0}+\pi_{1}+\pi_{1}=1$
+\begin_inset Formula $\pi_{0}+\pi_{1}+\pi_{2}=1$
 \end_inset
 
-.
- Thus, 
-\begin_inset Formula $\pi$
-\end_inset
-
- lies on a discretised probability simplex and 
+, where 
 \begin_inset Formula $L$
 \end_inset
 
-determines the resolution of the belief state.
+ determines the resolution of the belief state.
+ Thus, note that 
+\begin_inset Formula $\pi$
+\end_inset
+
+ is best represented as co-ordinates within a discretised probability 2-simplex
+ (i.e.
+ an equalateral triangle where each vertex represents each possible state
+ of certainty), rather than representing 
+\begin_inset Formula $\pi$
+\end_inset
+
+ with a 3D cube (which would include impossible probability distributions
+ and so waste state space).
 \end_layout
 
 \begin_layout Itemize
@@ -436,7 +444,16 @@ Reproductive quality state,
 
 , corresponding to the quality of an individual's physiology and so the
  mass of their offspring.
- Further, any investment in quality above the quality threshil
+ Further, any investment in quality above the quality threshold 
+\begin_inset Formula $m_{switch}$
+\end_inset
+
+, results in an individual developing an alternative fighter phenotype,
+ giving additional reproductive benefit 
+\begin_inset Formula $r_{fighter}$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Part
