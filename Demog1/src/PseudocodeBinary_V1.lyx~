@@ -1018,7 +1018,7 @@ Regarding the distribution of physiological states within patches, individuals
 
 \begin_inset Formula 
 \begin{equation}
-\rho_{i}^{\prime}(s,\pi,m)=\sum_{j}[h(q_{j})\cdot p_{births}(q_{i}|q_{j})\cdot(\frac{j}{i}\cdot\rho_{j}(s,\pi,m)+\frac{i-j}{i}\cdot\tilde{\rho}(s,\pi,m))]\label{eq:-12}
+\rho_{i}^{\prime}(s,\pi,m)=\sum_{j}[h(q_{j})\cdot p_{births}(q_{i}|q_{j})\cdot(\frac{j}{i}\cdot\rho_{i}(s,\pi,m)+\frac{i-j}{i}\cdot\tilde{\rho}(s,\pi,m))]\label{eq:-12}
 \end{equation}
 
 \end_inset
