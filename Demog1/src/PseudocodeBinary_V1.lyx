@@ -1296,12 +1296,12 @@ Each individual, choose a developmental action given their state
 \end_inset
 
 , given the resident developmental strategy for that state 
-\begin_inset Formula $x(s,\pi,m)\in(0,1)$
+\begin_inset Formula $x(s,\pi^{\prime},m)\in(0,G)$
 \end_inset
 
 .
- Their developmental action determines the proportion of energy foraged
- that goes to the development of phenotypes of greater reproductive quality
+ Their developmental action determines the threshold mass above which energy
+ foraged goes to the development of phenotypes of greater reproductive quality
  (e.g.
  fighter morphology), generating a transition in their size state 
 \begin_inset Formula $s$
@@ -1339,7 +1339,7 @@ For all
 
 \begin_inset Formula 
 \[
-p(s^{\prime},m^{\prime}|s,\pi,m,g)=0.
+p(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)=0.
 \]
 
 \end_inset
@@ -1349,10 +1349,6 @@ p(s^{\prime},m^{\prime}|s,\pi,m,g)=0.
 
 \begin_layout Enumerate
 For all 
-\begin_inset Formula $i$
-\end_inset
-
- and all 
 \begin_inset Formula $g$
 \end_inset
 
@@ -1361,13 +1357,13 @@ For all
 \end_inset
 
  to 
-\begin_inset Formula $p(s+\Delta s,m+\Delta m|s,\pi,m,g,\kappa)$
+\begin_inset Formula $p(s+\Delta s,m+\Delta m|s,\pi^{\prime},m,g)$
 \end_inset
 
 , where 
 \begin_inset Formula 
 \begin{equation}
-\Delta m=max(g-\kappa,0)\label{eq:-20-1}
+\Delta m=max(g-x(s,\pi^{\prime},m),0)\label{eq:-20-1}
 \end{equation}
 
 \end_inset

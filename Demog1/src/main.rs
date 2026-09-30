@@ -391,6 +391,29 @@ impl Environment {
         }
     }
 
+    fn update_dev_p(&mut self){
+        // Udates the state transition matrix, dev_M, given the current resident strategy
+        
+        for vec in self.dev_M {
+            for vec2 in vec {
+                vec2.fill(0.);
+            }
+        }
+
+        // for each food realisation
+        for g in self.G {
+            // for each prior state
+            for s in 0..self.S {
+                for pi in 0..self.PI {
+                    for m in 0..self.M {
+                        del_m = (g-self.x[s][pi][m]).max(0.);
+                        del_s = (g-del_m-self.y(s,m)).max(0.);
+                    }
+                }
+            }
+        }
+    }
+
     fn Foraging(&mut self){
         // This function will do all the updates associates with foraging and development
         // as per section 3.3 in finding demographic stability.
@@ -401,7 +424,9 @@ impl Environment {
         // Initialise the transition probabilities from pi to pi^prime given a food mass of g
         self.init_pipig();
 
-        // Development
+        // Development, section 3.3.2
+        self.update_dev_M();
+
     }
 
 }
