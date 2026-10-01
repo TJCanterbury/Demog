@@ -1418,7 +1418,7 @@ such that if the individual has no energy to allocate to maintenance they
  is the size dependent maintenance cost 
 \begin_inset Formula 
 \begin{equation}
-y(s,m)=\frac{s^{3}\cdot m}{S^{3}\cdot M}\cdot g_{max}\label{eq:-22}
+y(s,m)=\frac{s^{3}\cdot m}{S^{3}\cdot M}\cdot y_{max}\label{eq:-22}
 \end{equation}
 
 \end_inset
@@ -1429,7 +1429,7 @@ where we assume mainteance costs scale by the volume of the individual and
 \end_inset
 
 ), and where 
-\begin_inset Formula $g_{max}$
+\begin_inset Formula $y_{max}$
 \end_inset
 
  is the maximum maintenance investment.

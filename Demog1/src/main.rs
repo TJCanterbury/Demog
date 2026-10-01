@@ -131,8 +131,12 @@ struct Environment {
     p_births: Vec<Vec<f64>>, //(i,j)
     rhotilde: Vec<f64>, //(idx)
     p_g_i: Vec<Vec<f64>>,
-    pipig: Vec<Vec<Vec<f64>>, //Trans. prob. og pi prime given pi and g [piprime][pi][g]
-    Beliefs: Vec<BeliefState>,
+    pipig: Vec<Vec<Vec<f64>>>, //Trans. prob. og pi prime given pi and g [piprime][pi][g]
+    beliefs: Vec<BeliefState>,
+    x: Vec<f64>, // (idx)
+    dev_m: Vec<Vec<Vec<f64>>>, // (idx prime, idx, g) developmental transitions
+    y_max:f64, // maximum maintenance investment
+    survival: Vec<Vec<Vec<Vec<Vec<f64>>>>>, // (g,delm,dels,s,m) prob. survival
 }
 
 #[derive(Clone, Debug)]
@@ -170,9 +174,9 @@ impl Environment {
             for n1 in 0..NPI{
                 if NPI >= n0+n1{
                     let j = vectorise_pi(n0, n1);
-                    self.Beliefs[j].pi0=n0;
-                    self.Beliefs[j].pi1=n1;
-                    self.Beliefs[j].pi2=NPI-n0-n1;
+                    self.beliefs[j].pi0=n0;
+                    self.beliefs[j].pi1=n1;
+                    self.beliefs[j].pi2=NPI-n0-n1;
                 }
             }
         }
@@ -363,9 +367,9 @@ impl Environment {
         for pi in 0..self.PI{
             for g in 0..self.G{
                 // extract belief distribtion from flat pi vertex index
-                pi1 = self.Beliefs[pi].pi0 as f64;
-                pi2 = self.Beliefs[pi].pi1 as f64;
-                pi3 = self.Beliefs[pi].pi2 as f64;
+                pi1 = self.beliefs[pi].pi0 as f64;
+                pi2 = self.beliefs[pi].pi1 as f64;
+                pi3 = self.beliefs[pi].pi2 as f64;
 
                 // Find posterior belief distribution
                 prime1 = (pi1 * self.p_g_i[g][0])/(pi1 * self.p_g_i[g][0] + pi2 * self.p_g_i[g][1] + pi3 * self.p_g_i[g][2]);
@@ -391,23 +395,37 @@ impl Environment {
         }
     }
 
+    fn y(&self, s:f64, m:f64) -> f64{
+        let s3 = s*s*s;
+        let max_s3 = (self.S as f64).powf(3.);
+        return (s3*m/(max_s3 * self.M as f64))*self.y_max
+    }
+
     fn update_dev_p(&mut self){
         // Udates the state transition matrix, dev_M, given the current resident strategy
         
-        for vec in self.dev_M {
+        for vec in self.dev_m {
             for vec2 in vec {
                 vec2.fill(0.);
             }
         }
-
+        let mut del_m;
+        let mut del_s;
         // for each food realisation
-        for g in self.G {
+        for g in 0..self.G {
             // for each prior state
             for s in 0..self.S {
                 for pi in 0..self.PI {
                     for m in 0..self.M {
-                        del_m = (g-self.x[s][pi][m]).max(0.);
-                        del_s = (g-del_m-self.y(s,m)).max(0.);
+                        del_m = (g as f64-self.x[idx(s,pi,m)]).max(0.);
+                        del_s = (g as f64-del_m-self.y(s as f64,m as f64)).max(0.);
+
+                        // Developmental state transitions 
+                        self.dev_m[idx(s as f64 +del_s, pi, m as f64 +del_m)][idx(s, pi, m)][g];
+                        
+                        // Maintenance survival probs
+                        self.survival[g][del_m][del_s][s][m] = 
+                            ((g as f64-del_m-del_s)/self.y(s as f64,m as f64)).min(1.);
                     }
                 }
             }
