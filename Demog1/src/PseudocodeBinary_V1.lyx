@@ -162,13 +162,40 @@ Main Manuscript
 Introduction
 \end_layout
 
+\begin_layout Standard
+There is an ongoing mass extinction event and, as many of the relevant anthropog
+enic stressors continue to worsen—not least but not limited to rising global
+ temperatures and the consequent risks of climate system breakdown (CITE)—biolog
+ical models have an important job to do in predicting the demographic and
+ adaptive responses of species and ecosystems to these changing conditions.
+ There remains much we can do, in principle, to improve these models and
+ so generate more robust and informative guidance for policy makers.
+ For instance, models of demographic change have yet to synthesise reports
+ from the evolutionary theory literature of the great speeds (within ecological
+ timescales) at which adaptation can occur and of the important role of
+ plasticity and agency of individuals in directing this adaptation (CITE).
+ Benton (2012) (CITE), shows how the complexities of real populations resulting
+ from individual-level genetic variation and plasticity can play a strong
+ role in population responses.
+ We need more models like this, elucidating what variables are important
+ in population dynamics, in order to develop appropriate theory, generate
+ accurate empirical predictions, and present robust and effective policy
+ guidance (CITE).
+ Research within behavioural ecology has increasingly focused on the roles
+ of uncertainty, state-dependent decision making, and learning; with implication
+s for the evolution of various behavioural and developmental strategies
+ (CITE CITE CITE), but their roles in population dynamics and the implications
+ for us remain largely speculative (CITE).
+ 
+\end_layout
+
 \begin_layout Subsection
 Main question with examples
 \end_layout
 
 \begin_layout Standard
 The main question is, given the predictability and severety of food limitations
- in an organism's environment, over what length of time do individuals invest
+ in an orgnism's environment, over what length of time do individuals invest
  in developing higher reproductive quality at an opportunity cost to investing
  in growth to exploit periods of abundant food?
 \end_layout
@@ -623,9 +650,14 @@ However, to form a discrete grid of states that we can solve a Markov decision
 \end_inset
 
  into it's integer and fractional parts, with the integer part defined by
+ finding the floor integer after scaling by the maximum value 
+\begin_inset Formula $L$
+\end_inset
+
+ 
 \begin_inset Formula 
 \[
-n_{i}=floor(h(q_{i})\cdot L),
+n_{i}=\lfloor h(q_{i})\cdot L\rfloor,
 \]
 
 \end_inset
@@ -898,7 +930,7 @@ We must then interpolate the posterior population density
  back on to the grid of density states, with the nearest positions being
 \begin_inset Formula 
 \begin{equation}
-d_{1}(i)=floor(\frac{q_{i}^{\prime}}{n_{max}}\cdot I)\label{eq:-7}
+d_{1}(i)=\lfloor\frac{q_{i}^{\prime}}{n_{max}}\cdot I\rfloor\label{eq:-7}
 \end{equation}
 
 \end_inset
@@ -1159,7 +1191,7 @@ The posterior belief state
  into it's integer and fractional parts, with the integer part defined by
 \begin_inset Formula 
 \[
-n_{i}=floor(\pi_{i}^{\prime}\cdot L),
+n_{i}=\lfloor\pi_{i}^{\prime}\cdot L\rfloor,
 \]
 
 \end_inset
@@ -1312,100 +1344,14 @@ Each individual, choose a developmental action given their state
 \end_inset
 
 .
- The resulting transition probability, 
-\begin_inset Formula $p(s^{\prime},\pi^{\prime},m^{\prime}|s,\pi,m)$
-\end_inset
-
-, between state 
-\begin_inset Formula $\{s^{\prime},\pi^{\prime},m^{\prime}\}$
-\end_inset
-
- and state 
-\begin_inset Formula $\{s,\pi,m\}$
-\end_inset
-
- given the resident developmental strategy 
-\begin_inset Formula $x(s,\pi,m)$
-\end_inset
-
-, is found be doing the following: 
-\end_layout
-
-\begin_layout Enumerate
-For all 
-\begin_inset Formula $\{s,\pi,m,g\}$
-\end_inset
-
-
-\begin_inset Formula 
-\[
-p(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)=0.
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-For all 
-\begin_inset Formula $g$
-\end_inset
-
-, add 
-\begin_inset Formula $1$
-\end_inset
-
- to 
-\begin_inset Formula $p(s+\Delta s,m+\Delta m|s,\pi^{\prime},m,g)$
-\end_inset
-
-, where 
+ Of the portion of energy allocated to quality, all energy below a size-dependen
+t investment threshold goes to maintenance costs.
+ Therefore, if investment in quality falls below this threshold, given their
+ state-dependent strategy and their food mass, there is a discounted probability
+ of survival
 \begin_inset Formula 
 \begin{equation}
-\Delta m=max(g-x(s,\pi^{\prime},m),0)\label{eq:-20-1}
-\end{equation}
-
-\end_inset
-
-is the change in quality state of individuals after ingesting a food mass
- of 
-\begin_inset Formula $g$
-\end_inset
-
-, and where
-\begin_inset Formula 
-\begin{equation}
-\Delta s=max(g-\Delta m-y(s,m),0),\label{eq:-19-1}
-\end{equation}
-
-\end_inset
-
-is the change in size state of individuals after ingesting a food mass of
- 
-\begin_inset Formula $g$
-\end_inset
-
-, given that all energy allocated to growth below the fixed and state-dependent
- maintenance cost threshold 
-\begin_inset Formula $y(s,m)$
-\end_inset
-
-, below which all food mass is invested in maintenance.
-\end_layout
-
-\begin_layout Subsubsection
-Maintenance
-\end_layout
-
-\begin_layout Standard
-Of the portion of energy allocated to quality, all energy below a size-dependent
- investment threshold goes to maintenance costs.
- Therefore, if investment in quality falls below this threshold there is
- a cost to survival
-\begin_inset Formula 
-\begin{equation}
-P(survival|g,\Delta m,\Delta s,s,m)=min(1,\frac{g-\Delta m-\Delta s}{y(s,m)})\label{eq:-44}
+P(survival|g,s,\pi^{\prime},m)=min(1,\frac{g-\Delta m-\Delta s}{y(s,m)})\label{eq:-44}
 \end{equation}
 
 \end_inset
@@ -1436,6 +1382,100 @@ where we assume mainteance costs scale by the volume of the individual and
  
 \end_layout
 
+\begin_layout Standard
+The resulting transition probabilities, 
+\begin_inset Formula $p(s^{\prime},\pi^{\prime},m^{\prime}|s,\pi,m)$
+\end_inset
+
+, between state 
+\begin_inset Formula $\{s^{\prime},\pi^{\prime},m^{\prime}\}$
+\end_inset
+
+ and state 
+\begin_inset Formula $\{s,\pi,m\}$
+\end_inset
+
+ given the resident developmental strategy 
+\begin_inset Formula $x(s,\pi,m)$
+\end_inset
+
+ and discounted survival probabilities, are found be doing the following:
+ 
+\end_layout
+
+\begin_layout Enumerate
+For all 
+\begin_inset Formula $\{s,\pi,m,g\}$
+\end_inset
+
+
+\begin_inset Formula 
+\[
+p(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)=0.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+For all 
+\begin_inset Formula $g$
+\end_inset
+
+ and for each state, calculate the changes in quality and size
+\begin_inset Formula 
+\begin{equation}
+\Delta m=max(g-x(s,\pi^{\prime},m),0)\label{eq:-20-1}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\Delta m$
+\end_inset
+
+ is the change in quality state of individuals after ingesting a food mass
+ of 
+\begin_inset Formula $g$
+\end_inset
+
+, and where
+\begin_inset Formula 
+\begin{equation}
+\Delta s=max(g-\Delta m-y(s,m),0),\label{eq:-19-1}
+\end{equation}
+
+\end_inset
+
+is the change in size state of individuals after ingesting a food mass of
+ 
+\begin_inset Formula $g$
+\end_inset
+
+, given that all energy allocated to growth below the fixed and state-dependent
+ maintenance cost threshold 
+\begin_inset Formula $y(s,m)$
+\end_inset
+
+, below which all food mass is invested in maintenance.
+\end_layout
+
+\begin_layout Enumerate
+These changes then need to be interpolated onto the size and quality grids,
+ and for all interpolated values we find the resulting discretised transitions
+ and their respective probabilities
+\begin_inset Formula 
+\[
+p(s+\Delta s,m+\Delta m|s,\pi^{\prime},m,g)=p(\Delta s)\cdot p(\Delta m)
+\]
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 Updating the States Distributions
 \end_layout
@@ -1453,7 +1493,7 @@ Given the baseline rate of death
  is 
 \begin_inset Formula 
 \begin{equation}
-\hat{\rho_{i}^{\prime}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}p(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)\cdot P(survival|s,\pi^{\prime},m,g)\cdot p(\pi^{\prime}|\pi,g)\cdot p(g|q_{i})\cdot\rho_{i}^{\prime}(s,\pi,m)\label{eq:-17}
+\hat{\rho_{i}^{\prime}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}p(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)\cdot P(survival|g,s,\pi^{\prime},m)\cdot p(\pi^{\prime}|\pi,g)\cdot p(g|q_{i})\cdot\rho_{i}^{\prime}(s,\pi,m)\label{eq:-17}
 \end{equation}
 
 \end_inset
@@ -1720,14 +1760,14 @@ where
  is the maximum risk of mass mortality events associated with population
  density.
  We can then define 
-\begin_inset Formula $p_{patch}(q_{i}|q_{j})$
+\begin_inset Formula $p_{pert}(q_{i}|q_{j})$
 \end_inset
 
 , the probability of a patch of density j to a density of i as a result
- of patch quality perturbations, as
+ of bounded patch quality perturbations, as
 \begin_inset Formula 
 \begin{equation}
-p_{patch}(q_{i}|q_{j})=\begin{cases}
+p_{pert}(q_{i}|q_{j})=\begin{cases}
 \text{if }i=0 & \sum_{\tau=min(I,i+c-j)}^{\tau=-I}p(\tau)\\
 \text{if }0<i<I & p(\tau=min(I,i+c-j)\\
 \text{if }i=I & \sum_{\tau=min(I,i+c-j)}^{\tau=I}p(\tau)
@@ -1754,6 +1794,19 @@ Given these perturbations, the proportion of patches that are of population
 \begin{equation}
 h^{\prime\prime}(q_{i})=\sum_{j}^{I}p_{patch}(q_{i}|q_{j})\cdot h^{\prime}(q_{j})\label{eq:-35}
 \end{equation}
+
+\end_inset
+
+and similarly the posterior physiological state distribution for each patch
+ state is 
+\begin_inset Formula $\forall i$
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\rho_{i}^{\prime\prime}(s,\pi,m)=\sum_{j}^{I}p_{patch}(q_{i}|q_{j})\cdot h^{\prime}(q_{j})\cdot\rho_{i}^{\prime\prime}(s,\pi,m).
+\]
 
 \end_inset
 
@@ -1895,7 +1948,7 @@ To find the best response we define a Bellman fitness equation for individuals
 
 \begin_inset Formula 
 \begin{equation}
-V_{n+1}(s,\pi,m)=R(s,m)+\text{max}_{x(s,\pi,m)=\kappa}[\sum_{s_{n}}\sum_{\pi_{n}}\sum_{m_{n}}p(survival|\pi_{n})\cdot p(s_{n},\pi_{n},m_{n},survives|s,\pi,m,\kappa)\cdot V_{n}(s_{n},\pi_{n},m_{n})],\label{eq:-39-1}
+V_{n+1}(s,\pi,m)=R(s,m)+\text{max}_{x(s,\pi,m)=\kappa}[\sum_{s_{n}}\sum_{\pi_{n}}\sum_{m_{n}}p_{pert}(survival|\pi_{n})\cdot p(s_{n},\pi_{n},m_{n},survives|s,\pi,m,\kappa)\cdot V_{n}(s_{n},\pi_{n},m_{n})],\label{eq:-39-1}
 \end{equation}
 
 \end_inset
@@ -1913,15 +1966,16 @@ where
 \end_inset
 
  (see equation 1), 
-\begin_inset Formula $p(survives|s,\pi,m)$
+\begin_inset Formula $p_{pert}(survival|\pi_{n})$
 \end_inset
 
- is the probability the individual survives between timesteps given maintenance
- costs, and the baseline probability of death, and 
-\begin_inset Formula $p(s_{n},\pi_{n},m_{n}|s,\pi,m,\kappa)$
+ is the probability the individual survives between timesteps given patch
+ quality perturbations, and 
+\begin_inset Formula $p(s_{n},\pi_{n},m_{n},survives|s,\pi,m,\kappa)$
 \end_inset
 
- is the state transition probability to the posterior state 
+ is the survival (given maintenance) and state transition probability to
+ the posterior state 
 \begin_inset Formula $\{s_{n},\pi_{n},m_{n}\}$
 \end_inset
 
@@ -2304,7 +2358,7 @@ Individuals have a probability of death from patch depletion and a probability
  the probability that an individual dies due to patch depletion is 
 \begin_inset Formula 
 \begin{equation}
-P(survival|\boldsymbol{\pi}^{\prime})=(1-\lambda)\cdot\sum_{j}\sum_{k}\pi_{j}\cdot(1-p_{deaths}(q_{k}|q_{j})\cdot\frac{j-k}{j})\label{eq:-45}
+P_{pert}(survival|\boldsymbol{\pi}^{\prime})=(1-\lambda)\cdot\sum_{j}\sum_{k}\pi_{j}\cdot(1-p_{pert}(q_{k}|q_{j})\cdot\frac{j-k}{j})\label{eq:-45}
 \end{equation}
 
 \end_inset

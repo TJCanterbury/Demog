@@ -1760,14 +1760,14 @@ where
  is the maximum risk of mass mortality events associated with population
  density.
  We can then define 
-\begin_inset Formula $p_{pert}(q_{i}|q_{j})$
+\begin_inset Formula $p_{patch}(q_{i}|q_{j})$
 \end_inset
 
 , the probability of a patch of density j to a density of i as a result
  of bounded patch quality perturbations, as
 \begin_inset Formula 
 \begin{equation}
-p_{pert}(q_{i}|q_{j})=\begin{cases}
+p_{patch}(q_{i}|q_{j})=\begin{cases}
 \text{if }i=0 & \sum_{\tau=min(I,i+c-j)}^{\tau=-I}p(\tau)\\
 \text{if }0<i<I & p(\tau=min(I,i+c-j)\\
 \text{if }i=I & \sum_{\tau=min(I,i+c-j)}^{\tau=I}p(\tau)
@@ -1797,19 +1797,14 @@ h^{\prime\prime}(q_{i})=\sum_{j}^{I}p_{patch}(q_{i}|q_{j})\cdot h^{\prime}(q_{j}
 
 \end_inset
 
-and similarly the posterior physiological state distribution for each patch
- state is 
-\begin_inset Formula $\forall i$
-\end_inset
 
+\end_layout
 
-\begin_inset Formula 
-\[
-\rho_{i}^{\prime\prime}(s,\pi,m)=\sum_{j}^{I}p_{patch}(q_{i}|q_{j})\cdot h^{\prime}(q_{j})\cdot\rho_{i}^{\prime\prime}(s,\pi,m).
-\]
+\begin_layout Subsection
+Bayesian updating between growth cycles
+\end_layout
 
-\end_inset
-
+\begin_layout Standard
 Individuals also know the transition probabilities between patch population
  density states at demographic stability in their evolutionary history,
  
@@ -1940,7 +1935,7 @@ To find the best response we define a Bellman fitness equation for individuals
 
 \begin_inset Formula 
 \begin{equation}
-V_{n+1}(s,\pi,m)=R(s,m)+\text{max}_{x(s,\pi,m)=\kappa}[\sum_{s_{n}}\sum_{\pi_{n}}\sum_{m_{n}}p_{pert}(survival|\pi_{n})\cdot p(s_{n},\pi_{n},m_{n},survives|s,\pi,m,\kappa)\cdot V_{n}(s_{n},\pi_{n},m_{n})],\label{eq:-39-1}
+V_{n+1}(s,\pi,m)=R(s,m)+\text{max}_{x(s,\pi,m)=\kappa}[\sum_{s_{n}}\sum_{\pi_{n}}\sum_{m_{n}}p(survival|\pi_{n})\cdot p(s_{n},\pi_{n},m_{n},survives|s,\pi,m,\kappa)\cdot V_{n}(s_{n},\pi_{n},m_{n})],\label{eq:-39-1}
 \end{equation}
 
 \end_inset
@@ -1958,16 +1953,15 @@ where
 \end_inset
 
  (see equation 1), 
-\begin_inset Formula $p_{pert}(survival|\pi_{n})$
+\begin_inset Formula $p(survives|s,\pi,m)$
 \end_inset
 
- is the probability the individual survives between timesteps given patch
- quality perturbations, and 
-\begin_inset Formula $p(s_{n},\pi_{n},m_{n},survives|s,\pi,m,\kappa)$
+ is the probability the individual survives between timesteps given maintenance
+ costs, and the baseline probability of death, and 
+\begin_inset Formula $p(s_{n},\pi_{n},m_{n}|s,\pi,m,\kappa)$
 \end_inset
 
- is the survival (given maintenance) and state transition probability to
- the posterior state 
+ is the state transition probability to the posterior state 
 \begin_inset Formula $\{s_{n},\pi_{n},m_{n}\}$
 \end_inset
 
@@ -2350,7 +2344,7 @@ Individuals have a probability of death from patch depletion and a probability
  the probability that an individual dies due to patch depletion is 
 \begin_inset Formula 
 \begin{equation}
-P_{pert}(survival|\boldsymbol{\pi}^{\prime})=(1-\lambda)\cdot\sum_{j}\sum_{k}\pi_{j}\cdot(1-p_{pert}(q_{k}|q_{j})\cdot\frac{j-k}{j})\label{eq:-45}
+P(survival|\boldsymbol{\pi}^{\prime})=(1-\lambda)\cdot\sum_{j}\sum_{k}\pi_{j}\cdot(1-p_{deaths}(q_{k}|q_{j})\cdot\frac{j-k}{j})\label{eq:-45}
 \end{equation}
 
 \end_inset
