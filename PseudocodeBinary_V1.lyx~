@@ -154,106 +154,6 @@ natbibapa
 The role of demographic feedback on the evolution of developmental windows
 \end_layout
 
-\begin_layout Part
-Main Manuscript
-\end_layout
-
-\begin_layout Section
-Introduction
-\end_layout
-
-\begin_layout Standard
-There is an ongoing mass extinction event and, as many of the relevant anthropog
-enic stressors continue to worsen—not least but not limited to rising global
- temperatures and the consequent risks of climate system breakdown (CITE)—biolog
-ical models have an important job to do in predicting the demographic and
- adaptive responses of species and ecosystems to these changing conditions.
- There remains much we can do, in principle, to improve these models and
- so generate more robust and informative guidance for policy makers.
- For instance, models of demographic change have yet to synthesise reports
- from the evolutionary theory literature of the great speeds (within ecological
- timescales) at which adaptation can occur and of the important role of
- plasticity and agency of individuals in directing this adaptation (CITE).
- Benton (2012) (CITE), shows how the complexities of real populations resulting
- from individual-level genetic variation and plasticity can play a strong
- role in population responses.
- We need more models like this, elucidating what variables are important
- in population dynamics, in order to develop appropriate theory, generate
- accurate empirical predictions, and present robust and effective policy
- guidance (CITE).
- Research within behavioural ecology has increasingly focused on the roles
- of uncertainty, state-dependent decision making, and learning; with implication
-s for the evolution of various behavioural and developmental strategies
- (CITE CITE CITE), but their roles in population dynamics and the implications
- for us remain largely speculative (CITE).
- 
-\end_layout
-
-\begin_layout Subsection
-Main question with examples
-\end_layout
-
-\begin_layout Standard
-The main question is, given the predictability and severety of food limitations
- in an orgnism's environment, over what length of time do individuals invest
- in developing higher reproductive quality at an opportunity cost to investing
- in growth to exploit periods of abundant food?
-\end_layout
-
-\begin_layout Standard
-Developmental windows are periods in development where sensitivity to cues
- is hightened.
-\end_layout
-
-\begin_layout Standard
-Walasek et al.
- (2021), Walasek et al.
- (2022) find that the timing of when sensitive periods emerge depends on
- the reliability of cues increases across ontogeny, and their results suggest
- that both information and phenotypic states are modelled, with incremental
- development in fluctuating environments farouring residual development
- across ontogeny.
-\end_layout
-
-\begin_layout Standard
-Further, Walasek et al (2024) review current theory and empirical literature
- and suggest future models could better integrate with empirical research
- by incorporating phenomena found in empirical systems into our models,
- and design more models that can be tailored to the life histories of specific
- species.
- They encourage for instance that models that incorporate the life history
- trade-offs we see in the development of alternative phenotypes in bulb
- mites (between scramblers and fighters) (Smallegange, 2023; Smallegange
- et al., 2019), and it happens that authors interested in these taxa are
- also interested in bridging the gap in research between demographic modelling
- and agency with respect to development shaping demography (Smallegange
- ).
-\end_layout
-
-\begin_layout Subsection
-Developmental windows and sensitive periods
-\end_layout
-
-\begin_layout Subsection
-Demography, agency and life-history
-\end_layout
-
-\begin_layout Standard
-Feedback between plastic responses and population dynamics has been explored
- for fixed reaction norms by Brass et al.
- (2021) who showed that ___.
- However, it is unclear how these eco-devo dynamics will play out over evolution
-ary time.
-\end_layout
-
-\begin_layout Subsection
-Hypothesis
-\end_layout
-
-\begin_layout Subsection
-Methods
-\end_layout
-
 \begin_layout Section
 The Model Outline
 \end_layout
@@ -1810,6 +1710,14 @@ and similarly the posterior physiological state distribution for each patch
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Subsection
+Bayesian updating between growth cycles
+\end_layout
+
+\begin_layout Standard
 Individuals also know the transition probabilities between patch population
  density states at demographic stability in their evolutionary history,
  

@@ -121,12 +121,14 @@ struct Environment {
     n_max: f64,
     g_mean: f64,
     g_sd: f64
+    m_switch: usize, //threshold m above which fighter phenotype is expressed
     r_fighter: f64,
+    r_m: f64, // benefit of quality
     r_baseline: f64,
     a_qi: Vec<f64>, //(i) arrivals from dispersal
     mu: f64, // Dispersal rate
     r_qi: Vec<f64>, //(i) arrivals from local births
-    R: Vec<Vec<f64>>, //(s,m) fecundity of individual of size s and maturity m
+    R: Vec<Vec<Vec<f64>>>, //(s,m,i) fecundity of individual of size s and maturity m
     rhoi: Vec<Vec<f64>>, //(idx,i) prob. distribution over states for individuals in patches of density qi
     p_births: Vec<Vec<f64>>, //(i,j)
     rhotilde: Vec<f64>, //(idx)
@@ -147,13 +149,16 @@ struct Environment {
     tol: f64, // tolerance threshold for difference in demographic state, below which projections end
     p_pert: Vec<Vec<f64>>, // transition probabilities of patches given perturbations
     x_prime: Vec<usize>, // Best response strategy
+    ptilde: Vec<Vec<f64>>, // (i_prime,i) Evolved prior for transition prob. of patches at demographic stability
+    V: Vec<Vec<f64>>, // (state,n) Fitness
+    tolv: f64, // tolerance threshold in the difference in v for finding the best response
 }
 
 #[derive(Clone, Debug)]
 struct BeliefState {
-    pi0: usize,
-    pi1: usize,
-    pi2: usize,
+    pi0: f64,
+    pi1: f64,
+    pi2: f64,
 }
 
 // Implementations
@@ -185,9 +190,9 @@ impl Environment {
             for n1 in 0..NPI{
                 if NPI >= n0+n1{
                     let j = vectorise_pi(n0, n1);
-                    self.beliefs[j].pi0=n0;
-                    self.beliefs[j].pi1=n1;
-                    self.beliefs[j].pi2=NPI-n0-n1;
+                    self.beliefs[j].pi0=(n0 as f64)/(NPI as f64);
+                    self.beliefs[j].pi1=(n1 as f64)/(NPI as f64);
+                    self.beliefs[j].pi2=((NPI-n0-n1) as f64)/(NPI as f64);
                 }
             }
         }
@@ -220,6 +225,36 @@ impl Environment {
         return (d1 as usize, d2 as usize, d3 as usize, p1, p2, p3)
     }
 
+    fn init_R(&mut self){
+        let mut r:f64;
+        for i in 0..I{
+            // Sum of g
+            let sum_g:f64 = (0..G)
+                .map(|g| self.p_g_i[g][i] * g as f64)
+                .sum();
+
+            for m in 0..NM{
+                for s in 0..NS {
+
+                    r = 0.;
+                    
+                    if s >= NS {
+                        if m > self.m_switch{
+                            r = sum_g * (self.r_baseline + (m as f64) *self.r_m + self.r_fighter);
+                        } else {
+                            
+                            r = sum_g * (self.r_baseline + (m as f64) *self.r_m);
+                        
+                        }
+                    }
+
+                    self.R[s][m][i] = r;
+
+                }
+            }
+        }
+    }
+
     fn update_r(&mut self){
         for i in 0..I {
             self.r_qi[i] = 0.0;
@@ -227,47 +262,60 @@ impl Environment {
             for s in 0..NS{
                 for pi in 0..LENPI{
                     for m in 0..NM{
-                        self.r_qi[i] += self.rhoi[s][pi][m][i]*self.R[s][m][i]
+                        self.r_qi[i] += self.rhoi[idx(s,pi,m)][i]*self.R[s][m][i]
                     }
                 }
             }
         }
     }
 
+
+    fn interpolate_pi(&self, pi0: f64, pi1: f64, pi2: f64) -> (usize,usize,usize,f64,f64,f64){
+        
+        // interpolating priors onto the grid
+        let (d1, d2, d3, f1, f2, f3) = self.decompose_pi(pi0,pi1,pi2);
+        let (mut coord0,mut coord1,mut coord2,mut p0,mut p1,mut p2)=(0,0,0,0.,0.,0.);
+        if (f1+f2+f3) as usize == 0{
+
+            coord0 = vectorise_pi(d1, d2);
+            p0 = 1.;
+
+        } else if (f1+f2+f3) as usize == 1{
+
+            coord0 = vectorise_pi(d1+1, d2);
+            p0 += f1;
+
+            coord1 = vectorise_pi(d1, d2+1);
+            p1 += f2;
+
+            coord2 = vectorise_pi(d1, d2);
+            p2 += f3;
+            
+        } else if (f1+f2+f3) as usize == 2{
+
+            coord0 = vectorise_pi(d1, d2+1);
+            p0 += 1.-f1;
+
+            coord1 = vectorise_pi(d1+1, d2);
+            p1 += 1.-f2;
+
+            coord2 = vectorise_pi(d1+1, d2+1);
+            p2 += 1.-f3;
+ 
+        }
+        return (coord0,coord1,coord2,p0,p1,p2)
+    }
+
     fn newborns(&mut self){
         self.rhotilde.fill(0.0);
 
         // interpolating priors onto the grid
-        let (d1, d2, d3, f1, f2, f3) = self.decompose_pi(self.hi[0],self.hi[1],self.hi[2]);
-        let mut pi;
-        if (f1+f2+f3) as usize == 0{
+        let (pi0_prior, pi1_prior, pi2_prior, p0, p1, p2) = self.interpolate_pi(self.hi[0],self.hi[1],self.hi[2]);
 
-            pi = vectorise_pi(d1, d2);
-            self.rhotilde[idx(0,pi,0)] = 1.;
-
-        } else if (f1+f2+f3) as usize == 1{
-
-            pi = vectorise_pi(d1+1, d2);
-            self.rhotilde[idx(0,pi,0)] += f1;
-
-            pi = vectorise_pi(d1, d2+1);
-            self.rhotilde[idx(0,pi,0)] += f2;
-
-            pi = vectorise_pi(d1, d2);
-            self.rhotilde[idx(0,pi,0)] += f3;
-            
-        } else if (f1+f2+f3) as usize == 2{
-
-            pi = vectorise_pi(d1, d2+1);
-            self.rhotilde[idx(0,pi,0)] += 1.-f1;
-
-            pi = vectorise_pi(d1+1, d2);
-            self.rhotilde[idx(0,pi,0)] += 1.-f2;
-
-            pi = vectorise_pi(d1+1, d2+1);
-            self.rhotilde[idx(0,pi,0)] += 1.-f3;
- 
-        }
+        // Add to starting line
+        self.rhotilde[idx(0,pi0_prior,0)] += p0;
+        self.rhotilde[idx(0,pi1_prior,0)] += p1;
+        self.rhotilde[idx(0,pi2_prior,0)] += p2;
     }
 
     fn Dispersal(&mut self){
@@ -374,9 +422,9 @@ impl Environment {
         for pi in 0..LENPI{
             for g in 0..G{
                 // extract belief distribtion from flat pi vertex index
-                pi1 = self.beliefs[pi].pi0 as f64;
-                pi2 = self.beliefs[pi].pi1 as f64;
-                pi3 = self.beliefs[pi].pi2 as f64;
+                pi1 = self.beliefs[pi].pi0;
+                pi2 = self.beliefs[pi].pi1;
+                pi3 = self.beliefs[pi].pi2;
 
                 // Find posterior belief distribution
                 prime1 = (pi1 * self.p_g_i[g][0])/(pi1 * self.p_g_i[g][0] + pi2 * self.p_g_i[g][1] + pi3 * self.p_g_i[g][2]);
@@ -612,38 +660,35 @@ impl Environment {
     }
 
     fn bayes(&mut self) {
+        let mut rhoi_prime: Vec<Vec<f64>> = vec![vec![0.0;I]; NM * NPI * NS];
         for state in 0..N_states{
             for i in 0..I{
                 // retrieve state
                 let (s,pi,m) = self.state_invert(state);
-                let (pi0,pi1,pi2) = (self.beliefs[pi].0, self.beliefs[pi].1, self.beliefs[pi].2);
+                let (pi0,pi1,pi2) = (self.beliefs[pi].pi0, self.beliefs[pi].pi1, self.beliefs[pi].pi2);
 
                 // find continuous posterior values
-                post0 = pi0 * self.ptilde[0][0] + pi1 * self.ptilde[0][1] + pi2 * self.ptilde[0][2];
-                post1 = pi0 * self.ptilde[1][0] + pi1 * self.ptilde[1][1] + pi2 * self.ptilde[1][2];
-                post2 = pi0 * self.ptilde[2][0] + pi1 * self.ptilde[2][1] + pi2 * self.ptilde[2][2];
+                // ptilde is the transition probability of patches at demographic stability
+                // ptilde just equals 0 on the first iteration
+                let post0 = pi0 * self.ptilde[0][0] + pi1 * self.ptilde[0][1] + pi2 * self.ptilde[0][2];
+                let post1 = pi0 * self.ptilde[1][0] + pi1 * self.ptilde[1][1] + pi2 * self.ptilde[1][2];
+                let post2 = pi0 * self.ptilde[2][0] + pi1 * self.ptilde[2][1] + pi2 * self.ptilde[2][2];
 
                 // interpolate onto the 2-Simplex
-                jgj;
+                let (pi0_post, pi1_post, pi2_post, p0, p1, p2) = self.interpolate_pi(post0, post1, post2);
 
                 // update rhoi
-                self.rhoi[idx(s, pi0_post, m)] = self.rhoi[idx(s, pi, m)] * p0;
-                self.rhoi[idx(s, pi1_post, m)] = self.rhoi[idx(s, pi, m)] * p1;
-                self.rhoi[idx(s, pi2_post, m)] = self.rhoi[idx(s, pi, m)] * p2;
+                rhoi_prime[idx(s, pi0_post, m)][i] += self.rhoi[idx(s, pi, m)][i] * p0;
+                rhoi_prime[idx(s, pi1_post, m)][i] += self.rhoi[idx(s, pi, m)][i] * p1;
+                rhoi_prime[idx(s, pi2_post, m)][i] += self.rhoi[idx(s, pi, m)][i] * p2;
             }
         }
+        self.rhoi = rhoi_prime;
     }
 
     fn Dem_Dif(&self) -> f64 {
         let dif = (0..I)
             .map(|i| (self.hi[i] - self.hi_prime[i]).abs())
-            .sum();
-        return dif
-    }
-
-    fn Evo_Dif(&self) -> f64 {
-        let dif = (0..N_states)
-            .map(|state| (self.x[state] - self.x_prime[state]).abs())
             .sum();
         return dif
     }
@@ -662,19 +707,20 @@ impl Environment {
         // Init pseudonormal distribution and define perturbations (p_pert(i|j)):
         self.init_ptau();
 
+        // init reproductive rates
+        self.init_R();
+
     }
 
-    fn Best_Response(&mut self) {
-
-        self.x_prime[state] = best_response[state];
+    fn r_state(&self, state:usize) -> f64{
+        let (s,pi,m) = self.state_invert(state);
+        return self.R[s][m][0]*self.beliefs[pi].pi0 + self.R[s][m][1]*self.beliefs[pi].pi1 + self.R[s][m][2]*self.beliefs[pi].pi2;
     }
 
-    fn run(&mut self){
-        self.inits();
-
+    fn demog(&mut self){
         // demographic stability:
-        let mut dif = 1.;
-        while dif > self.tol{
+        let mut dif_h = 1.;
+        while dif_h > self.tol{
             self.Dispersal();
 
             self.Foraging();
@@ -683,18 +729,90 @@ impl Environment {
 
             self.bayes();
 
-            dif = self.Dem_Dif();
+            dif_h = self.Dem_Dif();
             self.hi = self.hi_prime.clone();
         }
+    }
+
+    fn difv(&self) -> f64 {
+        let tot:f64 = (0..N_states)
+            .map(|state| (self.V[0][state] - self.V[1][state]).abs())
+            .sum();
+        return tot
+    }
+
+    fn update_markovian(&mut self){
+        // Update markovian transition matrix, each cell representing the
+        // probability of an individual surviving and transitioning from state
+        // state -> state_prime, given strategy k at demographic stability with 
+        // with resident strategy x(s,pi,m).
+        let mut p:f64 = 0.;
+        for state in 0..N_states{
+            let (s,pi,m) = self.state_invert(state);
+            for k in 0..G{
+                
+                self.mtm[state_prime][state][k] = p; 
+            }
+        }
+    }
+
+    fn Best_Response(&mut self) {
+        let mut V_max;
+        let mut Vn = vec![0.;G];
+        let mut max_k;
+        let mut dif_v = 1.;
+        while dif_v > self.tolv{
+            for state in 0..N_states{
+                max_k = self.x[state];
+                V_max = 0.;
+                for k in 0..G{
+                    // Calculate expected fitness for action k for prior state state
+                    Vn[k] =0.;
+                    for state_prime in 0..N_states{
+                        Vn[k] += self.mtm[state_prime][state][k]*self.V[0][state_prime];
+                    }
+
+                    // Check if new best response for current state
+                    if Vn[k] > V_max {
+                        max_k = k;
+                        V_max = Vn[k];
+                    }
+                }
+                self.V[1][state] = self.r_state(state) + Vn[max_k];
+                self.x_prime[state] = max_k;
+
+            }
+            dif_v = self.difv();
+            self.V[0] = self.V[1].clone();
+        }
+    }
+
+    fn evo_dif(&self) -> f64 {
+        let dif = (0..N_states)
+            .map(|state| (self.x[state] as f64 - self.x_prime[state] as f64).abs())
+            .sum();
+        return dif
+    }
+
+    fn run(&mut self){
+        self.inits();
+
 
         // evolutionary stability:
-        let mut dif = 1.;
-        while dif > self.tol{
+        let mut difx: f64 = 1.;
+        while difx > 0.{
 
+            // demographic stability:
+            self.demog();
+
+            // find best response strategy
             self.Best_Response();
 
-            dif = self.Evo_Dif();
-            self.x = self.x_prime;
+            // Calculate difference in strategy
+            difx = self.evo_dif();
+
+            // update x
+            self.x = self.x_prime.clone();
         }
     }
 
