@@ -372,7 +372,7 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename ../../../Lifecycle.png
+	filename T:/tjcwo/OneDrive - University of Exeter/Documents/PostDocs/Model_windows/Lifecycle.png
 	lyxscale 15
 	width 100text%
 
@@ -2011,7 +2011,7 @@ Individuals then update their information state given cues for the population
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Itemize
 Individuals also know the transition probabilities between patch population
  density states at demographic stability resulting from dispersal, and so
  individuals will update their information state accordingly for all 
@@ -2040,6 +2040,88 @@ where
 \end_inset
 
 , given dispersal.
+ In full therefore, the posterior belief 
+\begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
+\end_inset
+
+becomes
+\begin_inset Formula 
+\[
+\pi_{0}^{\prime}=\pi_{0}\cdot\tilde{p}_{births}(q_{0}|q_{0})+\pi_{1}\cdot\tilde{p}_{births}(q_{0}|q_{1})+\pi_{2}\cdot\cdot\tilde{p}_{births}(q_{0}|q_{2})
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\pi_{1}^{\prime}=\pi_{0}\cdot\tilde{p}_{births}(q_{1}|q_{0})+\pi_{1}\cdot\tilde{p}_{births}(q_{1}|q_{1})+\pi_{2}\cdot\cdot\tilde{p}_{births}(q_{1}|q_{2})
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\pi_{2}^{\prime}=\pi_{0}\cdot\tilde{p}_{births}(q_{2}|q_{0})+\pi_{1}\cdot\tilde{p}_{births}(q_{2}|q_{1})+\pi_{2}\cdot\cdot\tilde{p}_{births}(q_{2}|q_{2})
+\]
+
+\end_inset
+
+The posterior belief 
+\begin_inset Formula $\pi^{\prime}$
+\end_inset
+
+then has to be interpolated on the discrete belief state space, generating
+ posterior belief states 
+\begin_inset Formula $d_{1}$
+\end_inset
+
+, 
+\begin_inset Formula $d_{2}$
+\end_inset
+
+, and 
+\begin_inset Formula $d_{3}$
+\end_inset
+
+, with respective probabilities 
+\begin_inset Formula $p_{1}$
+\end_inset
+
+, 
+\begin_inset Formula $p_{2}$
+\end_inset
+
+, and 
+\begin_inset Formula $p_{3}$
+\end_inset
+
+.
+ We can then generate the transition probability matrix for belief states
+ given reproduction and dispersal of offspring
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\text{add \ensuremath{p_{1}}to }p_{births}(\pi^{\prime}=d_{1}|\pi)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\text{add \ensuremath{p_{2}}to }p_{births}(\pi^{\prime}=d_{2}|\pi)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\text{add \ensuremath{p_{3}}to }p_{births}(\pi^{\prime}=d_{3}|\pi)$
+\end_inset
+
+\SpecialChar endofsentence
+
 \end_layout
 
 \begin_layout Subsection

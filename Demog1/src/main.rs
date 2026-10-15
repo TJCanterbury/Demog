@@ -1,6 +1,6 @@
 use libm::log2;
 use rand::Rng;
-use rand::thread_rng;
+use rand::prelude::*;
 use rand::seq::SliceRandom;
 use rand_distr::{Normal, Distribution};
 use statrs::distribution::{Normal as nm, Continuous as cn};
@@ -8,7 +8,8 @@ use weighted_rand::builder::*;
 extern crate csv;
 use std::error::Error;
 use std::fs::OpenOptions;
-use std::intrinsics::floorf64;
+use std::print;
+use std::println;
 use std::vec;
 use rayon::prelude::*;
 use std::env;
@@ -106,12 +107,12 @@ fn try_print(vec:Vec<f64>, file:&str) -> Result<(), Box<dyn Error>> {
 }
 
 // Structs
-const NS: usize = 10;
-const NPI: usize = 10;
-const NM: usize = 10;
+const NS: usize = 6;
+const NPI: usize = 6;
+const NM: usize = 6;
 const I: usize = 3;
-const G: usize = 10;
-const LENPI: usize = (NPI-1)*(NPI-2)/2;
+const G: usize = 5;
+const LENPI: usize = (NPI-1+1)*(NPI-1+2)/2;
 const N_states: usize = NS * NM * LENPI;
 
 #[derive(Clone, Debug)]
@@ -120,7 +121,7 @@ struct Environment {
     hi_prime: Vec<f64>, //(i) pdf over patch population densities post some event
     n_max: f64,
     g_mean: f64,
-    g_sd: f64
+    g_sd: f64,
     m_switch: usize, //threshold m above which fighter phenotype is expressed
     r_fighter: f64,
     r_m: f64, // benefit of quality
@@ -136,7 +137,7 @@ struct Environment {
     pipig: Vec<Vec<Vec<f64>>>, //Trans. prob. og pi prime given pi and g [piprime][pi][g]
     beliefs: Vec<BeliefState>,
     x: Vec<usize>, // (idx) gives resident strategy -> threshold value above which input energy goes to quality
-    dev_m: Vec<Vec<Vec<f64>>>, // (idx prime, idx, g) developmental transitions
+    dev_m: Vec<Vec<Vec<Vec<f64>>>>, // (idx prime, idx, g, kappa) developmental transitions
     y_max:f64, // maximum maintenance investment
     survival: Vec<Vec<f64>>, // ((s,pi,m),g) prob. survival
     lambda: f64, // Baseline rate of death
@@ -152,6 +153,10 @@ struct Environment {
     ptilde: Vec<Vec<f64>>, // (i_prime,i) Evolved prior for transition prob. of patches at demographic stability
     V: Vec<Vec<f64>>, // (state,n) Fitness
     tolv: f64, // tolerance threshold in the difference in v for finding the best response
+    pipitime: Vec<Vec<f64>>, // (piprime,pi) prob of belief transition given time
+    p_g_pi: Vec<Vec<f64>>, // (g,pi) the probability of food mass g given prior pi
+    pert_survival: Vec<f64>, // (pi) probability of survival given prior belief pi
+    markov: Vec<Vec<Vec<f64>>>, //(state,stateprime,kappa) transition prob given action kappa
 }
 
 #[derive(Clone, Debug)]
@@ -163,12 +168,8 @@ struct BeliefState {
 
 // Implementations
 fn bernouli(prob:f64) -> f64 {
-    let dice = thread_rng().gen::<f64>();
-    if dice < prob {
-        return 1.;
-    } else {
-        return 0.;
-    }
+    let dice:f64 = rand::rng().random();
+    if dice < prob { 1.0 } else { 0.0 }
 }
 
 fn idx(s:usize, pi:usize, m:usize) -> usize {
@@ -180,7 +181,7 @@ fn vectorise_pi(n0:usize,n1:usize)->usize{
     // first term tells you which row (n0) if it were a 2x2 grid, 
     // second term accounts for missing lower triangle given simplex
     // third term gives the column (n1)
-    return n0*(NPI+1) - (n0*(n0-1))/2 + n1
+    if n0==0 { n1 } else { n0*(NPI-1) - (n0*(n0-1))/2 + n1 }
 }
 
 impl Environment { 
@@ -188,11 +189,13 @@ impl Environment {
         // Run at the beginning to initialise the vector of belief states
         for n0 in 0..NPI{
             for n1 in 0..NPI{
-                if NPI >= n0+n1{
+                if NPI-1 >= n0+n1{
                     let j = vectorise_pi(n0, n1);
-                    self.beliefs[j].pi0=(n0 as f64)/(NPI as f64);
-                    self.beliefs[j].pi1=(n1 as f64)/(NPI as f64);
-                    self.beliefs[j].pi2=((NPI-n0-n1) as f64)/(NPI as f64);
+                    println!("{}, {}, {}",n0,n1,j);
+                    self.beliefs[j].pi0=(n0 as f64)/(NPI as f64-1.);
+                    self.beliefs[j].pi1=(n1 as f64)/(NPI as f64-1.);
+                    self.beliefs[j].pi2=((NPI-n0-n1) as f64)/(NPI as f64-1.);
+                    println!("{}, {}, {}",self.beliefs[j].pi0, self.beliefs[j].pi1, self.beliefs[j].pi2);
                 }
             }
         }
@@ -204,10 +207,11 @@ impl Environment {
 
     fn interpolate_i(&self, mut prime:f64, min_val: f64, max_val: f64) -> (usize,usize,f64,f64) {
         prime = prime.min(max_val).max(min_val);
-        let d1 = (I as f64 * prime/self.n_max).floor();
-        let d2 = d1 + 1.0;
-        let p2 = (I as f64 * prime/self.n_max) - d1;
+        let d1 = ((I as f64 -1.) * prime/self.n_max).floor();
+        let d2 = (d1 + 1.0).min(2.);
+        let p2 = ((I as f64 -1.) * prime/self.n_max) - d1;
         let p1 = 1.0 - p2;
+        println!("{}, {}", d1, d2);
 
         return (d1 as usize,d2 as usize,p1,p2)
     }
@@ -234,7 +238,7 @@ impl Environment {
                 .sum();
 
             for m in 0..NM{
-                for s in 0..NS {
+                for s in 0..NS{
 
                     r = 0.;
                     
@@ -331,7 +335,7 @@ impl Environment {
         self.newborns();
 
         // Set rho prime to zero so we can add to it.
-        let mut rhoiprime: Vec<Vec<f64>> = vec![vec![0.0;I]; NM * NPI * NS];
+        let mut rhoiprime: Vec<Vec<f64>> = vec![vec![0.0;I]; N_states];
 
         // 3.2.2 Patch projection
         // Second expression of equation 4 defining alpha, representing the number of migrants
@@ -399,7 +403,7 @@ impl Environment {
                 .sum();
 
             // Equation 17
-            for g in 0..G {
+            for g in 0..G{
                 self.p_g_i[g][i] = (1./K) * (-((g as f64-self.g_mean/q_i).powf(2.))/(2.*self.g_sd.powf(2.))).exp();
             }
         }
@@ -456,19 +460,21 @@ impl Environment {
         return (s3*m/(max_s3 * NM as f64))*self.y_max
     }
 
-    fn interpolate_m(&self, post_m:f64) -> (usize,f64,usize,f64){
+    fn interpolate_m(&self, mut post_m:f64) -> (usize,f64,usize,f64){
+        post_m = post_m.min((NM-1) as f64);
         let md1 = (post_m).floor();
         let mp2 = post_m-md1;
-        let md2 = md1+1.;
+        let md2 = (md1+1.).min((NM-1) as f64);
         let mp1 = 1.-mp2;
 
         return (md1 as usize, mp1, md2 as usize, mp2)
     }
 
-    fn interpolate_s(&self, post_s:f64) -> (usize,f64,usize,f64){
+    fn interpolate_s(&self, mut post_s:f64) -> (usize,f64,usize,f64){
+        post_s = post_s.min((NS-1) as f64);
         let sd1 = (post_s).floor();
         let sp2 = post_s-sd1;
-        let sd2 = sd1+1.;
+        let sd2 = (sd1+1.).min((NS-1) as f64);
         let sp1 = 1.-sp2;
 
         return (sd1 as usize, sp1, sd2 as usize, sp2)
@@ -480,7 +486,9 @@ impl Environment {
         // Set developmental transition matrix to equal 0 for all prior and posterior states
         for prior in self.dev_m.iter_mut() {
             for post in prior.iter_mut() {
-                post.fill(0.); // for each prior and post states (s and s'), over all g: D(s'|s,g)=0
+                for g in post.iter_mut(){
+                    g.fill(0.); // for each prior and post states (s and s'), over all g: D(s'|s,g)=0
+                }
             }
         }
 
@@ -493,7 +501,7 @@ impl Environment {
                     // for each food realisation
                     for g in 0..G {
                         // After development:
-                        del_m = (g as f64-self.x[idx(s,pi,m)]).max(0.);
+                        del_m = (g as f64-self.x[idx(s,pi,m)] as f64).max(0.);
                         del_s = (g as f64-del_m-self.y(s as f64,m as f64)).max(0.);
                         
                         // Maintenance survival probs section 3.3.3 Maintenance
@@ -504,10 +512,10 @@ impl Environment {
                         let (sd1,sp1,sd2,sp2) = self.interpolate_s(del_s+(s as f64));
 
                         // Developmental state transitions 
-                        self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g]=mp1*sp1;
-                        self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g]=mp1*sp2;
-                        self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g]=mp2*sp1;
-                        self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g]=mp2*sp2;
+                        self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][self.x[idx(s,pi,m)]]=mp1*sp1;
+                        self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][self.x[idx(s,pi,m)]]=mp1*sp2;
+                        self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][self.x[idx(s,pi,m)]]=mp2*sp1;
+                        self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][self.x[idx(s,pi,m)]]=mp2*sp2;
                         
                     }
                 }
@@ -545,7 +553,7 @@ impl Environment {
                     (s,pi,m) = self.state_invert(state);
                     for g in 0..G{
                         self.rhohat[state_prime][i] += 
-                            self.dev_m[state_prime][state][g] 
+                            self.dev_m[state_prime][state][g][self.x[idx(s,pi,m)]] 
                                 * self.survival[idx(s,pi_prime,m)][g] 
                                 * self.pipig[pi_prime][pi][g] 
                                 * self.p_g_i[g][i] 
@@ -612,10 +620,10 @@ impl Environment {
     fn init_ptau(&mut self) {
         // Init pseudonormal distribution:
         let k: f64 = (0..(2*I))
-                .map(|tau| (-((tau-I) as f64/I as f64).powf(2.)/(2.*self.sigma_per*self.sigma_per)).exp())
+                .map(|tau| (-((tau as i32-I as i32) as f64/I as f64).powf(2.)/(2.*self.sigma_per*self.sigma_per)).exp())
                 .sum();
         for tau in 0..(2*I){
-            self.p_tau[tau] = (1./k) * (-((tau-I) as f64/I as f64).powf(2.)/(2.*self.sigma_per*self.sigma_per)).exp();
+            self.p_tau[tau] = (1./k) * (-((tau as i32-I as i32) as f64/I as f64).powf(2.)/(2.*self.sigma_per*self.sigma_per)).exp();
         }
 
         // Define shift given demographic feedback
@@ -623,15 +631,15 @@ impl Environment {
             let c = (self.gamma * (j as f64/I as f64)) as usize;
             for i in 0..I{
                 if i == 0 {
-                    self.p_pert[i][j] = (0..(i+c-j).min(2*I))
+                    self.p_pert[i][j] = (0..((i+c).saturating_sub(j)).min(2*I))
                         .map(|tau| self.p_tau[tau])
                         .sum();
 
                 } else if i == I {
-                    self.p_pert[i][j] = self.p_tau[(i+c-j).min(2*I)];
+                    self.p_pert[i][j] = self.p_tau[((i+c).saturating_sub(j)).min(2*I)];
 
                 } else {
-                    self.p_pert[i][j] = ((i+c-j).min(2*I)..2*I)
+                    self.p_pert[i][j] = (((i+c).saturating_sub(j)).min(2*I)..2*I)
                         .map(|tau| self.p_tau[tau])
                         .sum();
                 }
@@ -710,11 +718,111 @@ impl Environment {
         // init reproductive rates
         self.init_R();
 
+        // init prob of g given prior pi
+        self.init_gpi();
+
+        // init prob of survival given perturbations
+        self.init_pertsurvival();
     }
 
     fn r_state(&self, state:usize) -> f64{
         let (s,pi,m) = self.state_invert(state);
         return self.R[s][m][0]*self.beliefs[pi].pi0 + self.R[s][m][1]*self.beliefs[pi].pi1 + self.R[s][m][2]*self.beliefs[pi].pi2;
+    }
+
+    fn update_dev_m_kappa(&mut self){
+        
+        // Udates the state transition matrix, dev_M, given all possible actions
+        
+        // Set developmental transition matrix to equal 0 for all prior and posterior states
+        for prior in self.dev_m.iter_mut() {
+            for post in prior.iter_mut() {
+                for g in post.iter_mut(){
+                    g.fill(0.); // for each prior and post states (s and s'), over all g: D(s'|s,g)=0
+                }
+            }
+        }
+
+        let mut del_m;
+        let mut del_s;
+        // for each prior state
+        for s in 0..NS {
+            for pi in 0..LENPI {
+                for m in 0..NM {
+                    // for each food realisation
+                    for g in 0..G {
+                        for k in 0..G{
+
+                        // After development:
+                        del_m = (g as f64-k as f64).max(0.);
+                        del_s = (g as f64-del_m-self.y(s as f64,m as f64)).max(0.);
+                        
+                        // Maintenance survival probs section 3.3.3 Maintenance
+                        self.survival[idx(s,pi,m)][g] = ((g as f64-del_m-del_s)/self.y(s as f64,m as f64)).min(1.);
+
+                        // Interpolate onto s and m grids:
+                        let (md1,mp1,md2,mp2) = self.interpolate_m(del_m+(m as f64));
+                        let (sd1,sp1,sd2,sp2) = self.interpolate_s(del_s+(s as f64));
+
+                        // Developmental state transitions 
+                        self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp1;
+                        self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp2;
+                        self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp1;
+                        self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp2;
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
+
+    fn update_pipitime(&mut self){
+        // what is the probability of posterior belief pi prime 
+        // given prior pi and the passing of time
+
+        for pi in &mut self.pipitime{
+            pi.fill(0.);
+        }
+
+        for pi in 0..LENPI{
+            let (pi0, pi1, pi2) = (self.beliefs[pi].pi0, self.beliefs[pi].pi1, self.beliefs[pi].pi2);
+            let trans1:f64 = (0..3)
+                .map(|j| self.p_births[0][j]*self.p_pert[j][0])
+                .sum();
+            let trans2:f64 = (0..3)
+                .map(|j| self.p_births[0][j]*self.p_pert[j][1])
+                .sum();
+            let trans3:f64 = (0..3)
+                .map(|j| self.p_births[0][j]*self.p_pert[j][2])
+                .sum();
+            let trans4:f64 = (0..3)
+                .map(|j| self.p_births[1][j]*self.p_pert[j][0])
+                .sum();
+            let trans5:f64 = (0..3)
+                .map(|j| self.p_births[1][j]*self.p_pert[j][1])
+                .sum();
+            let trans6:f64 = (0..3)
+                .map(|j| self.p_births[1][j]*self.p_pert[j][2])
+                .sum();
+            let trans7:f64 = (0..3)
+                .map(|j| self.p_births[2][j]*self.p_pert[j][0])
+                .sum();
+            let trans8:f64 = (0..3)
+                .map(|j| self.p_births[2][j]*self.p_pert[j][1])
+                .sum();
+            let trans9:f64 = (0..3)
+                .map(|j| self.p_births[2][j]*self.p_pert[j][2])
+                .sum();
+            let post0 = pi0*trans1 +pi1*trans2 + pi2*trans3;
+            let post1 = pi0*trans4 +pi1*trans5 + pi2*trans6;
+            let post2 = pi0*trans7 +pi1*trans8 + pi2*trans9;
+
+            let (d1, d2, d3, p1, p2, p3) = self.interpolate_pi(post0, post1, post2); 
+            self.pipitime[d1][pi] += p1;
+            self.pipitime[d2][pi] += p2;
+            self.pipitime[d3][pi] += p3;
+        }
     }
 
     fn demog(&mut self){
@@ -732,6 +840,9 @@ impl Environment {
             dif_h = self.Dem_Dif();
             self.hi = self.hi_prime.clone();
         }
+
+        self.update_dev_m_kappa();
+        self.update_pipitime();
     }
 
     fn difv(&self) -> f64 {
@@ -741,17 +852,62 @@ impl Environment {
         return tot
     }
 
+    fn init_gpi(&mut self){
+        for pi in 0..LENPI{
+            for g in 0..G{
+                let belief = &self.beliefs[pi];
+                let sum = self.p_g_i[g][0]*belief.pi0 + self.p_g_i[g][0]*belief.pi1 + self.p_g_i[g][0]*belief.pi2;
+                self.p_g_pi[g][pi] = sum;
+            }
+        }
+    }
+
+    fn init_pertsurvival(&mut self){
+        for pi in 0..LENPI{
+            let belief = &self.beliefs[pi];
+            let mut sumjk = 0.;
+            for k in 0..I{
+                sumjk += belief.pi0*(1. - self.p_pert[k][0])*((self.q(0)-self.q(k))/self.q(0)); 
+                sumjk += belief.pi1*(1. - self.p_pert[k][1])*((self.q(1)-self.q(k))/self.q(1)); 
+                sumjk += belief.pi2*(1. - self.p_pert[k][2])*((self.q(2)-self.q(k))/self.q(2)); 
+            }
+            self.pert_survival[pi] = (1. - self.lambda) * sumjk;
+        }
+    }
+
+
     fn update_markovian(&mut self){
         // Update markovian transition matrix, each cell representing the
         // probability of an individual surviving and transitioning from state
         // state -> state_prime, given strategy k at demographic stability with 
         // with resident strategy x(s,pi,m).
         let mut p:f64 = 0.;
+
+        // find the transition probability from state to state_prime
         for state in 0..N_states{
             let (s,pi,m) = self.state_invert(state);
-            for k in 0..G{
+            for state_pripri in 0..N_states{
+                let (s_pripri,pi_pripri,m_pripri) = self.state_invert(state_pripri);
                 
-                self.mtm[state_prime][state][k] = p; 
+                // With the probability dependent on the chosen developmental action k=kappa
+                for k in 0..G{
+
+                    // Sum over all belief states given updating from time
+                    let mut sum_piprime: f64 = 0.;
+                    for piprime in 0..LENPI{
+                        // sum over all possible food masses (g)
+                        sum_piprime += (0..G)
+                            .map(|g| self.pipitime[piprime][pi]
+                                * self.p_g_pi[g][piprime]
+                                * self.pipig[pi_pripri][piprime][g]
+                                * self.dev_m[state_pripri][idx(s, pi_pripri, m)][g][k])
+                            .sum::<f64>();
+                    }
+                    
+                    // with probability of death from perturbations
+                    self.markov[state_pripri][state][k] = self.pert_survival[pi] 
+                        * sum_piprime; 
+                }
             }
         }
     }
@@ -769,7 +925,7 @@ impl Environment {
                     // Calculate expected fitness for action k for prior state state
                     Vn[k] =0.;
                     for state_prime in 0..N_states{
-                        Vn[k] += self.mtm[state_prime][state][k]*self.V[0][state_prime];
+                        Vn[k] += self.markov[state_prime][state][k]*self.V[0][state_prime];
                     }
 
                     // Check if new best response for current state
@@ -793,6 +949,12 @@ impl Environment {
             .sum();
         return dif
     }
+    
+    fn ploth(&self){
+        for h in &self.hi{
+            print!("{}",h);
+        }
+    }
 
     fn run(&mut self){
         self.inits();
@@ -804,6 +966,10 @@ impl Environment {
 
             // demographic stability:
             self.demog();
+            self.update_markovian();
+
+            // plot hi
+            self.ploth();
 
             // find best response strategy
             self.Best_Response();
@@ -831,32 +997,57 @@ fn main() -> std::io::Result<()>  {
 //     let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
 //     let _ = write_csv_header(&path);
 
-// /////////////////////////////////////////// Initialise parameters \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-//     let env0 = Environment {
-//         pop: init_pop(size, agent0),
-//         habitat: 0,
-//         singles: (0..size as usize).collect(),
-//         dead: Vec::new(),
-//         mean_fitness: 0.,
-//         d: 1.0, // winter death rate
-//         mu: 0.01,
-//         stability: 0.,
-//         prop_obs: 0.,
-//         climate_match:0.,
-//         obs_c:0.25,
-//         stoch:0.5,
-//         theta_low:0.25,
-//         theta_high:0.75,
-//         sigma_mass:1.0,
-//         cli_sigma:2.,
-//         days:20.,
-//         turns:T,
-//         p:0.8,
-//         mut_size:0.2,
-//         div_rate:0.,
-//         mean_mass:0.,
-//         cue_error:0.2
-//     };
+/////////////////////////////////////////// Initialise parameters \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    let belief = BeliefState{
+        pi0: 0.,
+        pi1: 0.,
+        pi2: 0.,
+    };
+
+    let mut env0 = Environment {
+        hi: vec![0.;I], //(i) pdf over patch population densities
+        hi_prime: vec![0.;I], //(i) pdf over patch population densities post some event
+        n_max: 100., // population bin sizes
+        g_mean: 1., // mean food mass
+        g_sd: 2., // standard deviation of food mass
+        m_switch: 5, //threshold m above which fighter phenotype is expressed
+        r_fighter: 2., // fitness benefit of fighter phenotype
+        r_m: 10., // fitness benefit of quality
+        r_baseline: 10., // baseline fitness
+        a_qi: vec![0.;I], //(i) arrivals from dispersal
+        mu: 0.1, // Dispersal rate
+        r_qi: vec![0.;I], //(i) arrivals from local births
+        R: vec![vec![vec![0.;I];NM];NS], //(s,m,i) fecundity of individual of size s and maturity m
+        rhoi: vec![vec![0.;I];N_states], //(idx,i) prob. distribution over states for individuals in patches of density qi
+        p_births: vec![vec![0.;I];I], //(i,j)
+        rhotilde: vec![0.;N_states], //(idx)
+        p_g_i: vec![vec![0.;I];G],
+        pipig: vec![vec![vec![0.;G];LENPI];LENPI], //Trans. prob. og pi prime given pi and g [piprime][pi][g]
+        beliefs: vec![belief;LENPI],
+        x: vec![G-1;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
+        dev_m: vec![vec![vec![vec![0.;G];G];N_states];N_states], // (idx prime, idx, g, kappa) developmental transitions
+        y_max: G as f64 /2., // maximum maintenance investment
+        survival: vec![vec![0.;G];N_states], // ((s,pi,m),g) prob. survival
+        lambda: 0.1, // Baseline rate of death
+        rhohat: vec![vec![0.;I];N_states], // state distribution after development fatalities, before normalisation
+        pfail: vec![vec![0.;I];N_states], // prob of death for current physiological and habitat state over development
+        sigma_per: 2., // standard deviation of patch quality perturbations
+        p_tau: vec![0.;2*G], // pseudonormal probability distribution over perturbations
+        gamma: 0.5, // parameter determining maximum effect of demographic feedback on patch survival
+        c: vec![0;I], // (i) rounded shift in prob. of posterior patch state after perturbatins given pop. density i
+        tol: 0.001, // tolerance threshold for difference in demographic state, below which projections end
+        p_pert: vec![vec![0.;I];I], // transition probabilities of patches given perturbations
+        x_prime: vec![G-1;N_states], // Best response strategy
+        ptilde: vec![vec![0.;I];I], // (i_prime,i) Evolved prior for transition prob. of patches at demographic stability
+        V: vec![vec![0.;2];N_states], // (state,n) Fitness
+        tolv: 0.001, // tolerance threshold in the difference in v for finding the best response
+        pipitime: vec![vec![0.;LENPI];LENPI], // (piprime,pi) prob of belief transition given time
+        p_g_pi: vec![vec![0.;LENPI];G], // (g,pi) the probability of food mass g given prior pi
+        pert_survival: vec![0.;LENPI], // (pi) probability of survival given prior belief pi
+        markov: vec![vec![vec![0.;G];N_states];N_states], //(state,stateprime,kappa) transition prob given action kappa
+    };
+
+    env0.run();
 
 // // start r session
 //      let mut r = RSession::new()?;
