@@ -496,14 +496,10 @@ Here we describe pseudocode for calculating the demographically stable probabili
 ty distribution of population densities across patches and of the transition
  probabilities between patch density states.
  Patches have a population size state 
-\begin_inset Formula $i\in\{0,1,...,I\}$
+\begin_inset Formula $i\in\{0,1\}$
 \end_inset
 
- where 
-\begin_inset Formula $I$
-\end_inset
-
- is the fineness of the grid of possible population sizes.
+.
  The actual population size for any given state 
 \begin_inset Formula $q_{i}$
 \end_inset
@@ -511,7 +507,7 @@ ty distribution of population densities across patches and of the transition
  is defined as
 \begin_inset Formula 
 \begin{equation}
-q_{i}=n_{max}\cdot\frac{i}{I}\label{eq:}
+q_{i}=n_{low}+n_{max}\cdot i\label{eq:}
 \end{equation}
 
 \end_inset
@@ -1653,7 +1649,7 @@ and so run the following algoritm for each
 \begin_layout Enumerate
 \begin_inset Formula 
 \begin{equation}
-p_{\text{fail}}(s_{1}(q_{j})|q_{j})=h^{\prime}(q_{j})\cdot p_{1}(j)+p_{\text{fail}}(s_{1}(q_{j})|q_{j}).\label{eq:-24}
+p_{\text{fail}}(s_{1}(q_{j})|q_{j})=p_{1}(j)+p_{\text{fail}}(s_{1}(q_{j})|q_{j}).\label{eq:-24}
 \end{equation}
 
 \end_inset
@@ -1664,7 +1660,7 @@ p_{\text{fail}}(s_{1}(q_{j})|q_{j})=h^{\prime}(q_{j})\cdot p_{1}(j)+p_{\text{fai
 \begin_layout Enumerate
 \begin_inset Formula 
 \begin{equation}
-p_{\text{fail}}(s_{2}(q_{j})|q_{j})=h^{\prime}(q_{j})\cdot p_{2}(j)+p_{\text{fail}}(s_{2}(q_{j})|q_{j}).\label{eq:-25}
+p_{\text{fail}}(s_{2}(q_{j})|q_{j})=p_{2}(j)+p_{\text{fail}}(s_{2}(q_{j})|q_{j}).\label{eq:-25}
 \end{equation}
 
 \end_inset

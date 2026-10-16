@@ -202,7 +202,7 @@ impl Environment {
     }
 
     fn q(&self, i: usize)->f64{
-        return self.n_max*(i as f64)/(I as f64)
+        return self.n_max*(i as f64 + 1.)/(I as f64)
     }
 
     fn interpolate_i(&self, mut prime:f64, min_val: f64, max_val: f64) -> (usize,usize,f64,f64) {
@@ -272,7 +272,6 @@ impl Environment {
             }
         }
     }
-
 
     fn interpolate_pi(&self, pi0: f64, pi1: f64, pi2: f64) -> (usize,usize,usize,f64,f64,f64){
         
@@ -365,7 +364,11 @@ impl Environment {
                 for pi in 0..LENPI {
                     for m in 0..NM {
                         for j in 0..I{
-                            rhoiprime[idx(s,pi,m)][i] += self.hi[j]*self.p_births[j][i]*((j as f64/i as f64)*self.rhoi[idx(s,pi,m)][j] + ((i as f64-j as f64)/i as f64)*self.rhotilde[idx(s,pi,m)]);
+                            rhoiprime[idx(s,pi,m)][i] += self.hi[j]*self.p_births[j][i]*((self.q(j)/self.q(i))*self.rhoi[idx(s,pi,m)][j] + ((self.q(i)-self.q(j))/self.q(i))*self.rhotilde[idx(s,pi,m)]);
+                            
+                            if rhoiprime[idx(s,pi,m)][i].is_nan(){
+                                println!("rhoiprime: {}, {}, {}, {}, {}, {}, {}", rhoiprime[idx(s,pi,m)][i], self.hi[j], self.p_births[j][i], (self.q(j)/self.q(i)), self.rhoi[idx(s,pi,m)][j], ((self.q(i)-self.q(j))/self.q(i)), self.rhotilde[idx(s,pi,m)]);
+                            }
                         }
                     }
                 }
@@ -558,6 +561,13 @@ impl Environment {
                                 * self.pipig[pi_prime][pi][g] 
                                 * self.p_g_i[g][i] 
                                 * self.rhoi[idx(s, pi, m)][i];
+                        
+                        // println!("devm: {}, surv:{}, pipig: {}, pgi: {}, rhoi: {}", self.dev_m[state_prime][state][g][self.x[idx(s,pi,m)]],
+                        //     self.survival[idx(s,pi_prime,m)][g],
+                        //     self.pipig[pi_prime][pi][g],
+                        //     self.p_g_i[g][i],
+                        //     self.rhoi[idx(s, pi, m)][i]
+                        // );
                     }
                 }
             }
@@ -572,11 +582,12 @@ impl Environment {
         // update pfail
         for i in 0..I{
             // calculate u, the posterior population density of patches previously of state i
-            let mut u = 0.;
-            for state in 0..N_states{
-                u += self.q(i) * (1. - self.lambda) * self.rhohat[state][i];
-            }
+            let rhohatsum: f64 = (0..N_states)
+                .map(|state| self.rhohat[state][i])
+                .sum();
+            let u = self.q(i) * (1. - self.lambda) * rhohatsum;
 
+            println!("rhohatsum: {}, u:{}", rhohatsum, u);
             // interpolate u
             let u1 = (I as f64 * u/self.n_max).floor();
             let u2 = u1+1.;
@@ -584,16 +595,22 @@ impl Environment {
             let p1 = 1. - p2;
 
             // algorithm to update pfail, the transition probabilities between patch states
-            self.pfail[u1 as usize][i] += self.hi[i]*p1; 
-            self.pfail[u2 as usize][i] += self.hi[i]*p2; 
+            self.pfail[u1 as usize][i] += p1; 
+            self.pfail[u2 as usize][i] += p2; 
+
+            // println!("p0: {}, p1: {}", p1, p2); // confirmed sum to 1.
+            
         }
         
+        // println!("hi priors: {}, {}, {}",  self.hi[0],  self.hi[1],  self.hi[2]);
         // update h_i
+        self.hi_prime.fill(0.);
         for i in 0..I{
             for i_prime in 0..I{
-                self.hi_prime[i_prime] = self.hi[i] * self.pfail[i_prime][i];
+                self.hi_prime[i_prime] += self.hi[i] * self.pfail[i_prime][i];
             }
         }
+        // println!("hi primes: {}, {}, {}",  self.hi_prime[0],  self.hi_prime[1],  self.hi_prime[2]);
 
         let mut total = vec![0.;I];
         for i in 0..I{
@@ -619,37 +636,47 @@ impl Environment {
 
     fn init_ptau(&mut self) {
         // Init pseudonormal distribution:
-        let k: f64 = (0..(2*I))
-                .map(|tau| (-((tau as i32-I as i32) as f64/I as f64).powf(2.)/(2.*self.sigma_per*self.sigma_per)).exp())
-                .sum();
-        for tau in 0..(2*I){
-            self.p_tau[tau] = (1./k) * (-((tau as i32-I as i32) as f64/I as f64).powf(2.)/(2.*self.sigma_per*self.sigma_per)).exp();
-        }
+        // let k: f64 = (0..(2*I))
+        //         .map(|tau| (-((tau as i32-I as i32) as f64/I as f64).powf(2.)/(2.*self.sigma_per*self.sigma_per)).exp())
+        //         .sum();
+        // for tau in 0..(2*I){
+        //     self.p_tau[tau] = (1./k) * (-((tau as i32-I as i32) as f64/I as f64).powf(2.)/(2.*self.sigma_per*self.sigma_per)).exp();
+        // }
 
-        // Define shift given demographic feedback
-        for j in 0..I{
-            let c = (self.gamma * (j as f64/I as f64)) as usize;
-            for i in 0..I{
-                if i == 0 {
-                    self.p_pert[i][j] = (0..((i+c).saturating_sub(j)).min(2*I))
-                        .map(|tau| self.p_tau[tau])
-                        .sum();
+        // // Define shift given demographic feedback
+        // for j in 0..I{
+        //     let c = (self.gamma * (j as f64/I as f64)) as usize;
+        //     for i in 0..I{
+        //         if i == 0 {
+        //             self.p_pert[i][j] = (0..((i+c).saturating_sub(j)).min(2*I))
+        //                 .map(|tau| self.p_tau[tau])
+        //                 .sum();
 
-                } else if i == I {
-                    self.p_pert[i][j] = self.p_tau[((i+c).saturating_sub(j)).min(2*I)];
+        //         } else if i == I {
+        //             self.p_pert[i][j] = self.p_tau[((i+c).saturating_sub(j)).min(2*I)];
 
-                } else {
-                    self.p_pert[i][j] = (((i+c).saturating_sub(j)).min(2*I)..2*I)
-                        .map(|tau| self.p_tau[tau])
-                        .sum();
-                }
-            }
-        }
+        //         } else {
+        //             self.p_pert[i][j] = (((i+c).saturating_sub(j)).min(2*I)..2*I)
+        //                 .map(|tau| self.p_tau[tau])
+        //                 .sum();
+        //         }
+        //     }
+        // }
+        self.p_pert[0][0] = 0.5;
+        self.p_pert[1][0] = 0.5;
+        self.p_pert[2][0] = 0.0;
+        self.p_pert[0][1] = 1./3.;
+        self.p_pert[1][1] = 1./3.;
+        self.p_pert[2][1] = 1./3.;
+        self.p_pert[0][2] = 0.25;
+        self.p_pert[1][2] = 0.5;
+        self.p_pert[2][2] = 0.25;
     }
 
     fn Perturbations(&mut self){
         // section 3.4, this function updates the patch distribution given quality perturbations
         // Update hi_prime
+        self.hi_prime.fill(0.);
         for i_prime in 0..I{
             self.hi_prime[i_prime] = (0..I)
                 .map(|i| self.p_pert[i_prime][i] * self.hi[i])
@@ -665,10 +692,11 @@ impl Environment {
             }
         }
         self.rhoi = self.rhohat.clone();
+        self.hi = self.hi_prime.clone();
     }
 
     fn bayes(&mut self) {
-        let mut rhoi_prime: Vec<Vec<f64>> = vec![vec![0.0;I]; NM * NPI * NS];
+        let mut rhoi_prime: Vec<Vec<f64>> = vec![vec![0.0;I]; N_states];
         for state in 0..N_states{
             for i in 0..I{
                 // retrieve state
@@ -694,14 +722,31 @@ impl Environment {
         self.rhoi = rhoi_prime;
     }
 
-    fn Dem_Dif(&self) -> f64 {
+    fn Dem_Dif(&self, oldh:Vec<f64>) -> f64 {
         let dif = (0..I)
-            .map(|i| (self.hi[i] - self.hi_prime[i]).abs())
+            .map(|i| (&self.hi[i] - oldh[i]).abs())
             .sum();
         return dif
     }
 
+    fn init_h(&mut self){
+        // starting point for the distribution of patch densities
+        self.hi[0] = 1./3.;
+        self.hi[1] = 1./3.;
+        self.hi[2] = 1./3.;
+    }
+
+    fn init_rho(&mut self){
+        for i in 0..I{
+            self.rhoi[idx(0, LENPI/2, 0)][i] = 1.0;
+        }
+    }
+
     fn inits(&mut self){
+        self.init_h();
+
+        self.init_rho();
+
         self.init_beliefs();
 
         // as per section 3.3 in finding demographic stability.
@@ -828,21 +873,30 @@ impl Environment {
     fn demog(&mut self){
         // demographic stability:
         let mut dif_h = 1.;
+        let mut oldh: Vec<f64> = self.hi.clone();
         while dif_h > self.tol{
             self.Dispersal();
+            println!("post dispersal h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
 
             self.Foraging();
+            println!("post development h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
 
             self.Perturbations();
+            println!("post perturbatins h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
 
             self.bayes();
+            println!("post bayes h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
 
-            dif_h = self.Dem_Dif();
-            self.hi = self.hi_prime.clone();
+            dif_h = self.Dem_Dif(oldh);
+            oldh = self.hi.clone();
+        
+            println!("dif_h: {}, h(0): {}, h(1): {}, h(2): {}", dif_h, self.hi[0], self.hi[1], self.hi[2]);
+        
         }
-
         self.update_dev_m_kappa();
         self.update_pipitime();
+        println!("Demog done: h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
+
     }
 
     fn difv(&self) -> f64 {
@@ -874,7 +928,6 @@ impl Environment {
             self.pert_survival[pi] = (1. - self.lambda) * sumjk;
         }
     }
-
 
     fn update_markovian(&mut self){
         // Update markovian transition matrix, each cell representing the
