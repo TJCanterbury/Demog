@@ -151,7 +151,7 @@ struct Environment {
     p_pert: Vec<Vec<f64>>, // transition probabilities of patches given perturbations
     x_prime: Vec<usize>, // Best response strategy
     ptilde: Vec<Vec<f64>>, // (i_prime,i) Evolved prior for transition prob. of patches at demographic stability
-    V: Vec<Vec<f64>>, // (state,n) Fitness
+    V: Vec<Vec<f64>>, // (n,state) Fitness
     tolv: f64, // tolerance threshold in the difference in v for finding the best response
     pipitime: Vec<Vec<f64>>, // (piprime,pi) prob of belief transition given time
     p_g_pi: Vec<Vec<f64>>, // (g,pi) the probability of food mass g given prior pi
@@ -181,7 +181,8 @@ fn vectorise_pi(n0:usize,n1:usize)->usize{
     // first term tells you which row (n0) if it were a 2x2 grid, 
     // second term accounts for missing lower triangle given simplex
     // third term gives the column (n1)
-    if n0==0 { n1 } else { n0*(NPI-1) - (n0*(n0-1))/2 + n1 }
+    if n0==0 { n1 } else { 
+    n0 * NPI - (n0 * (n0 - 1)) / 2 + n1 }
 }
 
 impl Environment { 
@@ -191,11 +192,11 @@ impl Environment {
             for n1 in 0..NPI{
                 if NPI-1 >= n0+n1{
                     let j = vectorise_pi(n0, n1);
-                    println!("{}, {}, {}",n0,n1,j);
+                    println!("n0: {}, n1: {}, j: {}",n0,n1,j);
                     self.beliefs[j].pi0=(n0 as f64)/(NPI as f64-1.);
                     self.beliefs[j].pi1=(n1 as f64)/(NPI as f64-1.);
                     self.beliefs[j].pi2=((NPI-n0-n1-1) as f64)/(NPI as f64-1.);
-                    println!("{}, {}, {}",self.beliefs[j].pi0, self.beliefs[j].pi1, self.beliefs[j].pi2);
+                    println!("pi0: {}, pi1: {}, pi2: {}",self.beliefs[j].pi0, self.beliefs[j].pi1, self.beliefs[j].pi2);
                 }
             }
         }
@@ -218,13 +219,14 @@ impl Environment {
 
     fn decompose_pi(&self, prime1:f64, prime2:f64, prime3:f64) -> (usize,usize,usize,f64,f64,f64) {
         // Interpolation step: decompose into interger and fractional parts
-        let d1 = ((NPI as f64) * prime1).floor();
-        let d2 = ((NPI as f64) * prime2).floor();
-        let d3 = ((NPI as f64) * prime3).floor();
+        let scale = (NPI - 1) as f64;
+        let d1 = (scale * prime1).floor();
+        let d2 = (scale * prime2).floor();
+        let d3 = (scale * prime3).floor();
 
-        let p1 = (NPI as f64) * prime1 - d1;
-        let p2 = (NPI as f64) * prime2 - d2;
-        let p3 = (NPI as f64) * prime3 - d3;
+        let p1 = scale * prime1 - d1;
+        let p2 = scale * prime2 - d2;
+        let p3 = scale * prime3 - d3;
 
         return (d1 as usize, d2 as usize, d3 as usize, p1, p2, p3)
     }
@@ -242,7 +244,7 @@ impl Environment {
 
                     r = 0.;
                     
-                    if s >= NS {
+                    if s >= NS-1 {
                         if m > self.m_switch{
                             r = sum_g * (self.r_baseline + (m as f64) *self.r_m + self.r_fighter);
                         } else {
@@ -278,12 +280,12 @@ impl Environment {
         // interpolating priors onto the grid
         let (d1, d2, d3, f1, f2, f3) = self.decompose_pi(pi0,pi1,pi2);
         let (mut coord0,mut coord1,mut coord2,mut p0,mut p1,mut p2)=(0,0,0,0.,0.,0.);
-        if (f1+f2+f3) as usize == 0{
+        if (f1+f2+f3).round() == 0.{
 
             coord0 = vectorise_pi(d1, d2);
             p0 = 1.;
 
-        } else if (f1+f2+f3) as usize == 1{
+        } else if (f1+f2+f3).round() == 1.{
 
             coord0 = vectorise_pi(d1+1, d2);
             p0 += f1;
@@ -294,7 +296,7 @@ impl Environment {
             coord2 = vectorise_pi(d1, d2);
             p2 += f3;
             
-        } else if (f1+f2+f3) as usize == 2{
+        } else if (f1+f2+f3).round() == 2.{
 
             coord0 = vectorise_pi(d1, d2+1);
             p0 += 1.-f1;
@@ -319,6 +321,9 @@ impl Environment {
         self.rhotilde[idx(0,pi0_prior,0)] += p0;
         self.rhotilde[idx(0,pi1_prior,0)] += p1;
         self.rhotilde[idx(0,pi2_prior,0)] += p2;
+        // if p0+p1+p2 > 1. {
+        //     println!("whaaaaaaaaaaaaaaaaaaaaaaaaattf, priors: {},{},{}, distr: {},{},{}", pi0_prior, pi1_prior, pi2_prior, p0,p1,p2);
+        // }
     }
 
     fn Dispersal(&mut self){
@@ -355,31 +360,6 @@ impl Environment {
             self.p_births[i][d1] += p1;
             self.p_births[i][d2] += p2;
         }
-            
-        // Now we move on to projection of the patch density distribution 
-        // and of physiological states:
-        for i in 0..I {
-            // Physiological state distribution update
-            for s in 0..NS {
-                for pi in 0..LENPI {
-                    for m in 0..NM {
-                        for j in 0..I{
-                            rhoiprime[idx(s,pi,m)][i] += self.hi[j]*self.p_births[j][i]*((self.q(j)/self.q(i))*self.rhoi[idx(s,pi,m)][j] + ((self.q(i)-self.q(j))/self.q(i))*self.rhotilde[idx(s,pi,m)]);
-                            
-                            if rhoiprime[idx(s,pi,m)][i].is_nan(){
-                                println!("rhoiprime: {}, {}, {}, {}, {}, {}, {}", rhoiprime[idx(s,pi,m)][i], self.hi[j], self.p_births[j][i], (self.q(j)/self.q(i)), self.rhoi[idx(s,pi,m)][j], ((self.q(i)-self.q(j))/self.q(i)), self.rhotilde[idx(s,pi,m)]);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        for i in 0..I {
-            // make rhoi rhoiprime
-            for state in 0..N_states {
-                self.rhoi[state][i] = rhoiprime[state][i];
-            }
-        }
 
         // Patch state distribution update
         let mut h_prime: Vec<f64> = vec![0.0;I];
@@ -388,6 +368,41 @@ impl Environment {
                 h_prime[i] += self.hi[j] * self.p_births[j][i]; // Equation 13
             }
         }
+            
+        // Now we move on to projection of the patch density distribution 
+        // and of physiological states:
+        for i in 0..I {
+            // let pbsum:f64 = (0..I) //check pbsums
+            //     .map(|j| self.p_births[i][j])
+            //     .sum();
+            // println!("i: {}, pbsum: {}", i, pbsum);
+            // Physiological state distribution update
+            for state in 0..N_states {
+                for j in 0..I{
+                    rhoiprime[state][i] += self.hi[j]*self.p_births[j][i]*((self.q(j)/self.q(i))*self.rhoi[state][j] + (1.-self.q(j)/self.q(i))*self.rhotilde[state])/h_prime[i];
+                            
+                    // println!("Dirspersal. rhoiprime: {}, hi: {}, p_births trans: {}, growth ratio: {}, old rhoi: {}, proportion of difference: {}, rhotilde: {}", rhoiprime[idx(s,pi,m)][i], self.hi[j], self.p_births[j][i], (self.q(j)/self.q(i)), self.rhoi[idx(s,pi,m)][j], ((self.q(i)-self.q(j))/self.q(i)), self.rhotilde[idx(s,pi,m)]);
+                    // println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
+                            
+                }
+            }
+        }
+
+        let sumthin:f64 = (0..N_states)
+            .map(|state| (self.q(0)/self.q(1))*self.rhoi[state][0] + (1.-self.q(0)/self.q(1))*self.rhotilde[state])
+            .sum();
+        let rhotildesum:f64=(0..N_states)
+            .map(|state| self.rhotilde[state])
+            .sum();
+        println!("sumsumsum: {}, qsums: {}, rhotildesum: {}", sumthin, (self.q(0)/self.q(1))+(1.-self.q(0)/self.q(1)), rhotildesum);
+
+        for i in 0..I {
+            // make rhoi rhoiprime
+            for state in 0..N_states {
+                self.rhoi[state][i] = rhoiprime[state][i];
+            }
+        }
+
         for i in 0..I {
             self.hi[i] = h_prime[i];
         }
@@ -402,12 +417,13 @@ impl Environment {
             q_i = self.q(i);
             // Equation 18
             let K: f64 = (0..G)
-                .map(|g| (-((g as f64-self.g_mean/q_i).powf(2.))/(2.*self.g_sd.powf(2.))).exp())
+                .map(|g| (-((g as f64-self.g_mean*self.q(0)/q_i).powf(2.))/(2.*self.g_sd.powf(2.))).exp())
                 .sum();
 
             // Equation 17
             for g in 0..G{
-                self.p_g_i[g][i] = (1./K) * (-((g as f64-self.g_mean/q_i).powf(2.))/(2.*self.g_sd.powf(2.))).exp();
+                self.p_g_i[g][i] = (1./K) * (-((g as f64-self.g_mean*self.q(0)/q_i).powf(2.))/(2.*self.g_sd.powf(2.))).exp();
+                println!("g: {}, i: {}, pgi: {}", g, i, self.p_g_i[g][i]);
             }
         }
     }
@@ -437,16 +453,17 @@ impl Environment {
                 prime1 = (pi1 * self.p_g_i[g][0])/(pi1 * self.p_g_i[g][0] + pi2 * self.p_g_i[g][1] + pi3 * self.p_g_i[g][2]);
                 prime2 = (pi2 * self.p_g_i[g][1])/(pi1 * self.p_g_i[g][0] + pi2 * self.p_g_i[g][1] + pi3 * self.p_g_i[g][2]);
                 prime3 = (pi3 * self.p_g_i[g][2])/(pi1 * self.p_g_i[g][0] + pi2 * self.p_g_i[g][1] + pi3 * self.p_g_i[g][2]);
+                // println!("prim1: {}, prim2: {}, prim3: {}, total: {}, pis: {},{},{}", prime1, prime2, prime3, prime1+prime2+prime3, pi1, pi2, pi3);
 
                 // Find fractional parts
                 let (n1, n2, n3, p1, p2, p3) = self.decompose_pi(prime1, prime2, prime3);
                 
                 // Interpolate on the 2-Simplex and flatten
-                if (p1+p2+p3)>1. {
+                if (p1+p2+p3).round()==2. {
                     self.pipig[vectorise_pi(n1, n2+1)][pi][g] += p1;
                     self.pipig[vectorise_pi(n1+1, n2)][pi][g] += p2;
                     self.pipig[vectorise_pi(n1+1, n2+1)][pi][g] += p3;
-                } else if (p1+p2+p3)>0. {
+                } else if (p1+p2+p3).round()==1. {
                     self.pipig[vectorise_pi(n1+1, n2)][pi][g] += p1;
                     self.pipig[vectorise_pi(n1, n2+1)][pi][g] += p2;
                     self.pipig[vectorise_pi(n1, n2)][pi][g] += p3;
@@ -509,6 +526,7 @@ impl Environment {
                         
                         // Maintenance survival probs section 3.3.3 Maintenance
                         self.survival[idx(s,pi,m)][g] = ((g as f64-del_m-del_s)/self.y(s as f64,m as f64)).min(1.);
+                        // println!("surival: {}, g: {}, del_m: {}, del_s: {}, y: {}", self.survival[idx(s,pi,m)][g], g, del_m, del_s, self.y(s as f64,m as f64));
 
                         // Interpolate onto s and m grids:
                         let (md1,mp1,md2,mp2) = self.interpolate_m(del_m+(m as f64));
@@ -520,6 +538,9 @@ impl Environment {
                         self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][self.x[idx(s,pi,m)]]=mp2*sp1;
                         self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][self.x[idx(s,pi,m)]]=mp2*sp2;
                         
+                        if (mp1*sp1 + mp1*sp2 + mp2*sp1 + mp2*sp2) <0.99 {
+                            println!("sum: {}", mp1*sp1 + mp1*sp2 + mp2*sp1 + mp2*sp2);
+                        }
                     }
                 }
             }
@@ -540,6 +561,16 @@ impl Environment {
         // Development, section 3.3.2
         self.update_dev_m();
 
+        let rhosum0:f64  = (0..N_states)
+            .map(|state| self.rhoi[state][0])
+            .sum();
+        let rhosum1:f64 = (0..N_states)
+            .map(|state| self.rhoi[state][1])
+            .sum();
+        let rhosum2:f64  = (0..N_states)
+            .map(|state| self.rhoi[state][2])
+            .sum();
+        println!("rhoi sums: {}, {}, {}", rhosum0, rhosum1, rhosum2);
         // update state distributions, section 3.3.4, rho hat prime
                 // Given all the update transition probabilities and the prior distribution of states
         // update the distribution of states after foraging
@@ -562,7 +593,8 @@ impl Environment {
                                 * self.p_g_i[g][i] 
                                 * self.rhoi[idx(s, pi, m)][i];
                         
-                        // println!("devm: {}, surv:{}, pipig: {}, pgi: {}, rhoi: {}", self.dev_m[state_prime][state][g][self.x[idx(s,pi,m)]],
+                        // println!("rhohat: {}, devm: {}, surv:{}, pipig: {}, pgi: {}, rhoi: {}", self.rhohat[state_prime][i], 
+                        //     self.dev_m[state_prime][state][g][self.x[idx(s,pi,m)]],
                         //     self.survival[idx(s,pi_prime,m)][g],
                         //     self.pipig[pi_prime][pi][g],
                         //     self.p_g_i[g][i],
@@ -572,6 +604,7 @@ impl Environment {
                 }
             }
         }
+
 
         // Update the frequency distribution of patches over patch density states
         // clear pfail
@@ -587,7 +620,7 @@ impl Environment {
                 .sum();
             let u = self.q(i) * (1. - self.lambda) * rhohatsum;
 
-            println!("rhohatsum: {}, u:{}", rhohatsum, u);
+            println!("rhohatsum: {}, u:{}, qi: {}", rhohatsum, u, self.q(i));
             // interpolate u
             let u1 = (I as f64 * u/self.n_max).floor();
             let u2 = u1+1.;
@@ -625,7 +658,13 @@ impl Environment {
                 self.rhoi[state_prime][i_prime] = 0.;
                 
                 for i in 0..I{
-                    self.rhoi[state_prime][i_prime] += self.hi[i] * self.pfail[i_prime][i] * self.rhohat[state_prime][i]/total[i];
+                    self.rhoi[state_prime][i_prime] += (1./self.hi_prime[i_prime]) * self.hi[i] * self.pfail[i_prime][i] * self.rhohat[state_prime][i]/total[i];
+                    
+                    if self.rhoi[state_prime][i_prime].is_nan(){
+                        println!("foraging. rhoi: {}", self.rhoi[state_prime][i_prime]);
+                        println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
+                        std::process::exit(0);
+                    }
                 }
             }
         }
@@ -687,8 +726,14 @@ impl Environment {
         for i_prime in 0..I{
             for state in 0..N_states{
                 self.rhohat[state][i_prime] = (0..I)
-                    .map(|i| self.p_pert[i_prime][i] * self.hi[i] * self.rhoi[state][i])
+                    .map(|i| (1./self.hi_prime[i_prime]) * self.p_pert[i_prime][i] * self.hi[i] * self.rhoi[state][i])
                     .sum();
+                
+                if self.rhohat[state][i_prime].is_nan(){
+                    println!("Perturbations. rhoi: {}", self.rhohat[state][i_prime]);
+                    println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
+                    std::process::exit(0);
+                }
             }
         }
         self.rhoi = self.rhohat.clone();
@@ -717,6 +762,22 @@ impl Environment {
                 rhoi_prime[idx(s, pi0_post, m)][i] += self.rhoi[idx(s, pi, m)][i] * p0;
                 rhoi_prime[idx(s, pi1_post, m)][i] += self.rhoi[idx(s, pi, m)][i] * p1;
                 rhoi_prime[idx(s, pi2_post, m)][i] += self.rhoi[idx(s, pi, m)][i] * p2;
+                
+                if rhoi_prime[idx(s, pi0_post, m)][i].is_nan(){
+                    println!("Bayes. rhoi: {}", rhoi_prime[idx(s, pi0_post, m)][i]);
+                    println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
+                    std::process::exit(0);
+                }
+                if rhoi_prime[idx(s, pi1_post, m)][i].is_nan(){
+                    println!("Bayes. rhoi: {}", rhoi_prime[idx(s, pi1_post, m)][i]);
+                    println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
+                    std::process::exit(0);
+                }
+                if rhoi_prime[idx(s, pi2_post, m)][i].is_nan(){
+                    println!("Bayes. rhoi: {}", rhoi_prime[idx(s, pi2_post, m)][i]);
+                    println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
+                    std::process::exit(0);
+                }
             }
         }
         self.rhoi = rhoi_prime;
@@ -884,7 +945,106 @@ impl Environment {
         // demographic stability:
         let mut dif_h = 1.;
         let mut oldh: Vec<f64> = self.hi.clone();
+            
+        let rhosum0:f64  = (0..N_states)
+            .map(|state| self.rhoi[state][0])
+            .sum();
+        let rhosum1:f64 = (0..N_states)
+            .map(|state| self.rhoi[state][1])
+            .sum();
+        let rhosum2:f64  = (0..N_states)
+            .map(|state| self.rhoi[state][2])
+            .sum();
+        println!("init: rhoi sums: {}, {}, {}", rhosum0, rhosum1, rhosum2);
         while dif_h > self.tol{ 
+            
+            self.Dispersal();
+            println!("post dispersal h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
+            for i in 0..I{
+                if self.hi[i].is_nan(){
+                    std::process::exit(0);
+
+                }
+            }
+            
+            let rhosum0:f64  = (0..N_states)
+                .map(|state| self.rhoi[state][0])
+                .sum();
+            let rhosum1:f64 = (0..N_states)
+                .map(|state| self.rhoi[state][1])
+                .sum();
+            let rhosum2:f64  = (0..N_states)
+                .map(|state| self.rhoi[state][2])
+                .sum();
+            println!("rhoi sums: {}, {}, {}", rhosum0, rhosum1, rhosum2);
+
+            self.Foraging();
+            println!("post development h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
+            for i in 0..I{
+                if self.hi[i].is_nan(){
+                    std::process::exit(0);
+
+                }
+            }
+            let rhosum0:f64  = (0..N_states)
+                .map(|state| self.rhoi[state][0])
+                .sum();
+            let rhosum1:f64 = (0..N_states)
+                .map(|state| self.rhoi[state][1])
+                .sum();
+            let rhosum2:f64  = (0..N_states)
+                .map(|state| self.rhoi[state][2])
+                .sum();
+            println!("rhoi sums: {}, {}, {}", rhosum0, rhosum1, rhosum2);
+
+            self.Perturbations();
+            println!("post perturbatins h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
+            for i in 0..I{
+                if self.hi[i].is_nan(){
+                    std::process::exit(0);
+
+                }
+            }
+            let rhosum0:f64  = (0..N_states)
+                .map(|state| self.rhoi[state][0])
+                .sum();
+            let rhosum1:f64 = (0..N_states)
+                .map(|state| self.rhoi[state][1])
+                .sum();
+            let rhosum2:f64  = (0..N_states)
+                .map(|state| self.rhoi[state][2])
+                .sum();
+            println!("rhoi sums: {}, {}, {}", rhosum0, rhosum1, rhosum2);
+
+            self.bayes();
+            println!("post bayes h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
+            for i in 0..I{
+                if self.hi[i].is_nan(){
+                    std::process::exit(0);
+
+                }
+            }
+            let rhosum0:f64  = (0..N_states)
+                .map(|state| self.rhoi[state][0])
+                .sum();
+            let rhosum1:f64 = (0..N_states)
+                .map(|state| self.rhoi[state][1])
+                .sum();
+            let rhosum2:f64  = (0..N_states)
+                .map(|state| self.rhoi[state][2])
+                .sum();
+            println!("rhoi sums: {}, {}, {}", rhosum0, rhosum1, rhosum2);
+
+            dif_h = self.Dem_Dif(oldh);
+            oldh = self.hi.clone();
+        
+            println!("dif_h: {}, h(0): {}, h(1): {}, h(2): {}", dif_h, self.hi[0], self.hi[1], self.hi[2]);
+            for i in 0..I{
+                if self.hi[i].is_nan(){
+                    std::process::exit(0);
+
+                }
+            }
         }
         self.update_dev_m_kappa();
         self.update_pipitime();
@@ -910,15 +1070,19 @@ impl Environment {
     }
 
     fn init_pertsurvival(&mut self){
+        // calcilate probability of survival for an individual of belief state pi, given transitions in patch population densitites and random deaths
         for pi in 0..LENPI{
             let belief = &self.beliefs[pi];
             let mut sumjk = 0.;
             for k in 0..I{
-                sumjk += belief.pi0*(1. - self.p_pert[k][0])*((self.q(0)-self.q(k))/self.q(0)); 
-                sumjk += belief.pi1*(1. - self.p_pert[k][1])*((self.q(1)-self.q(k))/self.q(1)); 
-                sumjk += belief.pi2*(1. - self.p_pert[k][2])*((self.q(2)-self.q(k))/self.q(2)); 
+                sumjk += belief.pi0*(1. - self.p_pert[k][0])*((self.q(0)-self.q(k)).max(0.)/self.q(0)); 
+                sumjk += belief.pi1*(1. - self.p_pert[k][1])*((self.q(1)-self.q(k)).max(0.)/self.q(1)); 
+                sumjk += belief.pi2*(1. - self.p_pert[k][2])*((self.q(2)-self.q(k)).max(0.)/self.q(2)); 
             }
             self.pert_survival[pi] = (1. - self.lambda) * sumjk;
+            if self.pert_survival[pi] <0.{
+                println!("sumjk: {}", sumjk);
+            }
         }
     }
 
@@ -964,12 +1128,13 @@ impl Environment {
         let mut max_k;
         let mut dif_v = 1.;
         while dif_v > self.tolv{
+            println!("Finding best response, current difference: {}", dif_v);
             for state in 0..N_states{
                 max_k = self.x[state];
                 V_max = 0.;
                 for k in 0..G{
                     // Calculate expected fitness for action k for prior state state
-                    Vn[k] =0.;
+                    Vn[k] = self.r_state(state);
                     for state_prime in 0..N_states{
                         Vn[k] += self.markov[state_prime][state][k]*self.V[0][state_prime];
                     }
@@ -980,11 +1145,12 @@ impl Environment {
                         V_max = Vn[k];
                     }
                 }
-                self.V[1][state] = self.r_state(state) + Vn[max_k];
+                self.V[1][state] = Vn[max_k];
                 self.x_prime[state] = max_k;
 
             }
             dif_v = self.difv();
+
             self.V[0] = self.V[1].clone();
         }
     }
@@ -996,12 +1162,6 @@ impl Environment {
         return dif
     }
     
-    fn ploth(&self){
-        for h in &self.hi{
-            print!("{}",h);
-        }
-    }
-
     fn run(&mut self){
         self.inits();
 
@@ -1012,21 +1172,23 @@ impl Environment {
 
             // demographic stability:
             self.demog();
+
+            println!("Updating Markovian!");
             self.update_markovian();
 
-            // plot hi
-            self.ploth();
 
             // find best response strategy
             self.Best_Response();
 
             // print x
+            println!("Best response found!");
             for pi in 0..LENPI{
-                println!("state s:{}, pi:{}, m:{}, best strat x: {}", NS-2, pi, NM/2, self.x[idx(NS-2, pi, NM/2)]);
+                println!("state s:{}, pi:{},{},{}, m:{}, best strat x: {}", NS-2, self.beliefs[pi].pi0, self.beliefs[pi].pi1, self.beliefs[pi].pi2, NM/2, self.x[idx(NS-2, pi, NM/2)]);
             }
 
             // Calculate difference in strategy
             difx = self.evo_dif();
+            println!("Searching for ESS, current difference: {}", difx);
 
             // update x
             self.x = self.x_prime.clone();
@@ -1034,7 +1196,6 @@ impl Environment {
     }
 
 }
-
 
 // main Functions
 fn main() -> std::io::Result<()>  {
@@ -1059,7 +1220,7 @@ fn main() -> std::io::Result<()>  {
         hi: vec![0.;I], //(i) pdf over patch population densities
         hi_prime: vec![0.;I], //(i) pdf over patch population densities post some event
         n_max: 100., // population bin sizes
-        g_mean: 1., // mean food mass
+        g_mean: (G as f64 -1.), // mean food mass
         g_sd: 2., // standard deviation of food mass
         m_switch: 5, //threshold m above which fighter phenotype is expressed
         r_fighter: 2., // fitness benefit of fighter phenotype
@@ -1077,9 +1238,9 @@ fn main() -> std::io::Result<()>  {
         beliefs: vec![belief;LENPI],
         x: vec![G-1;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
         dev_m: vec![vec![vec![vec![0.;G];G];N_states];N_states], // (idx prime, idx, g, kappa) developmental transitions
-        y_max: G as f64 /2., // maximum maintenance investment
+        y_max: 1., // maximum maintenance investment
         survival: vec![vec![0.;G];N_states], // ((s,pi,m),g) prob. survival
-        lambda: 0.1, // Baseline rate of death
+        lambda: 0.05, // Baseline rate of death
         rhohat: vec![vec![0.;I];N_states], // state distribution after development fatalities, before normalisation
         pfail: vec![vec![0.;I];N_states], // prob of death for current physiological and habitat state over development
         sigma_per: 2., // standard deviation of patch quality perturbations
@@ -1090,7 +1251,7 @@ fn main() -> std::io::Result<()>  {
         p_pert: vec![vec![0.;I];I], // transition probabilities of patches given perturbations
         x_prime: vec![G-1;N_states], // Best response strategy
         ptilde: vec![vec![0.;I];I], // (i_prime,i) Evolved prior for transition prob. of patches at demographic stability
-        V: vec![vec![0.;2];N_states], // (state,n) Fitness
+        V: vec![vec![0.;N_states];2], // (n, state) Fitness
         tolv: 0.001, // tolerance threshold in the difference in v for finding the best response
         pipitime: vec![vec![0.;LENPI];LENPI], // (piprime,pi) prob of belief transition given time
         p_g_pi: vec![vec![0.;LENPI];G], // (g,pi) the probability of food mass g given prior pi

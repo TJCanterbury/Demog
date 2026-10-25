@@ -1,75 +1,15 @@
-#LyX 2.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 544
+#LyX 2.5 created this file. For more info see https://www.lyx.org/
+\lyxformat 643
 \begin_document
 \begin_header
 \save_transient_properties true
 \origin unavailable
 \textclass article
-\begin_preamble
-\usepackage	[main=british]{babel}
-\usepackage[unicode=true,
-bookmarks=false,
-breaklinks=false,pdfborder={0 0 1},backref=section,colorlinks=false]{hyperref}
-\usepackage[natbibapa]{apacite}
-\usepackage[full]{textcomp} % to get the right copyright, etc.
-\usepackage{fbb}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
-%% Because html converters don't know tabularnewline
-\providecommand{\tabularnewline}{\\}
-
-% Use the Palatino font
-% Use 8-bit encoding that has 256 glyphs
-\linespread{1.5} % Line spacing - Palatino needs more space between lines
-% Slightly tweak font spacing for aesthetics
-
-% Language hyphenation and typographical rules
-
-\usepackage[hang, small,labelfont=bf,up,textfont=it,up]{caption}% Custom captions under/above floats in tables or figures
-\usepackage{booktabs}% Horizontal rules in tables
-\usepackage{tabularx}
-%package for declaring math operators
-\DeclareMathOperator*{\argmax}{arg\,max} %declares math operator argmax so that the arg can go underneath properly
-\usepackage{lettrine}% The lettrine is the first enlarged letter at the beginning of the text
-\usepackage{enumitem}% Customized lists
-\setlist[itemize]{noitemsep} % Make itemize lists more compact
-
-\usepackage{abstract}% Allows abstract customization
-\renewcommand{\abstractnamefont}{\normalfont\bfseries} % Set the "Abstract" text to bold
-\renewcommand{\abstracttextfont}{\normalfont\itshape} % Set the abstract itself to small italic text
-
-\usepackage{titlesec}% Allows customization of titles
-%\renewcommand{\thesection}{\Roman{section}} % roman numerals for subsections
-%\renewcommand{\thesubsection}{\arabic{subsection}} % roman numerals for subsections
-%\titleformat{\section}[block]{\huge\scshape}{\thesubsection.}{1em}{} % Change the look of the section titles 
-%\titleformat{\subsection}[block]{\large\bfseries}{\thesubsection.}{1em}{} % Change the look of the section titles 
-%\titleformat{\subsubsection}[block]{\normalfont\fontsize{12}{17}\sffamily\bfseries\slshape}{\thesubsection.}{1em}{} % Change the look of the section titles 
-
-\author{\\
-\bfseries\scshape Date \\ \today}
-
-\usepackage{etoolbox}
-\makeatletter
-\patchcmd{\@maketitle}% <cmd>
-  {\@title}% <search>
-  {\Huge\scshape\@title}% <replace>
-  {}{}% <success><failure>
-\makeatother
-\usepackage[most]{tcolorbox}
-\usepackage{cancel}
-\newtcolorbox{mytextbox}[1][]{%
-  sharp corners,
-  enhanced,
-  colback=white,
-  attach title to upper,
-  #1
-}
-\end_preamble
 \use_default_options false
 \begin_modules
 natbibapa
 \end_modules
-\maintain_unincluded_children false
+\maintain_unincluded_children no
 \language english
 \language_package default
 \inputencoding utf8
@@ -81,7 +21,9 @@ natbibapa
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
-\font_osf false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
 \font_sf_scale 100 100
 \font_tt_scale 100 100
 \use_microtype true
@@ -91,6 +33,8 @@ natbibapa
 \output_sync 0
 \bibtex_command default
 \index_command default
+\float_placement class
+\float_alignment class
 \paperfontsize 12
 \spacing single
 \use_hyperref false
@@ -122,9 +66,19 @@ natbibapa
 \use_indices false
 \paperorientation portrait
 \suppress_date true
-\justification true
-\use_refstyle 0
+\justification default
+\crossref_package prettyref
+\use_formatted_ref 0
 \use_minted 0
+\use_lineno 0
+\backgroundcolor none
+\fontcolor none
+\notefontcolor lightgray
+\boxbgcolor red
+\table_border_color default
+\table_odd_row_color default
+\table_even_row_color default
+\table_alt_row_colors_start 1
 \index Index
 \shortcut idx
 \color #008000
@@ -132,8 +86,8 @@ natbibapa
 \columnsep 20pt
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation skip
-\defskip medskip
+\paragraph_separation indent
+\paragraph_indentation default
 \is_math_indent 0
 \math_numbering_side default
 \quotes_style english
@@ -141,11 +95,17 @@ natbibapa
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tablestyle default
 \tracking_changes false
 \output_changes false
+\change_bars false
+\postpone_fragile_content false
 \html_math_output 0
 \html_css_as_file 0
 \html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\docbook_mathml_version 0
 \end_header
 
 \begin_body
@@ -163,29 +123,27 @@ Introduction
 \end_layout
 
 \begin_layout Standard
-There is an ongoing mass extinction event and, as many of the relevant anthropog
-enic stressors continue to worsen—not least but not limited to rising global
- temperatures and the consequent risks of climate system breakdown (CITE)—biolog
-ical models have an important job to do in predicting the demographic and
- adaptive responses of species and ecosystems to these changing conditions.
- There remains much we can do, in principle, to improve these models and
- so generate more robust and informative guidance for policy makers.
- For instance, models of demographic change have yet to synthesise reports
- from the evolutionary theory literature of the great speeds (within ecological
- timescales) at which adaptation can occur and of the important role of
- plasticity and agency of individuals in directing this adaptation (CITE).
- Benton (2012) (CITE), shows how the complexities of real populations resulting
- from individual-level genetic variation and plasticity can play a strong
- role in population responses.
- We need more models like this, elucidating what variables are important
- in population dynamics, in order to develop appropriate theory, generate
- accurate empirical predictions, and present robust and effective policy
- guidance (CITE).
- Research within behavioural ecology has increasingly focused on the roles
- of uncertainty, state-dependent decision making, and learning; with implication
-s for the evolution of various behavioural and developmental strategies
- (CITE CITE CITE), but their roles in population dynamics and the implications
- for us remain largely speculative (CITE).
+There is an ongoing mass extinction event and,
+ as many of the relevant anthropogenic stressors continue to worsen—
+not least but not limited to rising global temperatures and the consequent risks of climate system breakdown (CITE)—
+biological models have an important job to do in predicting the demographic and adaptive responses of species and ecosystems to these changing conditions.
+ There remains much we can do,
+ in principle,
+ to improve these models and so generate more robust and informative guidance for policy makers.
+ For instance,
+ models of demographic change have yet to synthesise reports from the evolutionary theory literature of the great speeds (within ecological timescales) at which adaptation can occur and of the important role of plasticity and agency of individuals in directing this adaptation (CITE).
+ Benton (2012) (CITE),
+ shows how the complexities of real populations resulting from individual-level genetic variation and plasticity can play a strong role in population responses.
+ We need more models like this,
+ elucidating what variables are important in population dynamics,
+ in order to develop appropriate theory,
+ generate accurate empirical predictions,
+ and present robust and effective policy guidance (CITE).
+ Research within behavioural ecology has increasingly focused on the roles of uncertainty,
+ state-dependent decision making,
+ and learning;
+ with implications for the evolution of various behavioural and developmental strategies (CITE CITE CITE),
+ but their roles in population dynamics and the implications for us remain largely speculative (CITE).
  
 \end_layout
 
@@ -194,40 +152,33 @@ Main question with examples
 \end_layout
 
 \begin_layout Standard
-The main question is, given the predictability and severety of food limitations
- in an orgnism's environment, over what length of time do individuals invest
- in developing higher reproductive quality at an opportunity cost to investing
- in growth to exploit periods of abundant food?
+The main question is,
+ given the predictability and severity of food limitations in an organism's environment,
+ over what length of time do individuals invest in developing higher reproductive quality at an opportunity cost to investing in growth to exploit periods of abundant food?
 \end_layout
 
 \begin_layout Standard
-Developmental windows are periods in development where sensitivity to cues
- is hightened.
+Developmental windows are periods in development where sensitivity to cues is heightened.
 \end_layout
 
 \begin_layout Standard
 Walasek et al.
- (2021), Walasek et al.
- (2022) find that the timing of when sensitive periods emerge depends on
- the reliability of cues increases across ontogeny, and their results suggest
- that both information and phenotypic states are modelled, with incremental
- development in fluctuating environments farouring residual development
- across ontogeny.
+ (2021),
+ Walasek et al.
+ (2022) find that the timing of when sensitive periods emerge depends on the reliability of cues increases across ontogeny,
+ and their results suggest that both information and phenotypic states are modeled,
+ with incremental development in fluctuating environments favouring residual development across ontogeny.
 \end_layout
 
 \begin_layout Standard
-Further, Walasek et al (2024) review current theory and empirical literature
- and suggest future models could better integrate with empirical research
- by incorporating phenomena found in empirical systems into our models,
- and design more models that can be tailored to the life histories of specific
- species.
- They encourage for instance that models that incorporate the life history
- trade-offs we see in the development of alternative phenotypes in bulb
- mites (between scramblers and fighters) (Smallegange, 2023; Smallegange
- et al., 2019), and it happens that authors interested in these taxa are
- also interested in bridging the gap in research between demographic modelling
- and agency with respect to development shaping demography (Smallegange
- ).
+Further,
+ Walasek et al (2024) review current theory and empirical literature and suggest future models could better integrate with empirical research by incorporating phenomena found in empirical systems into our models,
+ and design more models that can be tailored to the life histories of specific species.
+ They encourage for instance that models that incorporate the life history trade-offs we see in the development of alternative phenotypes in bulb mites (between scramblers and fighters) (Smallegange,
+ 2023;
+ Smallegange et al.,
+ 2019),
+ and it happens that authors interested in these taxa are also interested in bridging the gap in research between demographic modelling and agency with respect to development shaping demography (Smallegange ).
 \end_layout
 
 \begin_layout Subsection
@@ -235,15 +186,15 @@ Developmental windows and sensitive periods
 \end_layout
 
 \begin_layout Subsection
-Demography, agency and life-history
+Demography,
+ agency and life-history
 \end_layout
 
 \begin_layout Standard
-Feedback between plastic responses and population dynamics has been explored
- for fixed reaction norms by Brass et al.
+Feedback between plastic responses and population dynamics has been explored for fixed reaction norms by Brass et al.
  (2021) who showed that ___.
- However, it is unclear how these eco-devo dynamics will play out over evolution
-ary time.
+ However,
+ it is unclear how these eco-devo dynamics will play out over evolutionary time.
 \end_layout
 
 \begin_layout Subsection
@@ -259,38 +210,40 @@ The Model Outline
 \end_layout
 
 \begin_layout Standard
-We model a large population of asexual individuals, distributed in a metapopulat
-ion across habitat patches of equal size and quality, but each with a population
- density state with transition probabilities determined by the local population'
-s growth rate.
- Each individual has three state dimensions—size (
+We model a large population of asexual individuals,
+ distributed in a metapopulation across habitat patches of equal size and quality,
+ but each with a population density state with transition probabilities determined by the local population's growth rate.
+ Each individual has three state dimensions—
+size (
 \begin_inset Formula $s$
 \end_inset
 
-), patch information (
+),
+ patch information (
 \begin_inset Formula $\pi$
 \end_inset
 
-), and reproductive quality (
+),
+ and reproductive quality (
 \begin_inset Formula $m$
 \end_inset
 
-)—upon which their developmental strategy is dependent, 
+)—
+upon which their developmental strategy is dependent,
+ 
 \begin_inset Formula $x(s,\pi,m)$
 \end_inset
 
-, which determines the fraction of ingested energy allocated to developing
- greater reproductive quality over growth to increase their size state (and
- so ultimately the local population growth rate).
- Size determines whether or not an individual is mature given they can only
- reproduce when they reach their maximum size 
+,
+ which determines the fraction of ingested energy allocated to developing greater reproductive quality over growth to increase their size state (and so ultimately the local population growth rate).
+ Size determines whether or not an individual is mature given they can only reproduce when they reach their maximum size 
 \begin_inset Formula $S$
 \end_inset
 
 .
- An individual's patch information state gives them the subjective probabilities
- regarding each possible population density state of their habitat patch.
- Finally, an individual's reproductive quality state 
+ An individual's patch information state gives them the subjective probabilities regarding each possible population density state of their habitat patch.
+ Finally,
+ an individual's reproductive quality state 
 \begin_inset Formula $m$
 \end_inset
 
@@ -299,18 +252,13 @@ s growth rate.
 \end_layout
 
 \begin_layout Standard
-We assume mutations are rare and of small effect such that effectively all
- individuals across the metapopulation have the same state-dependent development
-al strategy (henceforth referred to as the resident strategy).
- Given the resident strategy we then do a forward projection using a Markov
- chain until demographic stability is reached at the metapopulation level
- (i.e.
+We assume mutations are rare and of small effect such that effectively all individuals across the metapopulation have the same state-dependent developmental strategy (henceforth referred to as the resident strategy).
+ Given the resident strategy we then do a forward projection using a Markov chain until demographic stability is reached at the metapopulation level (i.e.
  among patches).
  Given the probability distribution of population density states of patches,
- and assuming individuals have complete information as to this probability
- distribution and of the transition probabilities between patch pop.
- density states, we find the best response strategy for an invading individual
- (i.e.
+ and assuming individuals have complete information as to this probability distribution and of the transition probabilities between patch pop.
+ density states,
+ we find the best response strategy for an invading individual (i.e.
  the developmental strategy that maximises their expected fitness).
 \end_layout
 
@@ -319,51 +267,49 @@ The Life Cycle and Demographic Feedback
 \end_layout
 
 \begin_layout Standard
-We model the life cycle of both individuals and of the patches they reside
- in (see figure 1).
+We model the life cycle of both individuals and of the patches they reside in (see figure 1).
 \end_layout
 
 \begin_layout Enumerate
-Newborns disperse into random patches, with accurate prior information as
- to the probability distribution over patch population density states, and
- causing transitions in patch population density states.
+Newborns disperse into random patches,
+ with accurate prior information as to the probability distribution over patch population density states,
+ and causing transitions in patch population density states.
 \end_layout
 
 \begin_layout Enumerate
-Individuals forage, with food availability being a random variable, normally
- distributed, with mean determined by the population density.
+Individuals forage,
+ with food availability being a random variable,
+ normally distributed,
+ with mean determined by the population density.
 \end_layout
 
 \begin_layout Enumerate
-Individuals update their patch information state given informativeness of
- food availability.
+Individuals update their patch information state given informativeness of food availability.
 \end_layout
 
 \begin_layout Enumerate
-Immature individuals allocate a proportion of their ingested energy towards
- increasing their future reproductive quality given their developmental
- strategy, the rest of the energy goes towards maturation (increasing their
- size).
- Mature individuals do not grow, inesting all ingested energy towards current
- reproduction.
+Immature individuals allocate a proportion of their ingested energy towards increasing their future reproductive quality given their developmental strategy,
+ the rest of the energy goes towards maturation (increasing their size).
+ Mature individuals do not grow,
+ investing all ingested energy towards current reproduction.
 \end_layout
 
 \begin_layout Enumerate
-Individuals die given a baseline probability of death from exogenous factors
- and given perturbations in patch quality (e.g.
- disease outbreaks) influenced by the patch population density state, and
- in turn causing transitions of patch states to lower population densities.
+Individuals die given a baseline probability of death from exogenous factors and given perturbations in patch quality (e.g.
+ disease outbreaks) influenced by the patch population density state,
+ and in turn causing transitions of patch states to lower population densities.
 \end_layout
 
 \begin_layout Enumerate
-Individuals that are of maximum size are mature and reproduce at rate determined
- by their reproductive quality state.
+Individuals that are of maximum size are mature and reproduce at rate determined by their reproductive quality state.
 \end_layout
 
 \begin_layout Standard
 \noindent
 \align center
 \begin_inset Float figure
+placement document
+alignment document
 wide false
 sideways false
 status open
@@ -382,8 +328,8 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-The model structure, including the life cycle of individuals in purple and
- the feedback loops acting on patches in green.
+The model structure,
+ including the life cycle of individuals in purple and the feedback loops acting on patches in green.
 \end_layout
 
 \end_inset
@@ -401,25 +347,28 @@ State dimensions
 \end_layout
 
 \begin_layout Itemize
-Patch population density state, 
-\begin_inset Formula $i\in\{0,1,2\}$
+Patch population density state,
+ 
+\begin_inset Formula $n\in\{0,1\}$
 \end_inset
 
-, corresponding to low, medium, and high population densities respectively.
+,
+ corresponding to low and high population density states respectively.
  We assume that 
-\begin_inset Formula $i$
+\begin_inset Formula $n$
 \end_inset
 
- determines the probability of patch quality decline and determining the
- availability of food.
+ determines the probability of patch quality decline and determining the availability of food.
 \end_layout
 
 \begin_layout Itemize
-Size state, 
+Size state,
+ 
 \begin_inset Formula $s\in\{1,2,...,S\}$
 \end_inset
 
-, where 
+,
+ where 
 \begin_inset Formula $S$
 \end_inset
 
@@ -427,55 +376,35 @@ Size state,
 \end_layout
 
 \begin_layout Itemize
-Patch belief state, 
-\begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
+Patch belief state,
+ 
+\begin_inset Formula $\pi=\{0,1/I,2/I,...,(I-1)/I,I/I\}$
 \end_inset
 
-, is an individual's implicit and subjective probability distribution over
- patch population density states, where 
-\begin_inset Formula $\pi_{i}=P(i)$
-\end_inset
-
-, 
-\begin_inset Formula $\pi_{i}\in\{0/L,1/L,...,L/L\}$
-\end_inset
-
-, and 
-\begin_inset Formula $\pi_{0}+\pi_{1}+\pi_{2}=1$
-\end_inset
-
-, where 
+,
+ is an individual's implicit and subjective probability that the patch population density state is high,
+ where 
 \begin_inset Formula $L$
 \end_inset
 
  determines the resolution of the belief state.
- Thus, note that 
-\begin_inset Formula $\pi$
-\end_inset
-
- is best represented as co-ordinates within a discretised probability 2-simplex
- (i.e.
- an equalateral triangle where each vertex represents each possible state
- of certainty), rather than representing 
-\begin_inset Formula $\pi$
-\end_inset
-
- with a 3D cube (which would include impossible probability distributions
- and so waste state space).
 \end_layout
 
 \begin_layout Itemize
-Reproductive quality state, 
+Reproductive quality state,
+ 
 \begin_inset Formula $m\in\{0,1/M,2/M,...,M/M\}$
 \end_inset
 
-, corresponding to the quality of an individual's physiology and so the
- mass of their offspring.
- Further, any investment in quality above the quality threshold 
+,
+ corresponding to the quality of an individual's physiology and so the mass of their offspring.
+ Further,
+ any investment in quality above the quality threshold 
 \begin_inset Formula $m_{switch}$
 \end_inset
 
-, results in an individual developing an alternative fighter phenotype,
+,
+ results in an individual developing an alternative fighter phenotype,
  giving additional reproductive benefit 
 \begin_inset Formula $r_{fighter}$
 \end_inset
@@ -492,22 +421,20 @@ Finding Demographic Stability
 \end_layout
 
 \begin_layout Standard
-Here we describe pseudocode for calculating the demographically stable probabili
-ty distribution of population densities across patches and of the transition
- probabilities between patch density states.
+Here we describe pseudocode for calculating the demographically stable probability distribution of population densities across patches and of the transition probabilities between patch density states.
  Patches have a population size state 
-\begin_inset Formula $i\in\{0,1\}$
+\begin_inset Formula $n\in\{0,1\}$
 \end_inset
 
 .
  The actual population size for any given state 
-\begin_inset Formula $q_{i}$
+\begin_inset Formula $q_{n}$
 \end_inset
 
  is defined as
 \begin_inset Formula 
 \begin{equation}
-q_{i}=n_{low}+n_{max}\cdot i\label{eq:}
+q_{n}=n_{low}+n_{max}\cdot n\label{eq:}
 \end{equation}
 
 \end_inset
@@ -529,58 +456,61 @@ Reproduction
 \end_layout
 
 \begin_layout Standard
-Adults, individuals of size state 
+Adults,
+ individuals of size state 
 \begin_inset Formula $s=S$
 \end_inset
 
-, reproduce asexually at a rate dependent on their reproductive quality
- state.
+,
+ reproduce asexually at a rate dependent on their reproductive quality state.
  We here define 
-\begin_inset Formula $R(s,m)$
+\begin_inset Formula $R(s,m,n)$
 \end_inset
 
-, the expected reproductive rate of an individual of state 
+,
+ the expected reproductive rate of an individual of state 
 \begin_inset Formula $\{s,m\}$
 \end_inset
 
  in a patch of density 
-\begin_inset Formula $q_{i}$
+\begin_inset Formula $q_{n}$
 \end_inset
 
-, as 
+,
+ as 
 \begin_inset Formula 
 \begin{equation}
-R(s,m,i)=\begin{cases}
-\text{if \ensuremath{s\geq S} and }m\geq m_{switch}: & \sum_{g}p(g|q_{i})\cdot g\cdot(r_{b}+m\cdot r_{m}+r_{fighter})\\
-\text{if \ensuremath{s\geq S} and }m<m_{switch} & \sum_{g}p(g|q_{i})\cdot g\cdot(r_{b}+m\cdot r_{m})\\
+R(s,m,n)=\begin{cases}
+\text{if \ensuremath{s\geq S} and }m\geq m_{switch}: & \sum_{g}p(g|q_{n})\cdot g\cdot(r_{b}+m\cdot r_{m}+r_{fighter})\\
+\text{if \ensuremath{s\geq S} and }m<m_{switch} & \sum_{g}p(g|q_{n})\cdot g\cdot(r_{b}+m\cdot r_{m})\\
 \text{else}: & 0
 \end{cases}\label{eq:-1-1}
 \end{equation}
 
 \end_inset
 
-where S is their size at maturity, 
+where S is their size at maturity,
+ 
 \begin_inset Formula $m_{switch}$
 \end_inset
 
- is the threshold investment in quality above which the fighter polyphenism
- is expressed, 
+ is the threshold investment in quality above which the fighter polyphenism is expressed,
+ 
 \begin_inset Formula $r_{b}$
 \end_inset
 
- is the baseline reproductive rate, 
+ is the baseline reproductive rate,
+ 
 \begin_inset Formula $r_{m}$
 \end_inset
 
- is the reproductive benefit of greater somatic quality, and 
+ is the reproductive benefit of greater somatic quality,
+ and 
 \begin_inset Formula $r_{fighter}$
 \end_inset
 
- is reproductive benefit of expressing the fighter polymorphism allowing
- them to extract auxilliary resources for reproduction.
- To make solving the model tractable we must assume the fighter phenotype
- does not influence competition for the shared limited resource represented
- by 
+ is reproductive benefit of expressing the fighter polymorphism allowing them to extract auxiliary resources for reproduction.
+ To make solving the model tractable we must assume the fighter phenotype does not influence competition for the shared limited resource represented by 
 \begin_inset Formula $g$
 \end_inset
 
@@ -596,64 +526,77 @@ Migrant Physiology
 \end_layout
 
 \begin_layout Standard
-Ideally, individuals would be born with precise and accurate prior information
- regarding the propbability distribution over the population density states
- of patches.
- Individuals would then update their information state given cues for the
- population density of their patch which come from the availability of food,
+Ideally,
+ individuals would be born with precise and accurate prior information regarding the probability distribution over the population density states of patches.
+ Individuals would then update their information state given cues for the population density of their patch which come from the availability of food,
  see section 1.2.
  Individuals are born at size state 
 \begin_inset Formula $0$
 \end_inset
 
- and reproductive quality state 0, and a belief state over population densities,
- 
-\begin_inset Formula $\forall i$
-\end_inset
-
- of
+ and reproductive quality state 0,
+ and a belief state over population densities of
 \begin_inset Formula 
 \begin{equation}
-\pi_{i}\approx h(q_{i})\label{eq:-3}
+\pi\approx\eta_{1}\label{eq:-3}
 \end{equation}
 
 \end_inset
 
-However, to form a discrete grid of states that we can solve a Markov decision
- process for we need interpolate each 
-\begin_inset Formula $\pi_{i}$
+Where 
+\begin_inset Formula $\eta_{1}$
 \end_inset
 
- onto a grid of possible discrete probability values, 
-\begin_inset Formula $\pi_{i}\in\{0/L,1/L,2/L,...,L/L\}$
+ is the proportion of patches that are of density state 
+\begin_inset Formula $n=1$
 \end_inset
 
-, where 
-\begin_inset Formula $L$
+,
+ and 
+\begin_inset Formula $\eta_{0}=1-\eta_{1}$
 \end_inset
 
- is an integer determining the finess of the grid.then needs to be interpolated
- onto a discrete grid of possible values of 
-\begin_inset Formula $\pi_{i}$
+ is the proportion of patches that are of density state 
+\begin_inset Formula $n=0$
 \end_inset
 
- which (because it represent a probability distribution) lies on a unit
- simplex (i.e.
- all values are positive and they add up to 1), requiring a grid of barycentric
- co-ordinates.
- To this end, the first step is to decompose each 
-\begin_inset Formula $\pi_{i}^{\prime}$
+.
+ However,
+ to form a discrete grid of states that we can solve a Markov decision process for we need interpolate each 
+\begin_inset Formula $\pi$
 \end_inset
 
- into it's integer and fractional parts, with the integer part defined by
- finding the floor integer after scaling by the maximum value 
-\begin_inset Formula $L$
-\end_inset
-
+ onto a grid of possible discrete probability values,
  
+\begin_inset Formula $\pi=i\in\{0/I,1/I,2/I,...,I/I\}$
+\end_inset
+
+,
+ where 
+\begin_inset Formula $I$
+\end_inset
+
+ is an integer determining the fitness of the grid.then needs to be interpolated onto a discrete grid of possible values of 
+\begin_inset Formula $\pi$
+\end_inset
+
+ which (because it represent a probability distribution) lies on a unit simplex (i.e.
+ all values are positive and they add up to 1),
+ requiring a grid of barycentric co-ordinates.
+ To this end,
+ the first step is to decompose each 
+\begin_inset Formula $\pi^{\prime}$
+\end_inset
+
+ into it's integer and fractional parts,
+ with the integer part defined by finding the floor integer after scaling by the maximum grid index 
+\begin_inset Formula $I$
+\end_inset
+
+ of the believe state 
 \begin_inset Formula 
 \[
-n_{i}=\lfloor h(q_{i})\cdot L\rfloor,
+i=\lfloor\eta_{1}\cdot I\rfloor,
 \]
 
 \end_inset
@@ -661,7 +604,7 @@ n_{i}=\lfloor h(q_{i})\cdot L\rfloor,
 and subsequently the fractional part defined as
 \begin_inset Formula 
 \[
-f_{i}=h(q_{i})\cdot L-\iota_{i}.
+f=\eta_{1}\cdot I-i.
 \]
 
 \end_inset
@@ -670,95 +613,10 @@ f_{i}=h(q_{i})\cdot L-\iota_{i}.
 \end_layout
 
 \begin_layout Standard
-Note that just as 
+giving discrete states and associated probabilities for defining the state distribution of migrants:
 \begin_inset Formula 
 \[
-\sum_{i}h(q_{i})=1
-\]
-
-\end_inset
-
-so does
-\begin_inset Formula 
-\[
-L=\sum_{i}h(q_{i})\cdot L,
-\]
-
-\end_inset
-
-and so 
-\begin_inset Formula 
-\[
-L=\sum_{i}n_{i}+f_{i}
-\]
-
-\end_inset
-
-and therefore the sum of the fractional parts must equal an integer because
- 
-\begin_inset Formula $L$
-\end_inset
-
- is an integer.
- Therefore, assuming 
-\begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
-\end_inset
-
-, the fractional parts must add up to 0, 1 or 2.
- And so for all states 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\xout off
-\uuline off
-\uwave off
-\noun off
-\color none
-the proportion of dispersors that are of state 
-\begin_inset Formula $\{s,\pi,m\}$
-\end_inset
-
- we first set to zero
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\strikeout default
-\xout default
-\uuline default
-\uwave default
-\noun default
-\color inherit
-, 
-\begin_inset Formula $\tilde{\rho}(s,\pi,m)=0$
-\end_inset
-
-.
- Then we update given these fractional parts.
- If the fractional parts add up to 
-\begin_inset Formula $0$
-\end_inset
-
-, all offspring have initial state
-\begin_inset Formula 
-\[
-\tilde{\rho}(s=1,\pi=\{n_{1},n_{2},n_{3}\},m)=1
-\]
-
-\end_inset
-
-Else, if the fractional parts add up to 1 we know exactly one dimension
- of their prior belief state has to be rounded up, with weightings given
- to their respective fractional parts and so 
-\begin_inset Formula 
-\[
-\tilde{\rho}(s=1,\pi=\{n_{0}+1,n_{1},n_{2}\},m=0)=f_{0}
+\tilde{\rho}(s=1,\pi=i,m=0)=1-f,
 \]
 
 \end_inset
@@ -766,40 +624,7 @@ Else, if the fractional parts add up to 1 we know exactly one dimension
 
 \begin_inset Formula 
 \[
-\tilde{\rho}(s=1,\pi=\{n_{0},n_{1}+1,n_{2}\},m=0)=f_{1},
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-\tilde{\rho}(s=1,\pi=\{n_{0},n_{1},n_{2}+1\},m=0)=f_{2}.
-\]
-
-\end_inset
-
-Else and finally, if the fractional parts add up to 2, exactly 2 dimensions
- have to be rounded up
-\begin_inset Formula 
-\[
-\tilde{\rho}(s=1,\pi=\{n_{0},n_{1}+1,n_{2}+1\},m=0)=1-f_{0},
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-\tilde{\rho}(s=1,\pi=\{n_{0}+1,n_{1},n_{2}+1\},m=0)=1-f_{1},
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-\tilde{\rho}(s=1,\pi=\{n_{0}+1,n_{1}+1,n_{2}\},m=0)=1-f_{2}.
+\tilde{\rho}(s=1,\pi=i+1,m=0)=f
 \]
 
 \end_inset
@@ -820,34 +645,33 @@ Assuming a dispersal rate of
 \begin_inset Formula $N$
 \end_inset
 
-, the number of individuals arriving in each patch of population density
- 
-\begin_inset Formula $q_{i}$
+,
+ the number of individuals arriving in each patch of population density 
+\begin_inset Formula $q_{n}$
 \end_inset
 
  is
 \begin_inset Formula 
 \begin{equation}
-\alpha(q_{i})=(1-\mu)\cdot q_{i}\cdot r(q_{i})+\frac{\mu\cdot\cancel{N}\cdot\sum_{j=0}^{I}h(q_{j})\cdot q_{j}\cdot r(q_{j})}{\cancel{N}}\label{eq:-4}
+\alpha(q_{n})=(1-\mu)\cdot q_{n}\cdot r(q_{n})+\frac{\mu\cdot\cancel{N}\cdot\sum_{o}[\eta_{o}\cdot q_{o}\cdot r(q_{o})]}{\cancel{N}}\label{eq:-4}
 \end{equation}
 
 \end_inset
 
 where 
-\begin_inset Formula $r(q)$
+\begin_inset Formula $r(q_{n})$
 \end_inset
 
- is the expected reproductive rate of an individual in a patch of popuation
- density 
-\begin_inset Formula $q_{i}$
+ is the expected reproductive rate of an individual in a patch of population density 
+\begin_inset Formula $q_{n}$
 \end_inset
 
  and where 
-\begin_inset Formula $h(q_{i})$
+\begin_inset Formula $\eta$
 \end_inset
 
  is the proportion of patches that are of density 
-\begin_inset Formula $q_{i}$
+\begin_inset Formula $q_{n}$
 \end_inset
 
 .
@@ -855,30 +679,28 @@ where
 \begin_inset Formula $N$
 \end_inset
 
- in the numerator of the fraction is there to scale the number of migrants
- given the number of patches producing them, but that 
+ in the numerator of the fraction is there to scale the number of migrants given the number of patches producing them,
+ but that 
 \begin_inset Formula $N$
 \end_inset
 
- gets cancelled out as these migrants are dispersed across these patches
- (see the denominator), telling us that the number of immigrants to a patch
- is not dependent on the number of patches; only the frequency distribution
- over patch states matters.
- The expected reproductive rate of an individual in a patch of popuation
- density 
-\begin_inset Formula $q_{i}$
+ gets canceled out as these migrants are dispersed across these patches (see the denominator),
+ telling us that the number of immigrants to a patch is not dependent on the number of patches;
+ only the frequency distribution over patch states matters.
+ The expected reproductive rate of an individual in a patch of population density 
+\begin_inset Formula $q_{n}$
 \end_inset
 
  is defined as 
 \begin_inset Formula 
 \begin{equation}
-r(q_{i})=\sum_{s}^{S}\sum_{\pi}^{\Pi}\sum_{m}^{M}[\rho_{i}(s,\pi,m)\cdot R(s,m,i)]\label{eq:-5}
+r(q_{n})=\sum^{S}_{s}\sum^{\Pi}_{\pi}\sum^{M}_{m}[\rho_{n}(s,\pi,m)\cdot R(s,m,n)]\label{eq:-5}
 \end{equation}
 
 \end_inset
 
 where 
-\begin_inset Formula $\rho_{i}(s,\pi,m)$
+\begin_inset Formula $\rho_{n}(s,\pi,m)$
 \end_inset
 
  is the probability that an individual will be of state 
@@ -886,11 +708,12 @@ where
 \end_inset
 
  given that they are in a patch of population density 
-\begin_inset Formula $q_{i}$
+\begin_inset Formula $q_{n}$
 \end_inset
 
-, and 
-\begin_inset Formula $R(s,m,i)$
+,
+ and 
+\begin_inset Formula $R(s,m,n)$
 \end_inset
 
  is the reproductive rate of an individual of state 
@@ -898,7 +721,7 @@ where
 \end_inset
 
  in a patch of density 
-\begin_inset Formula $q_{i}$
+\begin_inset Formula $q_{n}$
 \end_inset
 
  (see section 1.4).
@@ -906,63 +729,53 @@ where
 \end_layout
 
 \begin_layout Standard
-Following arrivals, the new population density of patches of prior density
- 
-\begin_inset Formula $q_{i}$
+Following arrivals,
+ the new population density of patches of prior density 
+\begin_inset Formula $q_{n}$
 \end_inset
 
  become 
 \begin_inset Formula 
 \begin{equation}
-q_{i}^{\prime}=min(q_{I},q_{i}+\alpha(q_{i}))\label{eq:-6}
+q^{\prime}_{n}=max(q_{0},min(q_{1},q_{n}+\alpha(q_{n})))\label{eq:-6}
 \end{equation}
 
 \end_inset
 
-We must then interpolate the posterior population density 
-\begin_inset Formula $q_{i}^{\prime}$
+Given that we assume that 
+\begin_inset Formula $q_{1}$
 \end_inset
 
- back on to the grid of density states, with the nearest positions being
+ is the maximum population density and 
+\begin_inset Formula $q_{0}$
+\end_inset
+
+ is the minimum population density.
+ We must then interpolate the posterior population density 
+\begin_inset Formula $q^{\prime}_{n}$
+\end_inset
+
+ back on to the grid of density states,
+ with the probability of the posterior population density state being 
+\begin_inset Formula $n^{\prime}=1$
+\end_inset
+
+ being
 \begin_inset Formula 
 \begin{equation}
-d_{1}(i)=\lfloor\frac{q_{i}^{\prime}}{n_{max}}\cdot I\rfloor\label{eq:-7}
+p_{1}(n)=\frac{q^{\prime}_{n}-n_{low}}{n_{max}}\label{eq:-7}
 \end{equation}
 
 \end_inset
 
-and 
+and the probability that of posterior state 
+\begin_inset Formula $n^{\prime}=0$
+\end_inset
+
+ being
 \begin_inset Formula 
 \begin{equation}
-d_{2}(i)=d_{1}(i)+1.\label{eq:-8}
-\end{equation}
-
-\end_inset
-
-Therefore patches of population density 
-\begin_inset Formula $q_{i}$
-\end_inset
-
- transition to patches of density state 
-\begin_inset Formula $q_{d_{2}(i)}$
-\end_inset
-
- with probability 
-\begin_inset Formula 
-\begin{equation}
-p_{2}(i)=(\frac{q_{i}^{\prime}}{n_{max}}\cdot I)-d_{1}(i),\label{eq:-9}
-\end{equation}
-
-\end_inset
-
-and transition to density state 
-\begin_inset Formula $q_{d_{1}(i)}$
-\end_inset
-
- with probability 
-\begin_inset Formula 
-\begin{equation}
-p_{1}(i)=1-p_{2}(i).\label{eq:-10}
+p_{0}(n)=1-p_{1}(n).\label{eq:-10}
 \end{equation}
 
 \end_inset
@@ -971,19 +784,18 @@ p_{1}(i)=1-p_{2}(i).\label{eq:-10}
 \end_layout
 
 \begin_layout Standard
-This then returns the transition probabilities between patch density states
- given dispersal 
-\begin_inset Formula $p_{births}(q_{d_{1}(i)}|q_{i})$
+This then returns the transition probabilities between patch density states given dispersal 
+\begin_inset Formula $p_{births}(q_{d_{1}(n)}|q_{n})$
 \end_inset
 
-, which at demographic stability will be used for finding the best response
- strategy.
+,
+ which at demographic stability will be used for finding the best response strategy.
  For all 
-\begin_inset Formula $q_{i}$
+\begin_inset Formula $q_{n}$
 \end_inset
 
  
-\begin_inset Formula $p_{births}(q_{d_{1}(i)}|q_{i})=0$
+\begin_inset Formula $p_{births}(q_{d_{1}(n)}|q_{n})=0$
 \end_inset
 
  and then
@@ -991,11 +803,11 @@ This then returns the transition probabilities between patch density states
 
 \begin_layout Itemize
 Add 
-\begin_inset Formula $p_{1}(i)$
+\begin_inset Formula $p_{1}(n)$
 \end_inset
 
  to 
-\begin_inset Formula $p_{births}(q_{d_{1}(i)}|q_{i})$
+\begin_inset Formula $p_{births}(q_{1}|q_{n})$
 \end_inset
 
 
@@ -1003,11 +815,11 @@ Add
 
 \begin_layout Itemize
 Add 
-\begin_inset Formula $p_{2}(i)$
+\begin_inset Formula $p_{0}(n)$
 \end_inset
 
  to 
-\begin_inset Formula $p_{births}(q_{d_{2}(i)}|q_{i})$
+\begin_inset Formula $p_{births}(q_{0}|q_{n})$
 \end_inset
 
 .
@@ -1018,11 +830,10 @@ Projection
 \end_layout
 
 \begin_layout Standard
-The posterior frequency distribution over patch population density states
- is then defined as 
+The posterior proportion of patches that are of a high population density shall be 
 \begin_inset Formula 
 \begin{equation}
-h^{\prime}(q_{i})=\sum_{j}h(q_{j})\cdot p_{births}(q_{i}|q_{j})\label{eq:-11}
+\eta^{\prime}_{1}=\sum_{n}\eta_{1}\cdot p_{births}(q_{1}|q_{n})\label{eq:-11}
 \end{equation}
 
 \end_inset
@@ -1031,22 +842,26 @@ h^{\prime}(q_{i})=\sum_{j}h(q_{j})\cdot p_{births}(q_{i}|q_{j})\label{eq:-11}
 \end_layout
 
 \begin_layout Standard
-Regarding the distribution of physiological states within patches, individuals
- in any patch state 
-\begin_inset Formula $q_{i}$
+with posterior proportion of patches being low density of course being 
+\begin_inset Formula $\eta^{\prime}_{0}=1-\eta^{\prime}_{1}$
 \end_inset
 
- will have a physiological state frequency distribution defined given the
- transition probabilities between patches and weighted by the change in
- population size for these transitions.
- Thus, 
+.
+ Regarding the distribution of physiological states within patches,
+ individuals in any patch state 
+\begin_inset Formula $q_{n}$
+\end_inset
+
+ will have a physiological state frequency distribution defined given the transition probabilities between patches and weighted by the change in population size for these transitions.
+ Thus,
+ 
 \begin_inset Formula $\forall i\forall\{s,\pi,m\}$
 \end_inset
 
 
 \begin_inset Formula 
 \begin{equation}
-\rho_{i}^{\prime}(s,\pi,m)=\sum_{j}[h(q_{j})\cdot p_{births}(q_{i}|q_{j})\cdot(\frac{j}{i}\cdot\rho_{j}(s,\pi,m)+\frac{i-j}{i}\cdot\tilde{\rho}(s,\pi,m))]\label{eq:-12}
+\rho^{\prime}_{n}(s,\pi,m)=\sum_{o}[\frac{1}{\eta^{\prime}_{n}}\cdot\eta_{o}\cdot p_{births}(q_{n}|q_{o})\cdot(\frac{q_{o}}{q_{n}}\cdot\rho_{o}(s,\pi,m)+\frac{q_{n}-q_{o}}{q_{n}}\cdot\tilde{\rho}(s,\pi,m))]\label{eq:-12}
 \end{equation}
 
 \end_inset
@@ -1055,16 +870,9 @@ Regarding the distribution of physiological states within patches, individuals
 \end_layout
 
 \begin_layout Standard
-where if patch were to transition from a density of 
-\begin_inset Formula $j$
-\end_inset
-
- to a density of 
-\begin_inset Formula $i$
-\end_inset
-
-, 
-\begin_inset Formula $(\frac{j}{i}\cdot\rho_{i}(s,\pi,m)+\frac{i-j}{i}\cdot\tilde{\rho}(s,\pi,m))$
+where if patch were to transition from a density of o to a density of n,
+ 
+\begin_inset Formula $(\frac{q_{o}}{q_{n}}\cdot\rho_{o}(s,\pi,m)+\frac{q_{n}-q_{o}}{q_{n}}\cdot\tilde{\rho}(s,\pi,m))$
 \end_inset
 
  is the proportion of individuals who are of state 
@@ -1072,11 +880,8 @@ where if patch were to transition from a density of
 \end_inset
 
  within that patch.
- This does however indicate that different patches will have different physiolog
-ical distributions amongst their populations depending on the historical
- density states of that patch which would violate our assumptions of this
- being a Markov process, so (to maintain tractability) we assume that individual
-s have equal access to food regardless of physiological state.
+ This does however indicate that different patches will have different physiological distributions amongst their populations depending on the historical density states of that patch which would violate our assumptions of this being a Markov process,
+ so (to maintain tractability) we assume that individuals have equal access to food regardless of physiological state.
 \end_layout
 
 \begin_layout Subsection
@@ -1086,15 +891,15 @@ Foraging
 \begin_layout Standard
 Individuals observe cues for population density in the form of food availability.
  Food availability is a random variable influenced by the population density,
- all patches produce the same amount of food which must be shared, so for
- any given patch of population density 
-\begin_inset Formula $q_{i}$
+ all patches produce the same amount of food which must be shared,
+ so for any given patch of population density 
+\begin_inset Formula $q_{n}$
 \end_inset
 
  individuals receive a food mass of 
 \begin_inset Formula 
 \begin{equation}
-g\sim\text{Normal}(\frac{\bar{g}}{q_{i}},\sigma_{g})\label{eq:-14}
+g\sim\text{Normal}(\frac{\bar{g}}{q_{n}},\sigma_{g})\label{eq:-14}
 \end{equation}
 
 \end_inset
@@ -1108,17 +913,18 @@ where parameter
 \end_inset
 
  is the food mass standard deviation.
- However, as we are working with discrete mathematics, we must approximate
- this normal distribution using a pseudo-normal probability distribution
- over a grid of possible food mass values 
+ However,
+ as we are working with discrete mathematics,
+ we must approximate this normal distribution using a pseudo-normal probability distribution over a grid of possible food mass values 
 \begin_inset Formula $\boldsymbol{G}=\{0,1,...,G_{max}\}$
 \end_inset
 
-, with probabilies for each realised food mass being 
+,
+ with probabilities for each realised food mass being 
 \begin_inset Formula 
 \begin{equation}
 \begin{array}{ccc}
-p(g|q_{i})=\frac{1}{K}e^{-\frac{(g-\frac{\bar{g}}{q_{i}})^{2}}{2\sigma_{g}^{2}}} & \text{for} & g\in\boldsymbol{G},\end{array}\label{eq:-2}
+p(g|q_{n})=\frac{1}{K}e^{-\frac{(g-\frac{\bar{g}}{q_{n}})^{2}}{2\sigma^{2}_{g}}} & \text{for} & g\in\boldsymbol{G},\end{array}\label{eq:-2}
 \end{equation}
 
 \end_inset
@@ -1135,7 +941,7 @@ where
  is 
 \begin_inset Formula 
 \begin{equation}
-K=\underset{-G}{\overset{G}{\boldsymbol{\sum}}}e^{-\frac{(g-\frac{\bar{g}}{q_{i}})^{2}}{2\sigma_{g}^{2}}}.\label{eq:-15}
+K=\underset{-G}{\overset{G}{\boldsymbol{\sum}}}e^{-\frac{(g-\frac{\bar{g}}{q_{n}})^{2}}{2\sigma^{2}_{g}}}.\label{eq:-15}
 \end{equation}
 
 \end_inset
@@ -1152,42 +958,43 @@ Given the food mass
 \begin_inset Formula $g$
 \end_inset
 
-, individuals observe the resulting nutrient data and update their population
- density information states (i.e.
+,
+ individuals observe the resulting nutrient data and update their population density information states (i.e.
  their belief states).
- Assuming Bayesian optimal updating, their posterior belief is defined 
+ Assuming Bayesian optimal updating,
+ their posterior belief is defined 
 \begin_inset Formula $\forall i$
 \end_inset
 
  as
 \begin_inset Formula 
 \begin{equation}
-\pi_{i}^{\prime}=\frac{\pi_{i}\cdot p(g|q_{i})}{\sum_{j}\pi_{j}\cdot p(g|q_{j})}.\label{eq:-16}
+\pi^{\prime}=\frac{\pi\cdot p(g|q_{1})}{\pi\cdot p(g|q_{1})+(1-\pi)\cdot p(g|q_{0})}.\label{eq:-16}
 \end{equation}
 
 \end_inset
 
 The posterior belief state 
-\begin_inset Formula $\pi_{i}^{\prime}$
+\begin_inset Formula $\pi^{\prime}$
 \end_inset
 
- then needs to be interpolated onto a discrete grid of possible values of
- 
-\begin_inset Formula $\pi_{i}$
+ then needs to be interpolated onto a discrete grid of possible values of 
+\begin_inset Formula $\pi$
 \end_inset
 
- which (because it represent a probability distribution) lies on a unit
- simplex (i.e.
- all values are positive and they add up to 1), requiring a grid of barycentric
- co-ordinates.
- To this end, the first step is to decompose each 
-\begin_inset Formula $\pi_{i}^{\prime}$
+ which (because it represent a probability distribution) lies on a unit simplex (i.e.
+ all values are positive and they add up to 1),
+ requiring a grid of barycentric co-ordinates.
+ To this end,
+ the first step is to decompose each 
+\begin_inset Formula $\pi^{\prime}$
 \end_inset
 
- into it's integer and fractional parts, with the integer part defined by
+ into it's integer and fractional parts,
+ with the integer part defined by
 \begin_inset Formula 
 \[
-n_{i}=\lfloor\pi_{i}^{\prime}\cdot L\rfloor,
+n=\lfloor\pi^{\prime}\cdot I\rfloor,
 \]
 
 \end_inset
@@ -1195,7 +1002,7 @@ n_{i}=\lfloor\pi_{i}^{\prime}\cdot L\rfloor,
 and subsequently the fractional part defined as
 \begin_inset Formula 
 \[
-f_{i}=\pi_{i}^{\prime}\cdot L-\iota_{i}.
+f=\pi^{\prime}\cdot I-n.
 \]
 
 \end_inset
@@ -1204,59 +1011,10 @@ f_{i}=\pi_{i}^{\prime}\cdot L-\iota_{i}.
 \end_layout
 
 \begin_layout Standard
-Note that just as 
+This then gives the transition probabilities between discrete belief states
 \begin_inset Formula 
 \[
-\sum_{i}\pi_{i}^{\prime}=1
-\]
-
-\end_inset
-
-so does
-\begin_inset Formula 
-\[
-L=\sum_{i}\pi_{i}^{\prime}\cdot L,
-\]
-
-\end_inset
-
-and so 
-\begin_inset Formula 
-\[
-L=\sum_{i}n_{i}+f_{i}
-\]
-
-\end_inset
-
-and therefore the sum of the fractional parts must equal an integer because
- 
-\begin_inset Formula $L$
-\end_inset
-
- is an integer.
- Therefore, assuming 
-\begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
-\end_inset
-
-, the fractional parts must add up to 0, 1 or 2.
- If they add up to 
-\begin_inset Formula $0$
-\end_inset
-
- 
-\begin_inset Formula 
-\[
-p(\pi^{\prime}=\{n_{1},n_{2},n_{3}\}|\pi,g\}=1
-\]
-
-\end_inset
-
-If the fractional parts add up to 1 we know exactly one dimension of the
- posterior beleif state has to be rounded up, with weightings given to their
- respective fractional parts and so 
-\begin_inset Formula 
-\[
-p(\pi^{\prime}=\{n_{0}+1,n_{1},n_{2}\}|\pi,g)=f_{0}
+p(\pi^{\prime}=n|\pi,g)=1-f,
 \]
 
 \end_inset
@@ -1264,45 +1022,13 @@ p(\pi^{\prime}=\{n_{0}+1,n_{1},n_{2}\}|\pi,g)=f_{0}
 
 \begin_inset Formula 
 \[
-p(\pi^{\prime}=\{n_{0},n_{1}+1,n_{2}\}|\pi,g)=f_{1},
+p(\pi^{\prime}=n+1|\pi,g)=f.
 \]
 
 \end_inset
 
-
-\begin_inset Formula 
-\[
-p(\pi^{\prime}=\{n_{0},n_{1},n_{2}+1\}|\pi,g)=f_{2}.
-\]
-
-\end_inset
-
-Else if the fractional parts add up to 2, exactly 2 dimensions have to be
- rounded up
-\begin_inset Formula 
-\[
-p(\pi^{\prime}=\{n_{0},n_{1}+1,n_{2}+1\}|\pi,g)=1-f_{0},
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-p(\pi^{\prime}=\{n_{0}+1,n_{1},n_{2}+1\}|\pi,g)=1-f_{1},
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-p(\pi^{\prime}=\{n_{0}+1,n_{1}+1,n_{2}\}|\pi,g)=1-f_{2}.
-\]
-
-\end_inset
-
-Finally, for all other possible posterior co-ordinates on the belief grid,
+Finally,
+ for all other possible posterior co-ordinates on the belief grid,
  the transition probability is 
 \begin_inset Formula 
 \[
@@ -1319,19 +1045,20 @@ Development
 \end_layout
 
 \begin_layout Standard
-Each individual, choose a developmental action given their state 
+Each individual,
+ choose a developmental action given their state 
 \begin_inset Formula $\{s,\pi,m\}$
 \end_inset
 
-, given the resident developmental strategy for that state 
+,
+ given the resident developmental strategy for that state 
 \begin_inset Formula $x(s,\pi^{\prime},m)\in(0,G)$
 \end_inset
 
 .
- Their developmental action determines the threshold mass above which energy
- foraged goes to the development of phenotypes of greater reproductive quality
- (e.g.
- fighter morphology), generating a transition in their size state 
+ Their developmental action determines the threshold mass above which energy foraged goes to the development of phenotypes of greater reproductive quality (e.g.
+ fighter morphology),
+ generating a transition in their size state 
 \begin_inset Formula $s$
 \end_inset
 
@@ -1340,11 +1067,12 @@ Each individual, choose a developmental action given their state
 \end_inset
 
 .
- Of the portion of energy allocated to quality, all energy below a size-dependen
-t investment threshold goes to maintenance costs.
- Therefore, if investment in quality falls below this threshold, given their
- state-dependent strategy and their food mass, there is a discounted probability
- of survival
+ Of the portion of energy allocated to quality,
+ all energy below a size-dependent investment threshold goes to maintenance costs.
+ Therefore,
+ if investment in quality falls below this threshold,
+ given their state-dependent strategy and their food mass,
+ there is a discounted probability of survival
 \begin_inset Formula 
 \begin{equation}
 P(survival|g,s,\pi^{\prime},m)=min(1,\frac{g-\Delta m-\Delta s}{y(s,m)})\label{eq:-44}
@@ -1352,8 +1080,8 @@ P(survival|g,s,\pi^{\prime},m)=min(1,\frac{g-\Delta m-\Delta s}{y(s,m)})\label{e
 
 \end_inset
 
-such that if the individual has no energy to allocate to maintenance they
- die, where 
+such that if the individual has no energy to allocate to maintenance they die,
+ where 
 \begin_inset Formula $y(s)$
 \end_inset
 
@@ -1365,12 +1093,12 @@ y(s,m)=\frac{s^{3}\cdot m}{S^{3}\cdot M}\cdot y_{max}\label{eq:-22}
 
 \end_inset
 
-where we assume mainteance costs scale by the volume of the individual and
- by the quality of soma (given their quality state 
+where we assume maintenance costs scale by the volume of the individual and by the quality of their somatic cells and developmental systems (given their quality state 
 \begin_inset Formula $m$
 \end_inset
 
-), and where 
+),
+ and where 
 \begin_inset Formula $y_{max}$
 \end_inset
 
@@ -1379,11 +1107,13 @@ where we assume mainteance costs scale by the volume of the individual and
 \end_layout
 
 \begin_layout Standard
-The resulting transition probabilities, 
+The resulting transition probabilities,
+ 
 \begin_inset Formula $p(s^{\prime},\pi^{\prime},m^{\prime}|s,\pi,m)$
 \end_inset
 
-, between state 
+,
+ between state 
 \begin_inset Formula $\{s^{\prime},\pi^{\prime},m^{\prime}\}$
 \end_inset
 
@@ -1395,7 +1125,8 @@ The resulting transition probabilities,
 \begin_inset Formula $x(s,\pi,m)$
 \end_inset
 
- and discounted survival probabilities, are found be doing the following:
+ and discounted survival probabilities,
+ are found be doing the following:
  
 \end_layout
 
@@ -1420,7 +1151,8 @@ For all
 \begin_inset Formula $g$
 \end_inset
 
- and for each state, calculate the changes in quality and size
+ and for each state,
+ calculate the changes in quality and size
 \begin_inset Formula 
 \begin{equation}
 \Delta m=max(g-x(s,\pi^{\prime},m),0)\label{eq:-20-1}
@@ -1432,12 +1164,12 @@ where
 \begin_inset Formula $\Delta m$
 \end_inset
 
- is the change in quality state of individuals after ingesting a food mass
- of 
+ is the change in quality state of individuals after ingesting a food mass of 
 \begin_inset Formula $g$
 \end_inset
 
-, and where
+,
+ and where
 \begin_inset Formula 
 \begin{equation}
 \Delta s=max(g-\Delta m-y(s,m),0),\label{eq:-19-1}
@@ -1445,23 +1177,22 @@ where
 
 \end_inset
 
-is the change in size state of individuals after ingesting a food mass of
- 
+is the change in size state of individuals after ingesting a food mass of 
 \begin_inset Formula $g$
 \end_inset
 
-, given that all energy allocated to growth below the fixed and state-dependent
- maintenance cost threshold 
+,
+ given that all energy allocated to growth below the fixed and state-dependent maintenance cost threshold 
 \begin_inset Formula $y(s,m)$
 \end_inset
 
-, below which all food mass is invested in maintenance.
+,
+ below which all food mass is invested in maintenance.
 \end_layout
 
 \begin_layout Enumerate
 These changes then need to be interpolated onto the size and quality grids,
- and for all interpolated values we find the resulting discretised transitions
- and their respective probabilities
+ and for all interpolated values we find the resulting discretised transitions and their respective probabilities
 \begin_inset Formula 
 \[
 p(s+\Delta s,m+\Delta m|s,\pi^{\prime},m,g)=p(\Delta s)\cdot p(\Delta m)
@@ -1481,15 +1212,15 @@ Given the baseline rate of death
 \begin_inset Formula $\lambda$
 \end_inset
 
- and deaths caused by lack of investment in maintenance, the posterior density
- of each state for patchs of each state 
-\begin_inset Formula $i$
+ and deaths caused by lack of investment in maintenance,
+ the posterior density of each state for patches of each state 
+\begin_inset Formula $n$
 \end_inset
 
  is 
 \begin_inset Formula 
 \begin{equation}
-\hat{\rho_{i}^{\prime}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}p(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)\cdot P(survival|g,s,\pi^{\prime},m)\cdot p(\pi^{\prime}|\pi,g)\cdot p(g|q_{i})\cdot\rho_{i}^{\prime}(s,\pi,m)\label{eq:-17}
+\hat{\rho^{\prime}_{n}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}p(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)\cdot P(survival|g,s,\pi^{\prime},m)\cdot p(\pi^{\prime}|\pi,g)\cdot p(g|q_{n})\cdot\rho^{\prime}_{n}(s,\pi,m)\label{eq:-17}
 \end{equation}
 
 \end_inset
@@ -1498,17 +1229,19 @@ Given the baseline rate of death
 \end_layout
 
 \begin_layout Standard
-Where, as a reminder, 
-\begin_inset Formula $\rho_{i}^{\prime}(s,\pi,m)$
+Where,
+ as a reminder,
+ 
+\begin_inset Formula $\rho^{\prime}_{n}(s,\pi,m)$
 \end_inset
 
- is the probability distribution over states after dispersal within patches
- of population size 
-\begin_inset Formula $q_{i}$
+ is the probability distribution over states after dispersal within patches of population size 
+\begin_inset Formula $q_{n}$
 \end_inset
 
-, 
-\begin_inset Formula $p(g|q_{i})$
+,
+ 
+\begin_inset Formula $p(g|q_{n})$
 \end_inset
 
  is the probability of a food mass of 
@@ -1516,10 +1249,11 @@ Where, as a reminder,
 \end_inset
 
  in patches of size 
-\begin_inset Formula $q_{i}$
+\begin_inset Formula $q_{n}$
 \end_inset
 
-, 
+,
+ 
 \begin_inset Formula $p(\pi^{\prime}|\pi,g)$
 \end_inset
 
@@ -1527,16 +1261,17 @@ Where, as a reminder,
 \begin_inset Formula $\pi^{\prime}$
 \end_inset
 
- given this food mass, 
+ given this food mass,
+ 
 \begin_inset Formula $P(survival|s,\pi^{\prime},m,g)$
 \end_inset
 
- is the probability of survival of maintenance costs given their developmental
- strategy dependent on posterior information state 
+ is the probability of survival of maintenance costs given their developmental strategy dependent on posterior information state 
 \begin_inset Formula $\pi^{\prime}$
 \end_inset
 
-, and 
+,
+ and 
 \begin_inset Formula $p(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)$
 \end_inset
 
@@ -1548,8 +1283,7 @@ Where, as a reminder,
 \begin_inset Formula $m^{\prime}$
 \end_inset
 
- given the outcomes of development and given that they have survived maintenance
- costs.
+ given the outcomes of development and given that they have survived maintenance costs.
 \end_layout
 
 \begin_layout Standard
@@ -1557,111 +1291,64 @@ Given the baseline rate of death
 \begin_inset Formula $\lambda$
 \end_inset
 
- and deaths caused by lack of investment in maintenance, patches can transition
- to lower population density states.
- Therefore, given the posterior densities of individuals within patches,
- the posteior of population size of a patch of density state 
-\begin_inset Formula $q_{i}$
+ and deaths caused by lack of investment in maintenance,
+ patches can transition to lower population density states.
+ Therefore,
+ given the posterior densities of individuals within patches,
+ the posterior of population size of a patch of density state 
+\begin_inset Formula $q_{o}$
 \end_inset
 
  is 
 \begin_inset Formula 
 \[
-u=q_{i}\cdot(1-\lambda)\cdot\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho_{i}^{\prime}}(s^{\prime},\pi^{\prime},m^{\prime})
+u(o)=q_{o}\cdot(1-\lambda)\cdot\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})
 \]
 
 \end_inset
 
- The posterior distribution of patch states is therefore
+ This is needed to calculate the posterior distribution of patch states
 \begin_inset Formula 
 \begin{equation}
-h^{\hat{\prime}}(q_{i})=\sum_{j}^{I}h(q_{j})\cdot p_{\text{fail}}(q_{i}|q_{j})\label{eq:-23}
+\eta^{\hat{\prime}}(q_{n})=\sum_{o\in\{0,1\}}\eta^{\prime}_{o}\cdot p_{\text{fail}}(q_{n}|q_{o})\label{eq:-23}
 \end{equation}
 
 \end_inset
 
 where 
-\begin_inset Formula $p_{\text{fail}}(q_{i}|q_{j})$
+\begin_inset Formula $p_{\text{fail}}(q_{n}|q_{o})$
 \end_inset
 
  is the transition probability of a patch from state 
-\begin_inset Formula $j$
+\begin_inset Formula $o$
 \end_inset
 
  to 
-\begin_inset Formula $i$
+\begin_inset Formula $n$
 \end_inset
 
- given deaths from maintenance failures, defined by interpolating 
-\begin_inset Formula $u$
+ given deaths from maintenance failures,
+ defined by interpolating 
+\begin_inset Formula $u(o)$
 \end_inset
 
- so that where 
-\begin_inset Formula 
-\begin{equation}
-s_{1}(j)=floor(\frac{u}{n_{max}}\cdot I)\label{eq:-26}
-\end{equation}
-
+ thusly for each 
+\begin_inset Formula $o\in\{0,1\}$
 \end_inset
 
 
 \begin_inset Formula 
 \begin{equation}
-s_{2}(j)=s_{1}(j)+1\label{eq:-27}
+p_{\text{fail}}(q_{1}|q_{o})=\frac{min(max(u(o),q_{0}),q_{1})-n_{low}}{n_{max}}\label{eq:-26}
 \end{equation}
 
 \end_inset
 
-
+and then 
 \begin_inset Formula 
-\begin{equation}
-p_{2}(j)=(\frac{u}{n_{max}}\cdot I)-s_{1}\label{eq:-28}
-\end{equation}
-
-\end_inset
-
-
-\begin_inset Formula 
-\begin{equation}
-p_{1}(j)=1-p_{2}(j)\label{eq:-29}
-\end{equation}
-
-\end_inset
-
-and so run the following algoritm for each 
-\begin_inset Formula $q_{j}$
-\end_inset
-
-:
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula 
-\begin{equation}
-\forall q_{i},p_{\text{fail}}(q_{i}|q_{j})=0.\label{eq:-21}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula 
-\begin{equation}
-p_{\text{fail}}(s_{1}(q_{j})|q_{j})=p_{1}(j)+p_{\text{fail}}(s_{1}(q_{j})|q_{j}).\label{eq:-24}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula 
-\begin{equation}
-p_{\text{fail}}(s_{2}(q_{j})|q_{j})=p_{2}(j)+p_{\text{fail}}(s_{2}(q_{j})|q_{j}).\label{eq:-25}
-\end{equation}
+\[
+p_{\text{fail}}(q_{0}|q_{o})=1-\frac{min(max(u(o),q_{0}),q_{1})-n_{low}}{n_{max}}
+\]
 
 \end_inset
 
@@ -1669,11 +1356,10 @@ p_{\text{fail}}(s_{2}(q_{j})|q_{j})=p_{2}(j)+p_{\text{fail}}(s_{2}(q_{j})|q_{j})
 \end_layout
 
 \begin_layout Standard
-The posterior probability distribution over individual states for patches
- of each population density state is therefore 
+The posterior probability distribution over individual states for patches of each population density state is therefore 
 \begin_inset Formula 
 \begin{equation}
-\rho_{i}^{\prime\prime}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{j}}h(q_{j})\cdot p_{\text{fail}}(q_{i}|q_{j})\cdot\frac{\hat{\rho_{j}^{\prime}}(s^{\prime},\pi^{\prime},m^{\prime})}{\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho_{j}^{\prime}}(s^{\prime},\pi^{\prime},m^{\prime})}\label{eq:-30}
+\rho^{\prime\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\frac{1}{\eta^{\hat{\prime}}_{n}}\cdot\eta^{\prime}_{o}\cdot p_{\text{fail}}(q_{n}|q_{o})\cdot\frac{\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}{\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}\label{eq:-30}
 \end{equation}
 
 \end_inset
@@ -1682,126 +1368,80 @@ The posterior probability distribution over individual states for patches
 \end_layout
 
 \begin_layout Subsection
-Patch quality perturbations
+Demographic stochasticity
 \end_layout
 
 \begin_layout Standard
-Every patch undergoes momentary perturbations in quality, influenced by
- patch population density (e.g.
+Every patch undergoes stochastic perturbations in population density,
+ influenced by patch population density (e.g.
  the local extinction of a prey species).
- These perturbations can afford an increase or decrease in population size.
- For simplicity, we assume patches rapidly return to normal quality after
- perturbations and we assume that the probability of death is equal for
- all individuals so there is no change in the distribution of individual
- states within patches.
- We assume these perturbations have a normal distribution, although once
- again we must approximate this normal distribution to interpolate transition
- probabilities on to the grid of possible density states, where corresponding
- to the range of possible population density transitions we define the set
- 
-\begin_inset Formula $\boldsymbol{T}=\{-I,-I+1,...,I-1,I\}$
-\end_inset
-
- (where 
-\begin_inset Formula $I$
-\end_inset
-
- is the size of the population density state grid), with a pseudo-normal
- distribution over this set defining the probability of any given possible
- change in density 
-\begin_inset Formula $\tau\in T$
-\end_inset
-
-, defined as
-\end_layout
-
-\begin_layout Standard
+ We assume that the probability of death is equal for all individuals so there is no change in the distribution of individual states within patches as a result of these perturbations.
+ We define the resulting transition probabilities as 
 \begin_inset Formula 
-\begin{equation}
-\begin{array}{ccc}
-p(\tau)=\frac{1}{K_{\gamma}}e^{-\frac{(\tau/I)^{2}}{2\sigma_{\gamma}^{2}}} & \text{for} & \tau\in T,\end{array}\label{eq:-2-1}
-\end{equation}
+\[
+p_{patch}(q_{0}|q_{0})=0.5
+\]
 
-\end_inset
-
-where 
-\begin_inset Formula $\sigma_{\gamma}^{2}$
-\end_inset
-
- is the standard deviation parameter for perturbations and 
-\begin_inset Formula $K_{\gamma}$
-\end_inset
-
- is 
-\begin_inset Formula 
-\begin{equation}
-K_{\gamma}=\underset{t=-I}{\overset{I}{\boldsymbol{\sum}}}e^{-\frac{(t/I)^{2}}{2\sigma_{\gamma}^{2}}}.\label{eq:-32}
-\end{equation}
-
-\end_inset
-
- The shift in probability generated by demographic feedback is defined as
- 
-\begin_inset Formula 
-\begin{equation}
-c=round(\frac{q_{i}}{q_{I}}\cdot\gamma)\label{eq:-33}
-\end{equation}
-
-\end_inset
-
-where 
-\begin_inset Formula $\gamma\in(0,1)$
-\end_inset
-
- is the maximum risk of mass mortality events associated with population
- density.
- We can then define 
-\begin_inset Formula $p_{pert}(q_{i}|q_{j})$
-\end_inset
-
-, the probability of a patch of density j to a density of i as a result
- of bounded patch quality perturbations, as
-\begin_inset Formula 
-\begin{equation}
-p_{pert}(q_{i}|q_{j})=\begin{cases}
-\text{if }i=0 & \sum_{\tau=min(I,i+c-j)}^{\tau=-I}p(\tau)\\
-\text{if }0<i<I & p(\tau=min(I,i+c-j)\\
-\text{if }i=I & \sum_{\tau=min(I,i+c-j)}^{\tau=I}p(\tau)
-\end{cases}\label{eq:-34}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Given these perturbations, the proportion of patches that are of population
- density 
-\begin_inset Formula $q_{i}$
-\end_inset
-
- for all 
-\begin_inset Formula $i$
-\end_inset
-
- in the next time step is 
-\begin_inset Formula 
-\begin{equation}
-h^{\prime\prime}(q_{i})=\sum_{j}^{I}p_{patch}(q_{i}|q_{j})\cdot h^{\prime}(q_{j})\label{eq:-35}
-\end{equation}
-
-\end_inset
-
-and similarly the posterior physiological state distribution for each patch
- state is 
-\begin_inset Formula $\forall i$
 \end_inset
 
 
 \begin_inset Formula 
 \[
-\rho_{i}^{\prime\prime}(s,\pi,m)=\sum_{j}^{I}p_{patch}(q_{i}|q_{j})\cdot h^{\prime}(q_{j})\cdot\rho_{i}^{\prime\prime}(s,\pi,m).
+p_{patch}(q_{1}|q_{0})=0.5
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+p_{patch}(q_{0}|q_{1})=0.5+\gamma
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+p_{patch}(q_{1}|q_{1})=1-\gamma
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ gives the increased rate of food depletion as a result of a high population density and so the density dependent rate of population decline.
+ Given these perturbations,
+ the proportion of patches that are of population density 
+\begin_inset Formula $q_{n}$
+\end_inset
+
+ for all 
+\begin_inset Formula $n\in\{0,1\}$
+\end_inset
+
+ in the next time step is 
+\begin_inset Formula 
+\begin{equation}
+\eta^{\prime\prime}_{n}q_{n})=\sum_{o\in\{0,1\}}p_{patch}(q_{n}|q_{o})\cdot\eta^{\hat{\prime}}_{o}\label{eq:-35}
+\end{equation}
+
+\end_inset
+
+and similarly the posterior physiological state distribution for each patch state is 
+\begin_inset Formula $\forall n$
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\rho^{\prime\prime}_{n}(s,\pi,m)=\sum_{o\in\{0,1\}}\frac{1}{\eta^{\prime\prime}_{n}}\cdot p_{patch}(q_{n}|q_{o})\cdot\eta^{\hat{\prime}}_{o}\cdot\rho^{\prime\prime}_{o}(s,\pi,m).
 \]
 
 \end_inset
@@ -1814,33 +1454,33 @@ Bayesian updating between growth cycles
 \end_layout
 
 \begin_layout Standard
-Individuals also know the transition probabilities between patch population
- density states at demographic stability in their evolutionary history,
+Individuals also know the transition probabilities between patch population density states at demographic stability in their evolutionary history,
  
-\begin_inset Formula $\tilde{p}(q_{i}|q_{j})$
+\begin_inset Formula $\tilde{p}(q_{n}|q_{o})$
 \end_inset
 
-, resulting from these growth and death processes, and so individuals that
- survive to the next growth cycle will update their information states according
-ly for all 
-\begin_inset Formula $i$
+,
+ resulting from these growth and death processes,
+ and so individuals that survive to the next growth cycle will update their information states accordingly for all 
+\begin_inset Formula $n$
 \end_inset
 
 
 \begin_inset Formula 
 \begin{equation}
-\pi_{i}^{\prime}=\sum_{j}\pi_{j}\cdot\tilde{p}(q_{i}|q_{j}).\label{eq:-1}
+\pi^{\prime}_{n}=\sum_{o\in\{0,1\}}\pi_{o}\cdot\tilde{p}(q_{n}|q_{o}).\label{eq:-1}
 \end{equation}
 
 \end_inset
 
-For the first instance, when we have not yet found demographic stability,
+For the first instance,
+ when we have not yet found demographic stability,
  we will assume that their priors are that 
-\begin_inset Formula $\forall i\forall j,\tilde{p}(q_{i}|q_{j})=0$
+\begin_inset Formula $\forall n\forall o,\tilde{p}(q_{n}|q_{o})=0$
 \end_inset
 
-, as this should not have a strong influence on the long term adaptive dynamics
- assuming that the dynamics are ordered rather than chaotic.
+,
+ as this should not have a strong influence on the long term adaptive dynamics assuming that the dynamics are ordered rather than chaotic.
 \end_layout
 
 \begin_layout Subsection
@@ -1855,44 +1495,44 @@ Assuming that with successive generations
  that the distribution of patches over states converges on stable values,
  i.e.
  
-\begin_inset Formula $\forall q_{i}$
-\end_inset
-
-
 \begin_inset Formula 
 \begin{equation}
-\text{\ensuremath{h^{*}(q_{i})}=lim}_{\rightarrow\infty}[h(q_{i})]\label{eq:-36}
+\text{\ensuremath{\eta^{*}_{1}}=lim}_{\rightarrow\infty}[\eta_{1}]\label{eq:-36}
 \end{equation}
 
 \end_inset
 
-further, we can approximate 
-\begin_inset Formula $h^{*}(q_{i})$
+further,
+ we can approximate 
+\begin_inset Formula $\eta^{*}_{1}$
 \end_inset
 
  by iterating over generations until 
 \begin_inset Formula 
 \begin{equation}
-tol>\sum_{i}|h(q_{i})-h^{\prime\prime}(q_{i})|\label{eq:-37}
+tol>|\eta_{1}-\eta^{\prime\prime}_{1}|\label{eq:-37}
 \end{equation}
 
 \end_inset
 
-where the tolerance threshold, 
+where the tolerance threshold,
+ 
 \begin_inset Formula $tol$
 \end_inset
 
-, is very small, and 
-\begin_inset Formula $h^{\prime\prime}(q_{i})$
+,
+ is very small,
+ and 
+\begin_inset Formula $\eta^{\prime\prime}_{1}$
 \end_inset
 
  is the proportion of patches that are of population density state 
-\begin_inset Formula $q_{i}$
+\begin_inset Formula $q_{1}$
 \end_inset
 
  after dispersal and deaths.
  Once demographic stability is reached we assume 
-\begin_inset Formula $h^{*}(q_{i})=h(q_{i})$
+\begin_inset Formula $\eta^{*}_{1}=\eta_{1}$
 \end_inset
 
  and proceed with invasion analysis.
@@ -1903,18 +1543,16 @@ Finding Evolutionary Stability
 \end_layout
 
 \begin_layout Standard
-Having found the demographically stable state of the metapopulation, given
- the resident strategy, we can then use the Bellman equation to find the
- best response strategy 
+Having found the demographically stable state of the metapopulation,
+ given the resident strategy,
+ we can then use the Bellman equation to find the best response strategy 
 \begin_inset Formula $b(x(s,\pi,m))$
 \end_inset
 
  for an invading individual.
  We then assume the best response strategy becomes the new resident strategy,
  and recalculate the demographically stable state of the metapopulation.
- The evolutionarily stable strategy (ESS) is a resident strategy for which
- invading individuals can do no better than to follow the resident strategy
- and so the ESS is defined as
+ The evolutionarily stable strategy (ESS) is a resident strategy for which invading individuals can do no better than to follow the resident strategy and so the ESS is defined as
 \begin_inset Formula 
 \begin{equation}
 \bar{x}(s,\pi,m)=b(x(s,\pi,m))=x(s,\pi,m).\label{eq:-38-1}
@@ -1922,29 +1560,23 @@ Having found the demographically stable state of the metapopulation, given
 
 \end_inset
 
-Assuming there is a singular ESSs, we can iterating over invasions till
- the best response strategy converges on the ESS, and the starting point
- of the population will not matter.
+Assuming there is a singular ESSs,
+ we can iterating over invasions till the best response strategy converges on the ESS,
+ and the starting point of the population will not matter.
  By sampling from multiple starting points we can test this assumption,
- and if necessary plot out the adaptive dynamics with phase portraits where
- there are multiple ESSs or oscillatory dynamics.
+ and if necessary plot out the adaptive dynamics with phase portraits where there are multiple ESSs or oscillatory dynamics.
 \end_layout
 
 \begin_layout Standard
-To find the best response we define a Bellman fitness equation for individuals
- in the model where 
-\begin_inset Formula $V_{n=0}(s,\pi,m)=0$
+To find the best response we define a Bellman fitness equation for individuals in the model where 
+\begin_inset Formula $V^{\prime}(s,\pi,m)=0$
 \end_inset
 
- for all state combinations (as the individual is dead), and iterate backwards
- to the previous time step 
-\begin_inset Formula $n+1$
-\end_inset
-
-
+ for all state combinations (as the individual is dead),
+ and iterate backwards to the previous time step
 \begin_inset Formula 
 \begin{equation}
-V_{n+1}(s,\pi,m)=R(s,m)+\text{max}_{x(s,\pi,m)=\kappa}[\sum_{s_{n}}\sum_{\pi_{n}}\sum_{m_{n}}a(s^{\prime},\pi^{\prime\prime},m^{\prime}|s,\pi,m,\kappa)\cdot V_{n}(s_{n},\pi_{n},m_{n})],\label{eq:-39-1}
+V^{\prime}(s,\pi,m)=R(s,m)+\text{max}_{x(s,\pi,m)=\kappa}[\sum_{s^{\prime}}\sum_{\pi^{\prime\prime}}\sum_{m^{\prime}}a(s^{\prime},\pi^{\prime\prime},m^{\prime}|s,\pi,m,\kappa)\cdot V(s^{\prime},\pi^{\prime\prime},m^{\prime})],\label{eq:-39-1}
 \end{equation}
 
 \end_inset
@@ -1961,18 +1593,18 @@ where
 \begin_inset Formula $m$
 \end_inset
 
- (see equation 1), 
+ (see equation 1),
+ 
 \begin_inset Formula $p_{pert}(survival|\pi_{n})$
 \end_inset
 
- is the probability the individual survives between timesteps given patch
- quality perturbations, and 
-\begin_inset Formula $p(s_{n},\pi_{n},m_{n},survives|s,\pi,m,\kappa)$
+ is the probability the individual survives between time-steps given patch quality perturbations,
+ and 
+\begin_inset Formula $p(s^{\prime},\pi^{\prime\prime},m^{\prime},survives|s,\pi,m,\kappa)$
 \end_inset
 
- is the survival (given maintenance) and state transition probability to
- the posterior state 
-\begin_inset Formula $\{s_{n},\pi_{n},m_{n}\}$
+ is the survival (given maintenance) and state transition probability to the posterior state 
+\begin_inset Formula $\{s^{\prime},\pi^{\prime\prime},m^{\prime}\}$
 \end_inset
 
  of individuals of prior state 
@@ -1988,11 +1620,10 @@ State transitions between developmental actions
 \end_layout
 
 \begin_layout Standard
-Individuals are born with accurate prior information regarding the propbability
- distribution over the population density states of patches 
+Individuals are born with accurate prior information regarding the probability distribution over the population density states of patches 
 \begin_inset Formula 
 \begin{equation}
-\boldsymbol{\pi}=\{\pi_{0}=p(q_{0})=h(q_{0}),\pi_{1}=p(q_{1})=h(q_{1}),...,\pi_{I}=p(q_{I})=h(q_{I})\}\label{eq:-3-1}
+\pi=\eta_{1}\label{eq:-3-1}
 \end{equation}
 
 \end_inset
@@ -2001,8 +1632,7 @@ Individuals are born with accurate prior information regarding the propbability
 \end_layout
 
 \begin_layout Standard
-Individuals have a probability of death from patch depletion and a probability
- of death 
+Individuals have a probability of death from patch depletion and a probability of death 
 \begin_inset Formula $\lambda$
 \end_inset
 
@@ -2021,11 +1651,9 @@ P_{pert}(survival|\boldsymbol{\pi})=(1-\lambda)\cdot\sum_{j}\sum_{k}\pi_{j}\cdot
 
 \end_inset
 
-Individuals also know the transition probabilities between patch population
- density states at demographic stability given patch perturbations and dispersal
-, since the previous development action.
- The transition probability at demographic stability of a patch of population
- density 
+Individuals also know the transition probabilities between patch population density states at demographic stability given patch perturbations and dispersal,
+ since the previous development action.
+ The transition probability at demographic stability of a patch of population density 
 \begin_inset Formula $j$
 \end_inset
 
@@ -2033,15 +1661,16 @@ Individuals also know the transition probabilities between patch population
 \begin_inset Formula $i$
 \end_inset
 
-, given perturbations and dispersal is full therefore, the posterior belief
- 
+,
+ given perturbations and dispersal is full therefore,
+ the posterior belief 
 \begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
 \end_inset
 
 becomes
 \begin_inset Formula 
 \[
-\pi_{0}^{\prime}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{2})
+\pi^{\prime}_{0}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{2})
 \]
 
 \end_inset
@@ -2049,7 +1678,7 @@ becomes
 
 \begin_inset Formula 
 \[
-\pi_{1}^{\prime}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{2})
+\pi^{\prime}_{1}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{2})
 \]
 
 \end_inset
@@ -2057,60 +1686,67 @@ becomes
 
 \begin_inset Formula 
 \[
-\pi_{2}^{\prime}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{2})
+\pi^{\prime}_{2}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{2})
 \]
 
 \end_inset
 
 ensuring that the posterior belief 
-\begin_inset Formula $\sum_{i}\pi_{i}^{\prime}=1$
+\begin_inset Formula $\sum_{i}\pi^{\prime}_{i}=1$
 \end_inset
 
-, 
+,
+ 
 \begin_inset Formula $\pi^{\prime}$
 \end_inset
 
- then has to be interpolated on the discrete belief state space, generating
- posterior belief states 
+ then has to be interpolated on the discrete belief state space,
+ generating posterior belief states 
 \begin_inset Formula $d_{1}$
 \end_inset
 
-, 
+,
+ 
 \begin_inset Formula $d_{2}$
 \end_inset
 
-, and 
+,
+ and 
 \begin_inset Formula $d_{3}$
 \end_inset
 
-, with respective probabilities 
+,
+ with respective probabilities 
 \begin_inset Formula $p_{1}$
 \end_inset
 
-, 
+,
+ 
 \begin_inset Formula $p_{2}$
 \end_inset
 
-, and 
+,
+ and 
 \begin_inset Formula $p_{3}$
 \end_inset
 
 .
- We can then generate the transition probability matrix for belief states
- given that population growth and patch perturbations willl have occurred
- within the time between developmental actions, i.e.
+ We can then generate the transition probability matrix for belief states given that population growth and patch perturbations will have occurred within the time between developmental actions,
+ i.e.
  
 \begin_inset Formula $p(\pi^{\prime}|\pi,time)$
 \end_inset
 
-, defined by running the following algorithm for all prior belief states:
+,
+ defined by running the following algorithm for all prior belief states:
 \end_layout
 
 \begin_layout Enumerate
 \begin_inset Formula $\forall\pi^{\prime}$
 \end_inset
 
-, 
+,
+ 
 \begin_inset Formula $p(\pi^{\prime}|\pi,time)=0$
 \end_inset
 
@@ -2154,7 +1790,7 @@ The posterior belief
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\pi_{i}^{\prime\prime}=\frac{\pi_{i}^{\prime}\cdot p(g|p(q_{i}))}{\sum_{k}^{I}\pi_{k}^{\prime}\cdot p(g_{k}|p(q_{k}))}
+\pi^{\prime\prime}_{i}=\frac{\pi^{\prime}_{i}\cdot p(g|p(q_{i}))}{\sum^{I}_{k}\pi^{\prime}_{k}\cdot p(g_{k}|p(q_{k}))}
 \]
 
 \end_inset
@@ -2164,41 +1800,46 @@ The posterior belief
 
 \begin_layout Standard
 ensuring that the posterior belief 
-\begin_inset Formula $\sum_{i}\pi_{i}^{\prime\prime}=1$
+\begin_inset Formula $\sum_{i}\pi^{\prime\prime}_{i}=1$
 \end_inset
 
-, 
+,
+ 
 \begin_inset Formula $\pi^{\prime\prime}$
 \end_inset
 
- then has to be interpolated on the discrete belief state space, generating
- posterior belief states 
+ then has to be interpolated on the discrete belief state space,
+ generating posterior belief states 
 \begin_inset Formula $d_{1}$
 \end_inset
 
-, 
+,
+ 
 \begin_inset Formula $d_{2}$
 \end_inset
 
-, and 
+,
+ and 
 \begin_inset Formula $d_{3}$
 \end_inset
 
-, with respective probabilities 
+,
+ with respective probabilities 
 \begin_inset Formula $p_{1}$
 \end_inset
 
-, 
+,
+ 
 \begin_inset Formula $p_{2}$
 \end_inset
 
-, and 
+,
+ and 
 \begin_inset Formula $p_{3}$
 \end_inset
 
 .
- We can then generate the transition probability matrix for belief states
- given a food mass of 
+ We can then generate the transition probability matrix for belief states given a food mass of 
 \begin_inset Formula $g$
 \end_inset
 
@@ -2213,7 +1854,8 @@ ensuring that the posterior belief
 \begin_inset Formula $\forall\pi^{\prime\prime}$
 \end_inset
 
-, 
+,
+ 
 \begin_inset Formula $p(\pi^{\prime\prime}|\pi^{\prime},g)=0$
 \end_inset
 
@@ -2247,13 +1889,13 @@ State Transitions During Development
 \end_layout
 
 \begin_layout Standard
-As observations of patch density and an individual's development are linked
- by the same random variable, food mass 
+As observations of patch density and an individual's development are linked by the same random variable,
+ food mass 
 \begin_inset Formula $g$
 \end_inset
 
-, we define the state transition probability given individual decision making
- as
+,
+ we define the state transition probability given individual decision making as
 \begin_inset Formula 
 \begin{equation}
 a(s^{\prime},\pi^{\prime\prime},m^{\prime}|s,\pi,m,\kappa)=P_{pert}(survival|\boldsymbol{\pi})\cdot\sum_{\pi^{\prime}}[p(\pi^{\prime}|\pi,time)\cdot\sum_{g}[p(g|\pi^{\prime})\cdot p(\pi^{\prime\prime}|\pi^{\prime},g)\cdot p(s^{\prime},m^{\prime},survives|\kappa,s,m,\pi^{\prime\prime},g)]]\label{eq:-40}
@@ -2273,10 +1915,12 @@ where
 \begin_inset Formula $m^{\prime}$
 \end_inset
 
- given the individual's developmental policy dependent on their current
- size, quality, and information states, given the food mass they received,
- and given their probability of survival given maintenance costs, all defined
- once by doing the following:
+ given the individual's developmental policy dependent on their current size,
+ quality,
+ and information states,
+ given the food mass they received,
+ and given their probability of survival given maintenance costs,
+ all defined once by doing the following:
 \end_layout
 
 \begin_layout Enumerate
@@ -2304,8 +1948,8 @@ For all
 \begin_inset Formula $g$
 \end_inset
 
-, define the transitions in state predicted by their developmental strategy
- 
+,
+ define the transitions in state predicted by their developmental strategy 
 \begin_inset Formula $\kappa,$
 \end_inset
 
@@ -2317,12 +1961,12 @@ where
 
 \end_inset
 
-is the change in quality state of individuals after ingesting a food mass
- of 
+is the change in quality state of individuals after ingesting a food mass of 
 \begin_inset Formula $g$
 \end_inset
 
-, and where
+,
+ and where
 \begin_inset Formula 
 \begin{equation}
 \Delta s=max(g-\Delta m-y(s,m),0),\label{eq:-19-1-1}
@@ -2330,17 +1974,17 @@ is the change in quality state of individuals after ingesting a food mass
 
 \end_inset
 
-is the change in size state of individuals after ingesting a food mass of
- 
+is the change in size state of individuals after ingesting a food mass of 
 \begin_inset Formula $g$
 \end_inset
 
-, given that all energy allocated to growth below the fixed and state-dependent
- maintenance cost threshold 
+,
+ given that all energy allocated to growth below the fixed and state-dependent maintenance cost threshold 
 \begin_inset Formula $y(s,m)$
 \end_inset
 
-, below which all food mass is invested in maintenance.
+,
+ below which all food mass is invested in maintenance.
 \end_layout
 
 \begin_layout Enumerate
@@ -2352,13 +1996,13 @@ Then add
 \begin_inset Formula $p(s+\Delta s,m+\Delta m,survives|s,\pi,m,g,\kappa)$
 \end_inset
 
-, where depending on the food mass 
+,
+ where depending on the food mass 
 \begin_inset Formula $g$
 \end_inset
 
- an individual encounters and the fraction of that mass that they invest
- in maintenance, there is a probability of death from lack of maintenance
- of 
+ an individual encounters and the fraction of that mass that they invest in maintenance,
+ there is a probability of death from lack of maintenance of 
 \begin_inset Formula 
 \begin{equation}
 P(survival|g,s,m,\kappa)=min(1,\frac{g-\Delta m-\Delta s}{y(s,m)})\label{eq:-44-1}
@@ -2370,8 +2014,8 @@ where
 \begin_inset Formula $y(s,m)$
 \end_inset
 
- is the size and quality dependent maintenance cost threshold to avoid death
- completely, defined as shown previously:
+ is the size and quality dependent maintenance cost threshold to avoid death completely,
+ defined as shown previously:
 \begin_inset Formula 
 \begin{equation}
 y(s,m)=\frac{s^{3}\cdot m}{S^{3}\cdot M}\cdot g_{max}\label{eq:-22-1}
