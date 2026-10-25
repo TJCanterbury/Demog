@@ -194,7 +194,7 @@ impl Environment {
                     println!("{}, {}, {}",n0,n1,j);
                     self.beliefs[j].pi0=(n0 as f64)/(NPI as f64-1.);
                     self.beliefs[j].pi1=(n1 as f64)/(NPI as f64-1.);
-                    self.beliefs[j].pi2=((NPI-n0-n1) as f64)/(NPI as f64-1.);
+                    self.beliefs[j].pi2=((NPI-n0-n1-1) as f64)/(NPI as f64-1.);
                     println!("{}, {}, {}",self.beliefs[j].pi0, self.beliefs[j].pi1, self.beliefs[j].pi2);
                 }
             }
@@ -743,31 +743,41 @@ impl Environment {
     }
 
     fn inits(&mut self){
+        println!("Initialising h");
         self.init_h();
 
+        println!("Initialising rho");
         self.init_rho();
 
+        println!("Initialising beliefs");
         self.init_beliefs();
 
         // as per section 3.3 in finding demographic stability.
-
+        println!("Initialising p(g|i)");
         // first update food mass pdf:
         self.init_p_g_i();
 
         // Initialise the transition probabilities from pi to pi^prime given a food mass of g
+        println!("Initialising P(pi|pi,g)");
         self.init_pipig();
 
         // Init pseudonormal distribution and define perturbations (p_pert(i|j)):
+        println!("Initialising P(tau)");
         self.init_ptau();
 
         // init reproductive rates
+        println!("Initialising R");
         self.init_R();
 
         // init prob of g given prior pi
+        println!("Initialising P(g|pi)");
         self.init_gpi();
 
         // init prob of survival given perturbations
+        println!("Initialising P(survival|pert");
         self.init_pertsurvival();
+        
+        println!("Initialisations done!");
     }
 
     fn r_state(&self, state:usize) -> f64{
@@ -874,24 +884,7 @@ impl Environment {
         // demographic stability:
         let mut dif_h = 1.;
         let mut oldh: Vec<f64> = self.hi.clone();
-        while dif_h > self.tol{
-            self.Dispersal();
-            println!("post dispersal h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
-
-            self.Foraging();
-            println!("post development h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
-
-            self.Perturbations();
-            println!("post perturbatins h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
-
-            self.bayes();
-            println!("post bayes h(0): {}, h(1): {}, h(2): {}", self.hi[0], self.hi[1], self.hi[2]);
-
-            dif_h = self.Dem_Dif(oldh);
-            oldh = self.hi.clone();
-        
-            println!("dif_h: {}, h(0): {}, h(1): {}, h(2): {}", dif_h, self.hi[0], self.hi[1], self.hi[2]);
-        
+        while dif_h > self.tol{ 
         }
         self.update_dev_m_kappa();
         self.update_pipitime();
@@ -1026,6 +1019,11 @@ impl Environment {
 
             // find best response strategy
             self.Best_Response();
+
+            // print x
+            for pi in 0..LENPI{
+                println!("state s:{}, pi:{}, m:{}, best strat x: {}", NS-2, pi, NM/2, self.x[idx(NS-2, pi, NM/2)]);
+            }
 
             // Calculate difference in strategy
             difx = self.evo_dif();
