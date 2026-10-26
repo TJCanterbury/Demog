@@ -380,9 +380,16 @@ impl Environment {
             for state in 0..N_states {
                 for j in 0..I{
                     rhoiprime[state][i] += self.hi[j]*self.p_births[j][i]*((self.q(j)/self.q(i))*self.rhoi[state][j] + (1.-self.q(j)/self.q(i))*self.rhotilde[state])/h_prime[i];
-                            
-                    // println!("Dirspersal. rhoiprime: {}, hi: {}, p_births trans: {}, growth ratio: {}, old rhoi: {}, proportion of difference: {}, rhotilde: {}", rhoiprime[idx(s,pi,m)][i], self.hi[j], self.p_births[j][i], (self.q(j)/self.q(i)), self.rhoi[idx(s,pi,m)][j], ((self.q(i)-self.q(j))/self.q(i)), self.rhotilde[idx(s,pi,m)]);
-                    // println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
+                    
+                    if h_prime[i] == 0. {
+                        rhoiprime[state][i] = self.rhotilde[state];
+                    }
+                    if rhoiprime[state][i].is_nan(){
+                        println!("dispersal. rhoiprime: {}, hi: {}, p_births trans: {}, growth ratio: {}, old rhoi: {}, proportion of difference: {}, rhotilde: {}", rhoiprime[state][i], self.hi[j], self.p_births[j][i], (self.q(j)/self.q(i)), self.rhoi[state][j], ((self.q(i)-self.q(j))/self.q(i)), self.rhotilde[state]);
+                        println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
+                        println!("i: {}, hprime0: {}, hprime1: {}, hprime2: {}", i, h_prime[0], h_prime[1], h_prime[2]);
+                        std::process::exit(0);
+                    }
                             
                 }
             }
@@ -623,19 +630,20 @@ impl Environment {
             println!("rhohatsum: {}, u:{}, qi: {}", rhohatsum, u, self.q(i));
             // interpolate u
             let u1 = (I as f64 * u/self.n_max).floor();
-            let u2 = u1+1.;
+            let u2 = (u1+1.).min((I-1) as f64);
             let p2 = (I as f64 * u/self.n_max) - u1;
             let p1 = 1. - p2;
 
             // algorithm to update pfail, the transition probabilities between patch states
-            self.pfail[u1 as usize][i] += p1; 
-            self.pfail[u2 as usize][i] += p2; 
+            self.pfail[u1.round() as usize][i] += p1; 
+            self.pfail[u2.round() as usize][i] += p2; 
 
-            // println!("p0: {}, p1: {}", p1, p2); // confirmed sum to 1.
+            println!("p0: {}, p1: {}", p1, p2); // confirmed sum to 1.
+            println!("pfail: {}, {}, {}", self.pfail[0][i], self.pfail[1][i], self.pfail[2][i]); // confirmed sum to 1.
             
         }
         
-        // println!("hi priors: {}, {}, {}",  self.hi[0],  self.hi[1],  self.hi[2]);
+        println!("hi priors: {}, {}, {}",  self.hi[0],  self.hi[1],  self.hi[2]);
         // update h_i
         self.hi_prime.fill(0.);
         for i in 0..I{
@@ -643,7 +651,7 @@ impl Environment {
                 self.hi_prime[i_prime] += self.hi[i] * self.pfail[i_prime][i];
             }
         }
-        // println!("hi primes: {}, {}, {}",  self.hi_prime[0],  self.hi_prime[1],  self.hi_prime[2]);
+        println!("hi primes: {}, {}, {}",  self.hi_prime[0],  self.hi_prime[1],  self.hi_prime[2]);
 
         let mut total = vec![0.;I];
         for i in 0..I{
@@ -660,9 +668,17 @@ impl Environment {
                 for i in 0..I{
                     self.rhoi[state_prime][i_prime] += (1./self.hi_prime[i_prime]) * self.hi[i] * self.pfail[i_prime][i] * self.rhohat[state_prime][i]/total[i];
                     
+                    if self.hi_prime[i_prime] == 0. {
+                        self.rhoi[state_prime][i_prime] = self.rhotilde[state_prime];
+                    }
+                    if total[i] == 0. {
+                        self.rhoi[state_prime][i_prime] = self.rhotilde[state_prime];
+                    }
                     if self.rhoi[state_prime][i_prime].is_nan(){
                         println!("foraging. rhoi: {}", self.rhoi[state_prime][i_prime]);
                         println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
+                        println!("total0: {}, total1: {}, total2: {}", total[0], total[1], total[2]);
+                        println!("i: {}, i_prime: {}, state_prime: {}", i, i_prime, state_prime);
                         std::process::exit(0);
                     }
                 }
@@ -729,6 +745,9 @@ impl Environment {
                     .map(|i| (1./self.hi_prime[i_prime]) * self.p_pert[i_prime][i] * self.hi[i] * self.rhoi[state][i])
                     .sum();
                 
+                if self.hi_prime[i_prime] == 0. {
+                    self.rhohat[state][i_prime] = self.rhotilde[state];
+                }
                 if self.rhohat[state][i_prime].is_nan(){
                     println!("Perturbations. rhoi: {}", self.rhohat[state][i_prime]);
                     println!("h0: {}, h1: {}, h2: {}", self.hi[0], self.hi[1], self.hi[2]);
@@ -1150,6 +1169,7 @@ impl Environment {
 
             }
             dif_v = self.difv();
+            println!("Best response search, current difference: {}", dif_v);
 
             self.V[0] = self.V[1].clone();
         }
@@ -1192,6 +1212,12 @@ impl Environment {
 
             // update x
             self.x = self.x_prime.clone();
+        }
+    
+        println!("ESS found!");
+        for state in 0..N_states{
+            let (s,pi,m) = self.state_invert(state);
+            println!("state s:{}, pi:{},{},{}, m:{}, best strat x: {}", s, self.beliefs[pi].pi0, self.beliefs[pi].pi1, self.beliefs[pi].pi2, m, self.x[state]);
         }
     }
 
