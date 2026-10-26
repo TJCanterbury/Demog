@@ -5,6 +5,11 @@
 \save_transient_properties true
 \origin unavailable
 \textclass article
+\begin_preamble
+
+\usepackage[ttdefault=true]{AnonymousPro}
+\usepackage{cancel}
+\end_preamble
 \use_default_options false
 \begin_modules
 natbibapa
@@ -861,7 +866,7 @@ with posterior proportion of patches being low density of course being
 
 \begin_inset Formula 
 \begin{equation}
-\rho^{\prime}_{n}(s,\pi,m)=\sum_{o}[\eta_{o}\cdot p_{births}(q_{n}|q_{o})\cdot(\frac{q_{o}}{q_{n}}\cdot\rho_{o}(s,\pi,m)+\frac{q_{n}-q_{o}}{q_{n}}\cdot\tilde{\rho}(s,\pi,m))]\label{eq:-12}
+\rho^{\prime}_{n}(s,\pi,m)=\sum_{o}[\frac{1}{\eta^{\prime}_{n}}\cdot\eta_{o}\cdot p_{births}(q_{n}|q_{o})\cdot(\frac{q_{o}}{q_{n}}\cdot\rho_{o}(s,\pi,m)+\frac{q_{n}-q_{o}}{q_{n}}\cdot\tilde{\rho}(s,\pi,m))]\label{eq:-12}
 \end{equation}
 
 \end_inset
@@ -1332,7 +1337,7 @@ where
 \begin_inset Formula $u(o)$
 \end_inset
 
- thusly for each 
+ thus for each 
 \begin_inset Formula $o\in\{0,1\}$
 \end_inset
 
@@ -1359,7 +1364,7 @@ p_{\text{fail}}(q_{0}|q_{o})=1-\frac{min(max(u(o),q_{0}),q_{1})-n_{low}}{n_{max}
 The posterior probability distribution over individual states for patches of each population density state is therefore 
 \begin_inset Formula 
 \begin{equation}
-\rho^{\prime\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\eta^{\prime}_{o}\cdot p_{\text{fail}}(q_{n}|q_{o})\cdot\frac{\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}{\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}\label{eq:-30}
+\rho^{\prime\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\frac{1}{\eta^{\hat{\prime}}_{n}}\cdot\eta^{\prime}_{o}\cdot p_{\text{fail}}(q_{n}|q_{o})\cdot\frac{\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}{\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}\label{eq:-30}
 \end{equation}
 
 \end_inset
@@ -1441,7 +1446,7 @@ and similarly the posterior physiological state distribution for each patch stat
 
 \begin_inset Formula 
 \[
-\rho^{\prime\prime}_{n}(s,\pi,m)=\sum_{o\in\{0,1\}}p_{patch}(q_{n}|q_{o})\cdot\eta^{\hat{\prime}}_{o}\cdot\rho^{\prime\prime}_{o}(s,\pi,m).
+\rho^{\prime\prime}_{n}(s,\pi,m)=\sum_{o\in\{0,1\}}\frac{1}{\eta^{\prime\prime}_{n}}\cdot p_{patch}(q_{n}|q_{o})\cdot\eta^{\hat{\prime}}_{o}\cdot\rho^{\prime\prime}_{o}(s,\pi,m).
 \]
 
 \end_inset
@@ -1664,55 +1669,24 @@ Individuals also know the transition probabilities between patch population dens
 ,
  given perturbations and dispersal is full therefore,
  the posterior belief 
-\begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
-\end_inset
-
-becomes
-\begin_inset Formula 
-\[
-\pi^{\prime}_{0}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{2})
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-\pi^{\prime}_{1}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{2})
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-\pi^{\prime}_{2}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{2})
-\]
-
-\end_inset
-
-ensuring that the posterior belief 
-\begin_inset Formula $\sum_{i}\pi^{\prime}_{i}=1$
-\end_inset
-
-,
- 
 \begin_inset Formula $\pi^{\prime}$
 \end_inset
 
- then has to be interpolated on the discrete belief state space,
+ becomes
+\begin_inset Formula 
+\[
+\pi^{\prime}=(1-\pi)\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})
+\]
+
+\end_inset
+
+which then has to be interpolated on the discrete belief state space,
  generating posterior belief states 
 \begin_inset Formula $d_{1}$
 \end_inset
 
-,
- 
-\begin_inset Formula $d_{2}$
-\end_inset
-
-,
  and 
-\begin_inset Formula $d_{3}$
+\begin_inset Formula $d_{2}$
 \end_inset
 
 ,
@@ -1720,14 +1694,8 @@ ensuring that the posterior belief
 \begin_inset Formula $p_{1}$
 \end_inset
 
-,
- 
-\begin_inset Formula $p_{2}$
-\end_inset
-
-,
  and 
-\begin_inset Formula $p_{3}$
+\begin_inset Formula $p_{2}$
 \end_inset
 
 .

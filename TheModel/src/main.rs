@@ -1,3 +1,4 @@
+#![allow(nonstandard_style)]
 use libm::log2;
 use rand::Rng;
 use rand::prelude::*;
@@ -717,6 +718,7 @@ impl Environment {
         //         }
         //     }
         // }
+        
         self.p_pert[0][0] = 0.5;
         self.p_pert[1][0] = 0.5;
         self.p_pert[2][0] = 0.0;
@@ -1217,7 +1219,7 @@ impl Environment {
         println!("ESS found!");
         for state in 0..N_states{
             let (s,pi,m) = self.state_invert(state);
-            println!("state s:{}, pi:{},{},{}, m:{}, best strat x: {}", s, self.beliefs[pi].pi0, self.beliefs[pi].pi1, self.beliefs[pi].pi2, m, self.x[state]);
+            println!("state s:{}, pi:{},{},{}, m:{}, ESS x(s,pi,m): {}", s, self.beliefs[pi].pi0, self.beliefs[pi].pi1, self.beliefs[pi].pi2, m, self.x[state]);
         }
     }
 
@@ -1225,15 +1227,15 @@ impl Environment {
 
 // main Functions
 fn main() -> std::io::Result<()>  {
-// // Comand-line arguments
-//     let args: Vec<String> = env::args().collect();
-//     let project_id = &args[1];
-//     let path = format!("./Results/{}/", project_id);
-//     // Construct the full path
-//     let path_construct = Path::new(&path);
-//     // Ensure parent directory exists
-//     let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
-//     let _ = write_csv_header(&path);
+// Comand-line arguments
+    let args: Vec<String> = env::args().collect();
+    let project_id = &args[1];
+    let path = format!("./Results/{}/", project_id);
+    // Construct the full path
+    let path_construct = Path::new(&path);
+    // Ensure parent directory exists
+    let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
+    let _ = write_csv_header(&path);
 
 /////////////////////////////////////////// Initialise parameters \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     let belief = BeliefState{

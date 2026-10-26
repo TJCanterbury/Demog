@@ -5,6 +5,11 @@
 \save_transient_properties true
 \origin unavailable
 \textclass article
+\begin_preamble
+
+\usepackage[ttdefault=true]{AnonymousPro}
+\usepackage{cancel}
+\end_preamble
 \use_default_options false
 \begin_modules
 natbibapa
@@ -994,7 +999,7 @@ The posterior belief state
  with the integer part defined by
 \begin_inset Formula 
 \[
-n=\lfloor\pi^{\prime}\cdot I\rfloor,
+i=\lfloor\pi^{\prime}\cdot I\rfloor,
 \]
 
 \end_inset
@@ -1002,7 +1007,7 @@ n=\lfloor\pi^{\prime}\cdot I\rfloor,
 and subsequently the fractional part defined as
 \begin_inset Formula 
 \[
-f=\pi^{\prime}\cdot I-n.
+f=\pi^{\prime}\cdot I-i.
 \]
 
 \end_inset
@@ -1014,7 +1019,7 @@ f=\pi^{\prime}\cdot I-n.
 This then gives the transition probabilities between discrete belief states
 \begin_inset Formula 
 \[
-p(\pi^{\prime}=n|\pi,g)=1-f,
+p(\pi^{\prime}=i|\pi,g)=1-f,
 \]
 
 \end_inset
@@ -1022,7 +1027,7 @@ p(\pi^{\prime}=n|\pi,g)=1-f,
 
 \begin_inset Formula 
 \[
-p(\pi^{\prime}=n+1|\pi,g)=f.
+p(\pi^{\prime}=i+1|\pi,g)=f.
 \]
 
 \end_inset
@@ -1332,7 +1337,7 @@ where
 \begin_inset Formula $u(o)$
 \end_inset
 
- thusly for each 
+ thus for each 
 \begin_inset Formula $o\in\{0,1\}$
 \end_inset
 
@@ -1359,7 +1364,7 @@ p_{\text{fail}}(q_{0}|q_{o})=1-\frac{min(max(u(o),q_{0}),q_{1})-n_{low}}{n_{max}
 The posterior probability distribution over individual states for patches of each population density state is therefore 
 \begin_inset Formula 
 \begin{equation}
-\rho^{\prime\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\eta^{\prime}_{o}\cdot p_{\text{fail}}(q_{n}|q_{o})\cdot\frac{\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}{\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}\label{eq:-30}
+\rho^{\prime\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\frac{1}{\eta^{\hat{\prime}}_{n}}\cdot\eta^{\prime}_{o}\cdot p_{\text{fail}}(q_{n}|q_{o})\cdot\frac{\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}{\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho^{\prime}_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}\label{eq:-30}
 \end{equation}
 
 \end_inset
@@ -1379,7 +1384,7 @@ Every patch undergoes stochastic perturbations in population density,
  We define the resulting transition probabilities as 
 \begin_inset Formula 
 \[
-p_{patch}(q_{0}|q_{0})=0.5
+p_{patch}(q_{0}|q_{0})=1-\gamma_{low}
 \]
 
 \end_inset
@@ -1387,7 +1392,7 @@ p_{patch}(q_{0}|q_{0})=0.5
 
 \begin_inset Formula 
 \[
-p_{patch}(q_{1}|q_{0})=0.5
+p_{patch}(q_{1}|q_{0})=\gamma_{low}
 \]
 
 \end_inset
@@ -1395,7 +1400,7 @@ p_{patch}(q_{1}|q_{0})=0.5
 
 \begin_inset Formula 
 \[
-p_{patch}(q_{0}|q_{1})=0.5+\gamma
+p_{patch}(q_{0}|q_{1})=\gamma_{high}
 \]
 
 \end_inset
@@ -1403,7 +1408,7 @@ p_{patch}(q_{0}|q_{1})=0.5+\gamma
 
 \begin_inset Formula 
 \[
-p_{patch}(q_{1}|q_{1})=1-\gamma
+p_{patch}(q_{1}|q_{1})=1-\gamma_{high}
 \]
 
 \end_inset
@@ -1412,11 +1417,21 @@ p_{patch}(q_{1}|q_{1})=1-\gamma
 \end_layout
 
 \begin_layout Standard
-where 
-\begin_inset Formula $\gamma$
+where the parameters 
+\begin_inset Formula $\gamma_{low}$
 \end_inset
 
- gives the increased rate of food depletion as a result of a high population density and so the density dependent rate of population decline.
+ and 
+\begin_inset Formula $\gamma_{high}$
+\end_inset
+
+ give the rates of transiton up from low patch density states and down from high density states respectively.
+ We assume 
+\begin_inset Formula $\gamma_{high}>\gamma_{low}$
+\end_inset
+
+,
+ as high density patches are more susceptible to famine and disease outbreaks.
  Given these perturbations,
  the proportion of patches that are of population density 
 \begin_inset Formula $q_{n}$
@@ -1441,7 +1456,7 @@ and similarly the posterior physiological state distribution for each patch stat
 
 \begin_inset Formula 
 \[
-\rho^{\prime\prime}_{n}(s,\pi,m)=\sum_{o\in\{0,1\}}p_{patch}(q_{n}|q_{o})\cdot\eta^{\hat{\prime}}_{o}\cdot\rho^{\prime\prime}_{o}(s,\pi,m).
+\rho^{\prime\prime}_{n}(s,\pi,m)=\sum_{o\in\{0,1\}}\frac{1}{\eta^{\prime\prime}_{n}}\cdot p_{patch}(q_{n}|q_{o})\cdot\eta^{\hat{\prime}}_{o}\cdot\rho^{\prime\prime}_{o}(s,\pi,m).
 \]
 
 \end_inset
@@ -1450,7 +1465,7 @@ and similarly the posterior physiological state distribution for each patch stat
 \end_layout
 
 \begin_layout Subsection
-Bayesian updating between growth cycles
+Belief updating between growth cycles
 \end_layout
 
 \begin_layout Standard
@@ -1664,74 +1679,35 @@ Individuals also know the transition probabilities between patch population dens
 ,
  given perturbations and dispersal is full therefore,
  the posterior belief 
-\begin_inset Formula $\pi=\{\pi_{0},\pi_{1},\pi_{2}\}$
-\end_inset
-
-becomes
-\begin_inset Formula 
-\[
-\pi^{\prime}_{0}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{0}|q_{j})\cdot\tilde{p}_{pert}(q_{j}|q_{2})
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-\pi^{\prime}_{1}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{2})
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-\pi^{\prime}_{2}=\pi_{0}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi_{1}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})+\pi_{2}\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{2}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{2})
-\]
-
-\end_inset
-
-ensuring that the posterior belief 
-\begin_inset Formula $\sum_{i}\pi^{\prime}_{i}=1$
-\end_inset
-
-,
- 
 \begin_inset Formula $\pi^{\prime}$
 \end_inset
 
- then has to be interpolated on the discrete belief state space,
- generating posterior belief states 
-\begin_inset Formula $d_{1}$
+ becomes
+\begin_inset Formula 
+\[
+\pi^{\prime}=(1-\pi)\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{0})+\pi\cdot\sum_{q_{j}}\tilde{p}_{births}(q_{1}|q_{j})\cdot\tilde{p}_{births}(q_{j}|q_{1})
+\]
+
 \end_inset
 
-,
- 
-\begin_inset Formula $d_{2}$
+which then has to be interpolated on the discrete belief state space as before,
+ with the integer part defined by
+\begin_inset Formula 
+\[
+i=\lfloor\pi^{\prime}\cdot I\rfloor,
+\]
+
 \end_inset
 
-,
- and 
-\begin_inset Formula $d_{3}$
+and subsequently the fractional part defined as
+\begin_inset Formula 
+\[
+f=\pi^{\prime}\cdot I-i.
+\]
+
 \end_inset
 
-,
- with respective probabilities 
-\begin_inset Formula $p_{1}$
-\end_inset
-
-,
- 
-\begin_inset Formula $p_{2}$
-\end_inset
-
-,
- and 
-\begin_inset Formula $p_{3}$
-\end_inset
-
-.
- We can then generate the transition probability matrix for belief states given that population growth and patch perturbations will have occurred within the time between developmental actions,
+We can then generate the transition probability matrix for belief states given that population growth and patch perturbations will have occurred within the time between developmental actions,
  i.e.
  
 \begin_inset Formula $p(\pi^{\prime}|\pi,time)$
@@ -1754,25 +1730,17 @@ ensuring that the posterior belief
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{1}}to }p(\pi^{\prime}=d_{1}|\pi,time)$
+\begin_inset Formula $\text{add \ensuremath{(1-f)} to }p(\pi^{\prime}=i|\pi,time)$
 \end_inset
 
 ,
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{2}}to }p(\pi^{\prime}=d_{2}|\pi,time)$
+\begin_inset Formula $\text{add \ensuremath{f} to }p(\pi^{\prime}=i+1|\pi,time)$
 \end_inset
 
-,
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{3}}to }p(\pi^{\prime}=d_{3}|\pi,time)$
-\end_inset
-
-\SpecialChar endofsentence
-
+.
 \end_layout
 
 \begin_layout Standard
@@ -1790,7 +1758,7 @@ The posterior belief
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\pi^{\prime\prime}_{i}=\frac{\pi^{\prime}_{i}\cdot p(g|p(q_{i}))}{\sum^{I}_{k}\pi^{\prime}_{k}\cdot p(g_{k}|p(q_{k}))}
+\pi^{\prime\prime}_{i}=\frac{\pi^{\prime}\cdot p(g|q_{1})}{\pi^{\prime}\cdot p(g|q_{1})+(1-\pi^{\prime})\cdot p(g|q_{0})}
 \]
 
 \end_inset
@@ -1799,47 +1767,24 @@ The posterior belief
 \end_layout
 
 \begin_layout Standard
-ensuring that the posterior belief 
-\begin_inset Formula $\sum_{i}\pi^{\prime\prime}_{i}=1$
+which then has to be interpolated on the discrete belief state space as before,
+ with the integer part defined by
+\begin_inset Formula 
+\[
+i=\lfloor\pi^{\prime}\cdot I\rfloor,
+\]
+
 \end_inset
 
-,
- 
-\begin_inset Formula $\pi^{\prime\prime}$
+and subsequently the fractional part defined as
+\begin_inset Formula 
+\[
+f=\pi^{\prime}\cdot I-i.
+\]
+
 \end_inset
 
- then has to be interpolated on the discrete belief state space,
- generating posterior belief states 
-\begin_inset Formula $d_{1}$
-\end_inset
-
-,
- 
-\begin_inset Formula $d_{2}$
-\end_inset
-
-,
- and 
-\begin_inset Formula $d_{3}$
-\end_inset
-
-,
- with respective probabilities 
-\begin_inset Formula $p_{1}$
-\end_inset
-
-,
- 
-\begin_inset Formula $p_{2}$
-\end_inset
-
-,
- and 
-\begin_inset Formula $p_{3}$
-\end_inset
-
-.
- We can then generate the transition probability matrix for belief states given a food mass of 
+We can then generate the transition probability matrix for belief states given a food mass of 
 \begin_inset Formula $g$
 \end_inset
 
@@ -1863,25 +1808,17 @@ ensuring that the posterior belief
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{1}}to }p(\pi^{\prime\prime}=d_{1}|\pi^{\prime},g)$
+\begin_inset Formula $\text{add \ensuremath{(1-f)} to }p(\pi^{\prime\prime}=i|\pi^{\prime},g)$
 \end_inset
 
 ,
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{2}}to }p(\pi^{\prime\prime}=d_{2}|\pi^{\prime},g)$
+\begin_inset Formula $\text{add \ensuremath{f}to }p(\pi^{\prime\prime}=i+1|\pi^{\prime},g)$
 \end_inset
 
-,
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{3}}to }p(\pi^{\prime\prime}=d_{3}|\pi^{\prime},g)$
-\end_inset
-
-\SpecialChar endofsentence
-
+.
 \end_layout
 
 \begin_layout Subsection
