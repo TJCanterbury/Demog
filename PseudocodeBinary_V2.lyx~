@@ -439,7 +439,7 @@ Here we describe pseudocode for calculating the demographically stable probabili
  is defined as
 \begin_inset Formula 
 \begin{equation}
-q_{n}=n_{low}+n_{max}\cdot n\label{eq:}
+q_{n}=n_{min}\cdot(n+1)\label{eq:}
 \end{equation}
 
 \end_inset
@@ -449,7 +449,7 @@ q_{n}=n_{low}+n_{max}\cdot n\label{eq:}
 
 \begin_layout Standard
 where 
-\begin_inset Formula $n_{max}$
+\begin_inset Formula $n_{min}$
 \end_inset
 
  is the maximum population size of any patch.
@@ -1425,7 +1425,7 @@ where the parameters
 \begin_inset Formula $\gamma_{high}$
 \end_inset
 
- give the rates of transiton up from low patch density states and down from high density states respectively.
+ give the rates of transition up from low patch density states and down from high density states respectively.
  We assume 
 \begin_inset Formula $\gamma_{high}>\gamma_{low}$
 \end_inset

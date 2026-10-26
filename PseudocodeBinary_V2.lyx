@@ -439,7 +439,7 @@ Here we describe pseudocode for calculating the demographically stable probabili
  is defined as
 \begin_inset Formula 
 \begin{equation}
-q_{n}=n_{low}+n_{max}\cdot n\label{eq:}
+q_{n}=n_{min}\cdot(n+1)\label{eq:}
 \end{equation}
 
 \end_inset
@@ -449,7 +449,7 @@ q_{n}=n_{low}+n_{max}\cdot n\label{eq:}
 
 \begin_layout Standard
 where 
-\begin_inset Formula $n_{max}$
+\begin_inset Formula $n_{min}$
 \end_inset
 
  is the maximum population size of any patch.
@@ -1483,7 +1483,7 @@ Individuals also know the transition probabilities between patch population dens
 
 \begin_inset Formula 
 \begin{equation}
-\pi^{\prime}_{n}=\sum_{o\in\{0,1\}}\pi_{o}\cdot\tilde{p}(q_{n}|q_{o}).\label{eq:-1}
+\pi^{\prime}=\pi\cdot\tilde{p}(q_{1}|q_{1})+(1-\pi)\cdot\tilde{p}(q_{1}|q_{0}).\label{eq:-1}
 \end{equation}
 
 \end_inset

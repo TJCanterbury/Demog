@@ -439,7 +439,7 @@ Here we describe pseudocode for calculating the demographically stable probabili
  is defined as
 \begin_inset Formula 
 \begin{equation}
-q_{n}=n_{low}+n_{max}\cdot n\label{eq:}
+q_{n}=n_{min}\cdot(n+1)\label{eq:}
 \end{equation}
 
 \end_inset
@@ -449,7 +449,7 @@ q_{n}=n_{low}+n_{max}\cdot n\label{eq:}
 
 \begin_layout Standard
 where 
-\begin_inset Formula $n_{max}$
+\begin_inset Formula $n_{min}$
 \end_inset
 
  is the maximum population size of any patch.
@@ -999,7 +999,7 @@ The posterior belief state
  with the integer part defined by
 \begin_inset Formula 
 \[
-n=\lfloor\pi^{\prime}\cdot I\rfloor,
+i=\lfloor\pi^{\prime}\cdot I\rfloor,
 \]
 
 \end_inset
@@ -1007,7 +1007,7 @@ n=\lfloor\pi^{\prime}\cdot I\rfloor,
 and subsequently the fractional part defined as
 \begin_inset Formula 
 \[
-f=\pi^{\prime}\cdot I-n.
+f=\pi^{\prime}\cdot I-i.
 \]
 
 \end_inset
@@ -1019,7 +1019,7 @@ f=\pi^{\prime}\cdot I-n.
 This then gives the transition probabilities between discrete belief states
 \begin_inset Formula 
 \[
-p(\pi^{\prime}=n|\pi,g)=1-f,
+p(\pi^{\prime}=i|\pi,g)=1-f,
 \]
 
 \end_inset
@@ -1027,7 +1027,7 @@ p(\pi^{\prime}=n|\pi,g)=1-f,
 
 \begin_inset Formula 
 \[
-p(\pi^{\prime}=n+1|\pi,g)=f.
+p(\pi^{\prime}=i+1|\pi,g)=f.
 \]
 
 \end_inset
@@ -1384,7 +1384,7 @@ Every patch undergoes stochastic perturbations in population density,
  We define the resulting transition probabilities as 
 \begin_inset Formula 
 \[
-p_{patch}(q_{0}|q_{0})=0.5
+p_{patch}(q_{0}|q_{0})=1-\gamma_{low}
 \]
 
 \end_inset
@@ -1392,7 +1392,7 @@ p_{patch}(q_{0}|q_{0})=0.5
 
 \begin_inset Formula 
 \[
-p_{patch}(q_{1}|q_{0})=0.5
+p_{patch}(q_{1}|q_{0})=\gamma_{low}
 \]
 
 \end_inset
@@ -1400,7 +1400,7 @@ p_{patch}(q_{1}|q_{0})=0.5
 
 \begin_inset Formula 
 \[
-p_{patch}(q_{0}|q_{1})=0.5+\gamma
+p_{patch}(q_{0}|q_{1})=\gamma_{high}
 \]
 
 \end_inset
@@ -1408,7 +1408,7 @@ p_{patch}(q_{0}|q_{1})=0.5+\gamma
 
 \begin_inset Formula 
 \[
-p_{patch}(q_{1}|q_{1})=1-\gamma
+p_{patch}(q_{1}|q_{1})=1-\gamma_{high}
 \]
 
 \end_inset
@@ -1417,11 +1417,21 @@ p_{patch}(q_{1}|q_{1})=1-\gamma
 \end_layout
 
 \begin_layout Standard
-where 
-\begin_inset Formula $\gamma$
+where the parameters 
+\begin_inset Formula $\gamma_{low}$
 \end_inset
 
- gives the increased rate of food depletion as a result of a high population density and so the density dependent rate of population decline.
+ and 
+\begin_inset Formula $\gamma_{high}$
+\end_inset
+
+ give the rates of transition up from low patch density states and down from high density states respectively.
+ We assume 
+\begin_inset Formula $\gamma_{high}>\gamma_{low}$
+\end_inset
+
+,
+ as high density patches are more susceptible to famine and disease outbreaks.
  Given these perturbations,
  the proportion of patches that are of population density 
 \begin_inset Formula $q_{n}$
@@ -1455,7 +1465,7 @@ and similarly the posterior physiological state distribution for each patch stat
 \end_layout
 
 \begin_layout Subsection
-Bayesian updating between growth cycles
+Belief updating between growth cycles
 \end_layout
 
 \begin_layout Standard
@@ -1473,7 +1483,7 @@ Individuals also know the transition probabilities between patch population dens
 
 \begin_inset Formula 
 \begin{equation}
-\pi^{\prime}_{n}=\sum_{o\in\{0,1\}}\pi_{o}\cdot\tilde{p}(q_{n}|q_{o}).\label{eq:-1}
+\pi^{\prime}=\pi\cdot\tilde{p}(q_{1}|q_{1})+(1-\\pi.\label{eq:-1}
 \end{equation}
 
 \end_inset
@@ -1680,26 +1690,24 @@ Individuals also know the transition probabilities between patch population dens
 
 \end_inset
 
-which then has to be interpolated on the discrete belief state space,
- generating posterior belief states 
-\begin_inset Formula $d_{1}$
+which then has to be interpolated on the discrete belief state space as before,
+ with the integer part defined by
+\begin_inset Formula 
+\[
+i=\lfloor\pi^{\prime}\cdot I\rfloor,
+\]
+
 \end_inset
 
- and 
-\begin_inset Formula $d_{2}$
+and subsequently the fractional part defined as
+\begin_inset Formula 
+\[
+f=\pi^{\prime}\cdot I-i.
+\]
+
 \end_inset
 
-,
- with respective probabilities 
-\begin_inset Formula $p_{1}$
-\end_inset
-
- and 
-\begin_inset Formula $p_{2}$
-\end_inset
-
-.
- We can then generate the transition probability matrix for belief states given that population growth and patch perturbations will have occurred within the time between developmental actions,
+We can then generate the transition probability matrix for belief states given that population growth and patch perturbations will have occurred within the time between developmental actions,
  i.e.
  
 \begin_inset Formula $p(\pi^{\prime}|\pi,time)$
@@ -1722,25 +1730,17 @@ which then has to be interpolated on the discrete belief state space,
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{1}}to }p(\pi^{\prime}=d_{1}|\pi,time)$
+\begin_inset Formula $\text{add \ensuremath{(1-f)} to }p(\pi^{\prime}=i|\pi,time)$
 \end_inset
 
 ,
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{2}}to }p(\pi^{\prime}=d_{2}|\pi,time)$
+\begin_inset Formula $\text{add \ensuremath{f} to }p(\pi^{\prime}=i+1|\pi,time)$
 \end_inset
 
-,
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{3}}to }p(\pi^{\prime}=d_{3}|\pi,time)$
-\end_inset
-
-\SpecialChar endofsentence
-
+.
 \end_layout
 
 \begin_layout Standard
@@ -1758,7 +1758,7 @@ The posterior belief
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\pi^{\prime\prime}_{i}=\frac{\pi^{\prime}_{i}\cdot p(g|p(q_{i}))}{\sum^{I}_{k}\pi^{\prime}_{k}\cdot p(g_{k}|p(q_{k}))}
+\pi^{\prime\prime}_{i}=\frac{\pi^{\prime}\cdot p(g|q_{1})}{\pi^{\prime}\cdot p(g|q_{1})+(1-\pi^{\prime})\cdot p(g|q_{0})}
 \]
 
 \end_inset
@@ -1767,47 +1767,24 @@ The posterior belief
 \end_layout
 
 \begin_layout Standard
-ensuring that the posterior belief 
-\begin_inset Formula $\sum_{i}\pi^{\prime\prime}_{i}=1$
+which then has to be interpolated on the discrete belief state space as before,
+ with the integer part defined by
+\begin_inset Formula 
+\[
+i=\lfloor\pi^{\prime}\cdot I\rfloor,
+\]
+
 \end_inset
 
-,
- 
-\begin_inset Formula $\pi^{\prime\prime}$
+and subsequently the fractional part defined as
+\begin_inset Formula 
+\[
+f=\pi^{\prime}\cdot I-i.
+\]
+
 \end_inset
 
- then has to be interpolated on the discrete belief state space,
- generating posterior belief states 
-\begin_inset Formula $d_{1}$
-\end_inset
-
-,
- 
-\begin_inset Formula $d_{2}$
-\end_inset
-
-,
- and 
-\begin_inset Formula $d_{3}$
-\end_inset
-
-,
- with respective probabilities 
-\begin_inset Formula $p_{1}$
-\end_inset
-
-,
- 
-\begin_inset Formula $p_{2}$
-\end_inset
-
-,
- and 
-\begin_inset Formula $p_{3}$
-\end_inset
-
-.
- We can then generate the transition probability matrix for belief states given a food mass of 
+We can then generate the transition probability matrix for belief states given a food mass of 
 \begin_inset Formula $g$
 \end_inset
 
@@ -1831,25 +1808,17 @@ ensuring that the posterior belief
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{1}}to }p(\pi^{\prime\prime}=d_{1}|\pi^{\prime},g)$
+\begin_inset Formula $\text{add \ensuremath{(1-f)} to }p(\pi^{\prime\prime}=i|\pi^{\prime},g)$
 \end_inset
 
 ,
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{2}}to }p(\pi^{\prime\prime}=d_{2}|\pi^{\prime},g)$
+\begin_inset Formula $\text{add \ensuremath{f}to }p(\pi^{\prime\prime}=i+1|\pi^{\prime},g)$
 \end_inset
 
-,
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $\text{add \ensuremath{p_{3}}to }p(\pi^{\prime\prime}=d_{3}|\pi^{\prime},g)$
-\end_inset
-
-\SpecialChar endofsentence
-
+.
 \end_layout
 
 \begin_layout Subsection
