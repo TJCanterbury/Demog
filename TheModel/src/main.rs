@@ -62,30 +62,7 @@ fn write_csv_header(path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let mut wtr = Writer::from_writer(buf_writer);
 
     wtr.write_record(&[
-        "i","pop_len","stoch","theta_low","theta_high","sigma_mass","cli_sigma","days",
-        "turns","obs_c","d","stability","mean_obs","climate_match","p","mean_fitness","ve","lambda",
-        "psi","vs","nest_mass","mu_sig", "cue_error", "prior"
-    ])?;
-
-    wtr.flush()?;
-    Ok(())
-}
-
-fn write_csv_header2(path: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let file_path1 = format!("{}", path);
-
-    let file = match File::create(&file_path1) {
-        Ok(f) => f,
-        Err(e) => return Err(Box::new(e)),
-    };
-
-    let buf_writer = BufWriter::new(file);
-    let mut wtr = Writer::from_writer(buf_writer);
-
-    wtr.write_record(&[
-        "i","pop_len","stoch","theta_low","theta_high","sigma_mass","cli_sigma","days",
-        "turns","obs_c","d","stability","mean_obs","climate_match","p","mean_fitness","ve","lambda",
-        "psi","vs","nest_mass","mu_sig", "cue_error", "prior"
+    "n_max","g_mean","g_sd","m_switch","r_fighter","r_m","r_baseline","mu","y_max","lambda","gammah","gammal","s","pi", "m", "ESS x(s,pi,m)"
     ])?;
 
     wtr.flush()?;
@@ -93,6 +70,7 @@ fn write_csv_header2(path: &str) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn try_print(vec:Vec<f64>, file:&str) -> Result<(), Box<dyn Error>> {
+    let file = format!("{}summaries.csv", file);
     let strings: Vec<String> = vec.iter().map(|n| n.to_string()).collect();
 
     let outfile = OpenOptions::new()
@@ -118,8 +96,6 @@ const N_states: usize = NS * NM * LENPI;
 
 #[derive(Clone, Debug)]
 struct Environment {
-    hi: Vec<f64>, //(i) pdf over patch population densities
-    hi_prime: Vec<f64>, //(i) pdf over patch population densities post some event
     n_max: f64,
     g_mean: f64,
     g_sd: f64,
@@ -127,8 +103,14 @@ struct Environment {
     r_fighter: f64,
     r_m: f64, // benefit of quality
     r_baseline: f64,
-    a_qi: Vec<f64>, //(i) arrivals from dispersal
     mu: f64, // Dispersal rate
+    y_max:f64, // maximum maintenance investment
+    lambda: f64, // Baseline rate of death
+    gammah: f64, // parameter transition prob from high to low
+    gammal: f64, // parameter transition prob from low to high
+    hi: Vec<f64>, //(i) pdf over patch population densities
+    hi_prime: Vec<f64>, //(i) pdf over patch population densities post some event
+    a_qi: Vec<f64>, //(i) arrivals from dispersal
     r_qi: Vec<f64>, //(i) arrivals from local births
     R: Vec<Vec<Vec<f64>>>, //(s,m,i) fecundity of individual of size s and maturity m
     rhoi: Vec<Vec<f64>>, //(idx,i) prob. distribution over states for individuals in patches of density qi
@@ -139,15 +121,9 @@ struct Environment {
     beliefs: Vec<BeliefState>,
     x: Vec<usize>, // (idx) gives resident strategy -> threshold value above which input energy goes to quality
     dev_m: Vec<Vec<Vec<Vec<f64>>>>, // (idx prime, idx, g, kappa) developmental transitions
-    y_max:f64, // maximum maintenance investment
     survival: Vec<Vec<f64>>, // ((s,pi,m),g) prob. survival
-    lambda: f64, // Baseline rate of death
     rhohat: Vec<Vec<f64>>, // state distribution after development fatalities, before normalisation
     pfail: Vec<Vec<f64>>, // prob of death for current physiological and habitat state over development
-    sigma_per: f64, // standard deviation of patch quality perturbations
-    p_tau: Vec<f64>, // pseudonormal probability distribution over perturbations
-    gamma: f64, // parameter determining maximum effect of demographic feedback on patch survival
-    c: Vec<usize>, // (i) rounded shift in prob. of posterior patch state after perturbatins given pop. density i
     tol: f64, // tolerance threshold for difference in demographic state, below which projections end
     p_pert: Vec<Vec<f64>>, // transition probabilities of patches given perturbations
     x_prime: Vec<usize>, // Best response strategy
@@ -1184,7 +1160,7 @@ impl Environment {
         return dif
     }
     
-    fn run(&mut self){
+    fn run(&mut self, file:&str){
         self.inits();
 
 
@@ -1220,6 +1196,8 @@ impl Environment {
         for state in 0..N_states{
             let (s,pi,m) = self.state_invert(state);
             println!("state s:{}, pi:{},{},{}, m:{}, ESS x(s,pi,m): {}", s, self.beliefs[pi].pi0, self.beliefs[pi].pi1, self.beliefs[pi].pi2, m, self.x[state]);
+            let v: Vec<f64> = vec![self.n_max,self.g_mean,self.g_sd,self.m_switch as f64,self.r_fighter,self.r_m,self.r_baseline,self.mu,self.y_max,self.lambda,self.gammah,self.gammal, s as f64, pi as f64, m as f64, self.x[state] as f64];
+            try_print(v, file);
         }
     }
 
@@ -1271,10 +1249,8 @@ fn main() -> std::io::Result<()>  {
         lambda: 0.05, // Baseline rate of death
         rhohat: vec![vec![0.;I];N_states], // state distribution after development fatalities, before normalisation
         pfail: vec![vec![0.;I];N_states], // prob of death for current physiological and habitat state over development
-        sigma_per: 2., // standard deviation of patch quality perturbations
-        p_tau: vec![0.;2*G], // pseudonormal probability distribution over perturbations
-        gamma: 0.5, // parameter determining maximum effect of demographic feedback on patch survival
-        c: vec![0;I], // (i) rounded shift in prob. of posterior patch state after perturbatins given pop. density i
+        gammah: 0.5, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
+        gammal: 0.25, // parameter determining trans. prob low to high density patch, due to narrowing patch habitat quality
         tol: 0.001, // tolerance threshold for difference in demographic state, below which projections end
         p_pert: vec![vec![0.;I];I], // transition probabilities of patches given perturbations
         x_prime: vec![G-1;N_states], // Best response strategy
@@ -1287,7 +1263,7 @@ fn main() -> std::io::Result<()>  {
         markov: vec![vec![vec![0.;G];N_states];N_states], //(state,stateprime,kappa) transition prob given action kappa
     };
 
-    env0.run();
+    env0.run(&path);
 
 // // start r session
 //      let mut r = RSession::new()?;
