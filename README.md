@@ -1,4 +1,4 @@
-# Code for a dynamic game investigating the role of feedback between population densities and life history influence the evolution of develpopmental windows
+# Code for a dynamic game, investigating the role of feedback between population densities and life history influence the evolution of develpopmental windows
 
 A detailed outline of how the code works and our motivation for making this model can be found in "\Pseudocode.pdf".
 

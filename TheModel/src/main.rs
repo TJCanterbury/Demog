@@ -34,8 +34,8 @@ impl RSession {
         let child = Command::new("R")
             .args(["--vanilla", "--quiet", "--slave"])
             .stdin(Stdio::piped())
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
             .spawn()?;
 
         Ok(Self { child })
@@ -63,7 +63,7 @@ fn write_csv_header(path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let mut wtr = Writer::from_writer(buf_writer);
 
     wtr.write_record(&[
-    "n_min","g_mean","g_sd","m_switch","r_fighter","r_m","r_baseline","mu","y_max","lambda","gammah","gammal","s","pi", "m", "ESS x(s,pi,m)"
+    "n_min","g_mean","g_sd","m_switch","r_fighter","r_m","r_baseline","mu","y_max","lambda","gammah","gammal","s","pi", "m", "xstar","rho_0","rho_1","eta"
     ])?;
 
     wtr.flush()?;
@@ -1000,7 +1000,7 @@ impl Environment {
         for state in 0..N_states{
             let (s,pi,m) = self.state_invert(state);
             println!("state s:{}, pi:{}, m:{}, ESS x(s,pi,m): {}", s, pi as f64/(NPI as f64 - 1.), m, self.x[state]);
-            let v: Vec<f64> = vec![self.n_min,self.g_mean,self.g_sd,self.m_switch as f64,self.r_fighter,self.r_m,self.r_baseline,self.mu,self.y_max,self.lambda,self.gammah,self.gammal, s as f64, pi as f64/(NPI as f64 - 1.), m as f64, self.x[state] as f64];
+            let v: Vec<f64> = vec![self.n_min,self.g_mean,self.g_sd,self.m_switch as f64,self.r_fighter,self.r_m,self.r_baseline,self.mu,self.y_max,self.lambda,self.gammah,self.gammal, s as f64, pi as f64/(NPI as f64 - 1.), m as f64, self.x[state] as f64, self.rhoi[state][0], self.rhoi[state][1], self.eta];
             try_print(v, file);
         }
     }
@@ -1015,8 +1015,10 @@ fn main() -> std::io::Result<()>  {
     let path = format!("./Results/{}/", project_id);
     // Construct the full path
     let path_construct = Path::new(&path);
+    
     // Ensure parent directory exists
     let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
+    
     let _ = write_csv_header(&path);
 
 /////////////////////////////////////////// Initialise parameters \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -1061,11 +1063,17 @@ fn main() -> std::io::Result<()>  {
     };
 
     env0.run(&path);
+    
+    // start r session
+    // let mut r = RSession::new()?;
+    // r.exec("source('src/plots.r')")?;
+    // r.exec(&format!("run_stoch_plot('{}')", path)).unwrap();
+    let mut r = RSession::new()?;
+    
+    r.exec(&format!("path <- '{}'", path))?;
+    r.exec("source('src/sim_plot.r')")?;
+    // r.exec(&format!("run_stoch_plot('{}')", path)).unwrap();
 
-// // start r session
-//      let mut r = RSession::new()?;
-//     r.exec("source('src/plots.r')")?;
-//     let r_mutex = Mutex::new(r);
 
 // // climate stochasticity: 
 //     let path = format!("./Results/{}/stoch/", project_id);
