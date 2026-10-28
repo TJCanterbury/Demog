@@ -418,7 +418,8 @@ Reproductive quality state,
 \end_layout
 
 \begin_layout Part
-Appendix
+Appendix:
+ The Dynamic Game
 \end_layout
 
 \begin_layout Section
@@ -581,24 +582,17 @@ Where
 \begin_inset Formula $I$
 \end_inset
 
- is an integer determining the fitness of the grid.then needs to be interpolated onto a discrete grid of possible values of 
-\begin_inset Formula $\pi$
+ is an integer determining the fineness of the grid.
+ The first step of interpolation is to find the floor of 
+\begin_inset Formula $\eta_{1}$
 \end_inset
 
- which (because it represent a probability distribution) lies on a unit simplex (i.e.
- all values are positive and they add up to 1),
- requiring a grid of barycentric co-ordinates.
- To this end,
- the first step is to decompose each 
-\begin_inset Formula $\pi^{\prime}$
+when it is scaled by the grid size,
+ which will give us the nearest grid cell 
+\begin_inset Formula $i$
 \end_inset
 
- into it's integer and fractional parts,
- with the integer part defined by finding the floor integer after scaling by the maximum grid index 
-\begin_inset Formula $I$
-\end_inset
-
- of the believe state 
+ below the continuous value
 \begin_inset Formula 
 \[
 i=\lfloor\eta_{1}\cdot I\rfloor,
@@ -606,7 +600,11 @@ i=\lfloor\eta_{1}\cdot I\rfloor,
 
 \end_inset
 
-and subsequently the fractional part defined as
+and subsequently the difference is the fractional part 
+\begin_inset Formula $f$
+\end_inset
+
+ defined as
 \begin_inset Formula 
 \[
 f=\eta_{1}\cdot I-i.
@@ -614,11 +612,12 @@ f=\eta_{1}\cdot I-i.
 
 \end_inset
 
+We can then use the fractional part as a probability that the state should be interpolated to be 
+\begin_inset Formula $(i+1)$
+\end_inset
 
-\end_layout
-
-\begin_layout Standard
-giving discrete states and associated probabilities for defining the state distribution of migrants:
+,
+ finally giving us two discrete states and associated probabilities for defining the state distribution of migrants:
 \begin_inset Formula 
 \[
 \tilde{\rho}(s=1,\pi=i,m=0)=1-f,

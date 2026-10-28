@@ -1,0 +1,234 @@
+#LyX 2.5 created this file. For more info see https://www.lyx.org/
+\lyxformat 643
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children no
+\language british
+\language_package default
+\inputencoding utf8
+\fontencoding auto
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement class
+\float_alignment class
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification default
+\crossref_package refstyle
+\use_formatted_ref 0
+\use_minted 0
+\use_lineno 0
+\backgroundcolor none
+\fontcolor none
+\notefontcolor lightgray
+\boxbgcolor red
+\table_border_color default
+\table_odd_row_color default
+\table_even_row_color default
+\table_alt_row_colors_start 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tablestyle default
+\tracking_changes false
+\output_changes false
+\change_bars false
+\postpone_fragile_content true
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\docbook_mathml_version 0
+\end_header
+
+\begin_body
+
+\begin_layout Title
+
+\lang english
+Appendix:
+ Age and Development
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+Now that we have found the state-dependent evolutionarily stable strategy for a given set of parameter values,
+ along with the associated demographically stable distribution of individual physiological states and patch density states,
+ we can ask what the ESS behaviour of a cohort of individuals within such a population would look like.
+ We can assume that one small cohort following the same ESS will not have an influence on the distribution of states of the larger population and so we do not need to update any of the transition probabilities.
+ 
+\end_layout
+
+\begin_layout Section
+
+\lang english
+Birth
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+We know that they will begin life at the minimum size and quality states and with their belief state being the evolved prior for the stable patch distribution prior to dispersal,
+ 
+\begin_inset Formula $\eta^{*}_{1}$
+\end_inset
+
+.
+ Where 
+\begin_inset Formula $\eta^{*}_{1}$
+\end_inset
+
+ is the proportion of patches prior to dispersal that are of density state 
+\begin_inset Formula $n=1$
+\end_inset
+
+,
+ and 
+\begin_inset Formula $\eta_{0}=1-\eta_{1}$
+\end_inset
+
+ is the proportion of patches that are of density state 
+\begin_inset Formula $n=0$
+\end_inset
+
+.
+ However,
+ to form a discrete grid of states that we can solve a Markov decision process for we need interpolate each 
+\begin_inset Formula $\pi$
+\end_inset
+
+ onto a grid of possible discrete probability values,
+ 
+\begin_inset Formula $\pi=i\in\{0/I,1/I,2/I,...,I/I\}$
+\end_inset
+
+,
+ where 
+\begin_inset Formula $I$
+\end_inset
+
+ is an integer determining the fineness of the grid.
+ The first step of interpolation is to find the floor of 
+\begin_inset Formula $\eta^{*}_{1}$
+\end_inset
+
+when it is scaled by the grid size,
+ which will give us the nearest grid cell 
+\begin_inset Formula $i$
+\end_inset
+
+ below the continuous value
+\begin_inset Formula 
+\[
+i=\lfloor\eta_{1}\cdot I\rfloor,
+\]
+
+\end_inset
+
+and subsequently the difference is the fractional part 
+\begin_inset Formula $f$
+\end_inset
+
+ defined as
+\begin_inset Formula 
+\[
+f=\eta_{1}\cdot I-i.
+\]
+
+\end_inset
+
+We can then use the fractional part as a probability that the state should be interpolated to be 
+\begin_inset Formula $(i+1)$
+\end_inset
+
+,
+ finally giving us two discrete states and associated probabilities for defining the state distribution of this cohort as 
+\begin_inset Formula 
+\[
+\rho_{i,t}(s,\pi=i,m)=1-f
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\rho_{i,t}(s,\pi=i+1,m)=f
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+
+\lang english
+Development
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Section
+
+\lang english
+Death
+\end_layout
+
+\end_body
+\end_document
