@@ -749,17 +749,23 @@ impl Environment {
 
         for pi in 0..NPI{
             
-            let pi0 = pi as f64/(NPI as f64 - 1.);
-            let pi1 = 1. - pi0;
+            let pi1 = pi as f64/(NPI as f64 - 1.);
+            let pi0 = 1. - pi1;
 
-            let trans4:f64 = (0..I)
-                .map(|j| self.p_births[1][j]*self.p_pert[j][0])
-                .sum();
-            let trans5:f64 = (0..I)
-                .map(|j| self.p_births[1][j]*self.p_pert[j][1])
-                .sum();
-
-            let post = pi0*trans4 +pi1*trans5;
+            let mut trans0 = 0.; 
+            let mut trans1 = 0.; 
+            for j in 0..I{
+                let trans4:f64 = (0..I)
+                    .map(|k| self.p_births[j][k]*self.p_pert[k][0])
+                    .sum();
+                let trans5:f64 = (0..I)
+                    .map(|k| self.p_births[j][k]*self.p_pert[k][1])
+                    .sum();
+                trans0 += self.p_births[1][j]*trans4;
+                trans1 += self.p_births[1][j]*trans5;
+            }
+            
+            let post = pi0*trans0 +pi1*trans1;
 
             let (d1, d2, p1, p2) = self.interpolate_pi(post); 
             self.pipitime[d1][pi] += p1;
