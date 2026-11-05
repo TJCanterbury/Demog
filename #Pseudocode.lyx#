@@ -1804,7 +1804,7 @@ P_{\text{det}}(q_{0}|q_{o})=1-P_{\text{det}}(q_{1}|q_{o})\label{eq:-28}
 We then wish to add some demographic stochasticity to this deaths and births process for which we use our model of density-dependent perturbations for each possible transition
 \begin_inset Formula 
 \begin{equation}
-P(q_{n}|q_{o})=P_{det}(q_{n}|q_{1})\cdot P_{stoch}(q_{1}|q_{o})+P_{det}(q_{n}|q_{0})\cdot P_{stoch}(q_{0}|q_{o})\label{eq:-29}
+P(q_{n}|q_{o})=P_{stoch}(q_{n}|q_{1})\cdot P_{det}(q_{1}|q_{o})+P_{stoch}(q_{n}|q_{0})\cdot P_{det}(q_{0}|q_{o})\label{eq:-29}
 \end{equation}
 
 \end_inset
@@ -2408,43 +2408,14 @@ We can then use the fractional part as a probability that the state should be in
 \end_layout
 
 \begin_layout Standard
-Very conveniently we already know the transition probabilities,
- 
-\begin_inset Formula $a(s^{\prime},\pi^{\prime\prime},m^{\prime}|s,\pi,m,\kappa=\bar{x}(s,\pi,m))$
-\end_inset
-
-,
- for individuals using the ESS strategy 
+Very conveniently we already know the transition probabilities for individuals using the ESS strategy 
 \begin_inset Formula $\bar{x}(s,\pi,m)$
 \end_inset
 
 ,
  and the system is both at demographic and evolutionary stability;
- making demographic projection at this stage exceedingly simple:
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{equation}
-\rho_{i,t+1}(s^{\prime},\pi^{\prime\prime},m^{\prime})=\sum_{s}\sum_{\pi}\sum_{m}a(s^{\prime},\pi^{\prime\prime},m^{\prime}|s,\pi,m,\kappa=\bar{x}(s,\pi,m))\cdot(\rho_{0,t}(s,\pi,m)\cdot\tilde{P}(i|0)\cdot(1-\pi)+\rho_{1,t}(s,\pi,m)\cdot\tilde{P}(i|1)\cdot\pi).\label{eq:-17-1}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection
-Life history projection with controlled environment
-\end_layout
-
-\begin_layout Standard
-Alternatively,
- we may want to manipulate the patch densities or food availability to simulate a lab experiment,
- to make predictions as to what the results of such a lab experiment would be.
- In this case we need a more elaborate extension.
- We must run our old demographic projection but with fixed parameters for the transitions in patch density,
- and assume that deaths are replaced with lab specimens of certain state distribution.
+ making demographic projection at this stage exceedingly simple,
+ with the post development distribution being:
 \begin_inset Formula 
 \begin{equation}
 \hat{\rho_{n}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}P(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)\cdot P(survival|g,s,\pi^{\prime},m)\cdot P(\pi^{\prime}|\pi,g)\cdot L(g|q_{n})\cdot\rho_{n,t}(s,\pi,m)\label{eq:-17-2}
@@ -2456,7 +2427,7 @@ Alternatively,
 \end_layout
 
 \begin_layout Standard
-Normally at this state we would then account for the addition of arrivals to the population from reproduction and dispersal but as we are only tracking the one cohort we can ignore things like 
+Normally at this stage we would then account for the addition of arrivals to the population from reproduction and dispersal but as we are only tracking the one cohort we can ignore things like 
 \begin_inset Formula $\frac{\alpha(q_{o})}{u(q_{o})+\alpha(q_{o})}\cdot\tilde{\rho}(s,\pi,m)$
 \end_inset
 

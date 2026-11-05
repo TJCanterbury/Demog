@@ -317,6 +317,7 @@ impl Environment {
         self.p_stoch[0][1] = self.gammah;
         self.p_stoch[1][1] = 1. - self.gammah;
     }
+
     fn update_pipitime(&mut self){
         // what is the probability of posterior belief pi prime 
         // given prior pi and the passing of time
@@ -413,7 +414,6 @@ impl Environment {
     }
 
     fn init_dev_m_kappa(&mut self){
-        
         // Udates the state transition matrix, dev_M, given all possible actions
         
         // Set developmental transition matrix to equal 0 for all prior and posterior states
@@ -435,21 +435,24 @@ impl Environment {
             for g in 0..G {
                 for k in 0..G{
                     // After development:
-                    del_m = (g as f64-k as f64).max(0.)/G as f64;
-                    del_s = (g as f64-del_m-self.y(s as f64+1.,m as f64+1.)).max(0.)/G as f64;
+                    del_m = (g as f64-k as f64).max(0.);
+                    del_s = (g as f64-del_m-self.y(s as f64+1.,m as f64+1.)).max(0.);
                             
                     // Maintenance survival probs section 3.3.3 Maintenance
-                    self.survival[idx(s,pi,m)][g] = ((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
+                    // self.survival[idx(s,pi,m)][g] = 0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
 
+                    // Calculate the change in state expected for the investments del_m and del_s
+                    let del_mpost = del_m/(G as f64);
+                    let del_spost = del_s/(G as f64);
                     // Interpolate onto s and m grids:
-                    let (md1,mp1,md2,mp2) = self.interpolate_m(del_m+(m as f64));
-                    let (sd1,sp1,sd2,sp2) = self.interpolate_s(del_s+(s as f64));
+                    let (md1,mp1,md2,mp2) = self.interpolate_m(del_mpost+(m as f64));
+                    let (sd1,sp1,sd2,sp2) = self.interpolate_s(del_spost+(s as f64));
 
                     // Developmental state transitions 
-                    self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp1;
-                    self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp2;
-                    self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp1;
-                    self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp2;
+                    self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp1*(0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
+                    self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp2*(0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
+                    self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp1*(0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
+                    self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp2*(0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
                 }
             }
         }
@@ -475,7 +478,6 @@ impl Environment {
                     for g in 0..G{
                         self.rhohat[i][state_prime] += 
                             self.dev_m[state_prime][idx(s,pi_prime,m)][g][self.x[idx(s,pi_prime,m)]] 
-                                * self.survival[idx(s,pi_prime,m)][g] 
                                 * self.pipig[pi_prime][pi][g] 
                                 * self.L_g_i[g][i] 
                                 * self.rhoi[idx(s, pi, m)][i];
@@ -703,8 +705,9 @@ impl Environment {
             for g in 0..G{
                 let p1 = pi as f64/(NPI as f64 -1.);
                 let p0 = 1. - p1;
-                let sum = self.L_g_i[g][0]*p0 + self.L_g_i[g][0]*p1;
+                let sum = self.L_g_i[g][0]*p0 + self.L_g_i[g][1]*p1;
                 self.p_g_pi[g][pi] = sum;
+                println!("P: {}, g: {}, pi: {}",self.p_g_pi[g][pi], g, p1);
             }
         }
     }
@@ -762,6 +765,7 @@ impl Environment {
                                 V_max = Vn[k];
                             }
                         }
+
                         // running best response
                         self.x_prime[idx(s,piprime,m)] = max_k;
 
@@ -840,6 +844,44 @@ impl Environment {
         }
     }
 
+    fn lifehistory(&mut self, file:&str){
+        let tol = 0.1;
+        let mut dif = 10.;
+        // init distribution
+        for state in 0..N_states{
+            self.rhoi[state][0] = self.rhotilde[state];
+            self.rhoi[state][1] = self.rhotilde[state];
+        }
+        // project distribution
+        while dif > tol{
+            // calculate posterior distribution to developmnent
+            for stateprime in 0..N_states{
+                self.rhohat[0][stateprime] = 0.;
+                self.rhohat[1][stateprime] = 0.;
+                for state in 0..N_states{
+                    for g in 0..G{
+                        // self.rhohat[0][stateprime] += self.dev_m[stateprime][state][g][self.x[idx(s, piprime, m)]] * self.survival[stateprime][state][g]
+                    }
+                }
+            }
+            // calculate posterior to deaths
+
+            // calculate posterior to bayesian updating
+
+            // print distribution
+
+            // update dif
+
+        }
+
+        for state in 0..N_states{
+            let (s,pi,m) = self.state_invert(state);
+            // println!("state s:{}, pi:{}, m:{}, ESS x(s,pi,m): {}", s, pi as f64/(NPI as f64 - 1.), m, self.x[state]);
+            let v: Vec<f64> = vec![self.n_min,self.g_mean,self.g_sd,self.m_switch as f64,self.r_fighter,self.r_m,self.r_baseline,self.mu,self.y_max,self.lambda,self.gammah,self.gammal, s as f64, pi as f64/(NPI as f64 - 1.), m as f64, self.x[state] as f64, self.rhoi[state][0], self.rhoi[state][1], self.eta];
+            let _=try_print(v, file);
+        }
+    }
+
 }
 
 // main Functions
@@ -882,8 +924,8 @@ fn main() -> std::io::Result<()>  {
         y_max: 1., // maximum maintenance investment
         lambda: 0.05, // Baseline rate of death
         rhohat: vec![vec![0.;N_states];I], // state distribution after development fatalities, before normalisation
-        gammah: 0.5, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
-        gammal: 0.25, // parameter determining trans. prob low to high density patch, due to narrowing patch habitat quality
+        gammah: 0.2, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
+        gammal: 0.01, // parameter determining trans. prob low to high density patch, due to narrowing patch habitat quality
         tol: 0.001, // tolerance threshold for difference in demographic state, below which projections end
         p_stoch: vec![vec![0.;I];I], // transition probabilities of patches given demo stoch and perturbations
         pno: vec![vec![0.;I];I], // (i_prime,i) latent transition prob. of patches between cycles

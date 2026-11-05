@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
 # path <- args[1]
 
 run_policy_plots <- function(path) {
-  
+
   readfile <- read.csv(paste0(path, "summaries.csv"))
 
   # Perceived low population density
@@ -24,7 +24,7 @@ run_policy_plots <- function(path) {
     arrange(s, pi)
   s_vals <- sort(unique(df$s))
   pi_vals <- sort(unique(df$pi))
-  
+
   z <- matrix(
     NA_real_,
     nrow = length(s_vals),
@@ -33,9 +33,9 @@ run_policy_plots <- function(path) {
   z[cbind(
     match(df$s, s_vals),
     match(df$pi, pi_vals)
-  )] <- df$xstar/4
-  
-  pdf(paste0(path, "../", "lowm", ".pdf"), width = 10, height = 8)
+  )] <- df$xstar / 4
+
+  pdf(paste0(path, "/lowm.pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
@@ -56,11 +56,11 @@ run_policy_plots <- function(path) {
 
   # Perceived low population density
   df <- readfile %>%
-    filter(pi == 0.2) %>%
+    filter(pi == 0.0) %>%
     arrange(s, m)
   s_vals <- sort(unique(df$s))
   m_vals <- sort(unique(df$m))
-  
+
   z <- matrix(
     NA_real_,
     nrow = length(s_vals),
@@ -69,10 +69,10 @@ run_policy_plots <- function(path) {
   z[cbind(
     match(df$s, s_vals),
     match(df$m, m_vals)
-  )] <- df$xstar/4
-  
+  )] <- df$xstar / 4
+
   print(z)
-  pdf(paste0(path, "../", "lowdensity", ".pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/lowdensity", ".pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
@@ -94,11 +94,8 @@ run_policy_plots <- function(path) {
 
   # Perceived high population density
   df <- readfile %>%
-    filter(pi == 0.8)
+    filter(pi == 1.0)
 
-  # Perceived low population density
-  df <- readfile %>%
-    filter(pi == 0.2)
   s_vals <- sort(unique(df$s))
   m_vals <- sort(unique(df$m))
 
@@ -113,7 +110,7 @@ run_policy_plots <- function(path) {
     match(df$m, m_vals)
   )] <- df$xstar/4
 
-  pdf(paste0(path, "../", "highdensity", ".pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/highdensity", ".pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
@@ -128,11 +125,11 @@ run_policy_plots <- function(path) {
     cex.lab  = 1.5,
     legend.cex = 1.5,
     legend.line = 4,
-  asp = 1,
-  axis.args = list(cex.axis = 1.5) 
+    asp = 1,
+    axis.args = list(cex.axis = 1.5)
   )
   dev.off()
-  
+
   # Perceived uncertain population density
   df <- readfile %>%
     filter(pi == 0.4)
@@ -148,10 +145,10 @@ run_policy_plots <- function(path) {
   z[cbind(
     match(df$s, s_vals),
     match(df$m, m_vals)
-  )] <- df$xstar/4
+  )] <- df$xstar / 4
 
 
-  pdf(paste0(path, "../", "uncertaindensity", ".pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/uncertaindensity", ".pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
@@ -166,8 +163,8 @@ run_policy_plots <- function(path) {
     cex.lab  = 1.5,
     legend.cex = 1.5,
     legend.line = 4,
-  asp = 1,
-  axis.args = list(cex.axis = 1.5) 
+    asp = 1,
+    axis.args = list(cex.axis = 1.5)
   )
   dev.off()
 
