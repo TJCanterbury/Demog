@@ -1,20 +1,10 @@
 #![allow(nonstandard_style)]
-use libm::log2;
-use rand::Rng;
-use rand::prelude::*;
-use rand::seq::SliceRandom;
-use rand_distr::{Normal, Distribution};
-use statrs::distribution::{Normal as nm, Continuous as cn};
-use statrs::function::gamma;
-use weighted_rand::builder::*;
 extern crate csv;
 use std::error::Error;
 use std::fs::OpenOptions;
-use std::pin;
-use std::print;
 use std::println;
 use std::vec;
-use rayon::prelude::*;
+// use rayon::prelude::*;
 use std::env;
 use std::fs::{self, File};
 use std::path::Path;
@@ -24,7 +14,7 @@ use std::io::BufWriter;
 // R stuff
 use std::process::{Command, Stdio};
 use std::io::Write;
-use std::sync::Mutex;
+// use std::sync::Mutex;
 
 pub struct RSession {
     child: std::process::Child,
@@ -145,21 +135,26 @@ fn idx(s:usize, pi:usize, m:usize) -> usize {
 
 impl Environment { 
     fn q(&self, i: usize)->f64{
-        return self.n_min*(i as f64 + 1.)
+        if i == 0 {
+            return self.n_min;
+        }else{
+            return self.n_min*5.;
+        }
     }
 
     fn interpolate_i(&self, mut prime:f64) -> (usize,usize,f64,f64) {
         // Clamp the posterior population size
         prime = prime.min(self.q(1)).max(self.q(0));
         
-        // decompose
-        let d1 = ((prime/self.n_min) - 1.).floor();
-        let d2 = (d1 + 1.0).min(1.);
-        let p2 = ((prime/self.n_min) - 1.) - d1;
-        let p1 = 1.0 - p2;
-        // println!("{}, {}", d1, d2);
+        // // decompose
+        // let d1 = ((prime/self.n_min) - 1.).floor();
+        // let d2 = (d1 + 1.0).min(1.);
+        // let p2 = ((prime/self.n_min) - 1.) - d1;
+        // let p1 = 1.0 - p2;
+        // // println!("{}, {}", d1, d2);
+        prime = (prime - self.q(0))/(self.q(1)-self.q(0));
 
-        return (d1 as usize,d2 as usize,p1,p2)
+        return (0,1,1.-prime,prime)
     }
 
     fn init_R(&mut self){
@@ -395,6 +390,17 @@ impl Environment {
         // update belief update given time
         println!("Initialising P(piprime|pi,time)");
         self.update_pipitime();
+            
+        let rhosum0:f64  = (0..N_states)
+            .map(|state| self.rhoi[state][0])
+            .sum();
+        let rhosum1:f64 = (0..N_states)
+            .map(|state| self.rhoi[state][1])
+            .sum();
+        
+        println!("initial rhoi sums: {}, {}", rhosum0, rhosum1);
+        println!("initial priors for P(n|o) values: P(0|0) = {}, P(0|1) = {}, P(1|0) = {}, P(1|1) = {}", self.ptilde[0][0],  self.ptilde[0][1], self.ptilde[1][0], self.ptilde[1][1]);
+        println!("initial eta: {}", self.eta);
         
         println!("Initialisations done!");
     }
@@ -429,8 +435,8 @@ impl Environment {
             for g in 0..G {
                 for k in 0..G{
                     // After development:
-                    del_m = (g as f64-k as f64).max(0.);
-                    del_s = (g as f64-del_m-self.y(s as f64+1.,m as f64+1.)).max(0.);
+                    del_m = (g as f64-k as f64).max(0.)/G as f64;
+                    del_s = (g as f64-del_m-self.y(s as f64+1.,m as f64+1.)).max(0.)/G as f64;
                             
                     // Maintenance survival probs section 3.3.3 Maintenance
                     self.survival[idx(s,pi,m)][g] = ((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
@@ -461,7 +467,7 @@ impl Environment {
             for state_prime in 0..N_states{
 
                 // get state
-                let (s_prime,pi_prime,m_prime) = self.state_invert(state_prime);
+                let (_s_prime,pi_prime,_m_prime) = self.state_invert(state_prime);
                         
                 // demographic projection
                 for state in 0..N_states{
@@ -624,19 +630,12 @@ impl Environment {
         // demographic stability:
         let mut dif_h:f64 = 1.;
         let mut oldh:f64 = self.eta;
-            
-        let rhosum0:f64  = (0..N_states)
-            .map(|state| self.rhoi[state][0])
-            .sum();
-        let rhosum1:f64 = (0..N_states)
-            .map(|state| self.rhoi[state][1])
-            .sum();
-        
-        println!("init: rhoi sums: {}, {}", rhosum0, rhosum1);
         let mut cycle = 0;
+
+        // projection algorithm, i.e. the growth cycle
         while dif_h > self.tol{ 
             cycle+=1;
-            println!("\nCycle {}", cycle);
+            println!("\nGrowth Cycle {}", cycle);
             self.Development();
             println!("post development eta: {}", self.eta);
             if self.eta.is_nan(){
@@ -732,27 +731,27 @@ impl Environment {
         let mut Vn = vec![0.;G];
         let mut max_k;
         let mut dif_v = 1.;
-        while dif_v > self.tolv{
-            println!("Finding V*, current difference: {}", dif_v);
 
-            
+        while dif_v > self.tolv{
+                        
             for state in 0..N_states{
-                max_k = self.x[state];
-                V_max = 0.;
                 let (s,pi,m) = self.state_invert(state);
 
                 self.V[1][state] = self.r_state(state);
 
                 for g in 0..G{
                     for piprime in 0..NPI{
+                        max_k = self.x[state];
+                        V_max = 0.;
                         // find best action kappa given prior states s and m, posterior piprime, and food mass g
                         for k in 0..G{
                             // k given prior pi^primeprime
+                            Vn[k]=0.;
                             for state_prime in 0..N_states{
                                 let (s_pri,pi_pripri,m_pri) = self.state_invert(state_prime);
                                 
                                 // value of action kappa
-                                Vn[k] = self.V[0][state_prime] 
+                                Vn[k] += self.V[0][state_prime] 
                                     * self.pipitime[pi_pripri][piprime]
                                     * self.dev_m[idx(s_pri, piprime, m_pri)][idx(s, piprime, m)][g][k];
                             }
@@ -774,9 +773,10 @@ impl Environment {
             dif_v = self.difv();
 
             self.V[0] = self.V[1].clone();
+            println!("V updated, current difference: {}", dif_v);
         }
 
-        println!("Found V* and best response!");
+        println!("V converged on V*!");
     }
 
     fn evo_dif(&self) -> f64 {
@@ -795,39 +795,48 @@ impl Environment {
         while difx > 0.{
 
             // demographic stability:
+            println!("\nRunning demographic projection algorithm...");
             self.demog();
 
             // evolving priors
-            println!("Evolving!");
+            println!("\nEvolving priors...");
             self.etatilde = self.eta;
             self.ptilde = self.pno.clone();
             self.newborns();
             self.update_pipitime();
+            println!("Priors updated!");
 
             // find best response strategy
-            println!("Finding best response!");
+            println!("\nRunning Bellman equation for adapting the developmental strategy...");
             self.Best_Response();
-
-            // print x
-            println!("Best response found!");
-            for pi in 0..NPI{
-                println!("state s:{}, pi:{}, m:{}, best strat x: {}", NS-2, pi as f64/(NPI as f64 - 1.), NM/2, self.x[idx(NS-2, pi, NM/2)]);
-            }
-
+            println!("Therefore: Best response strategy found!");
+        
             // Calculate difference in strategy
+            println!("\nChecking if the resident strategy was invadable...");
             difx = self.evo_dif();
-            println!("Searching for ESS, current difference: {}", difx);
+            println!("The difference in x was: {}", difx);
+            if difx > 0.{
+                println!("Resident strategy was invaded!");
+            }
+            // for state in 0..N_states {
+            //     println!(
+            //         "{}: {} vs {}",
+            //         state,
+            //         self.x[state],
+            //         self.x_prime[state]
+            //     );
+            // }
 
             // update x
             self.x = self.x_prime.clone();
         }
     
-        println!("ESS found!");
+        println!("Resident strategy was uninvadable, ESS found!");
         for state in 0..N_states{
             let (s,pi,m) = self.state_invert(state);
-            println!("state s:{}, pi:{}, m:{}, ESS x(s,pi,m): {}", s, pi as f64/(NPI as f64 - 1.), m, self.x[state]);
+            // println!("state s:{}, pi:{}, m:{}, ESS x(s,pi,m): {}", s, pi as f64/(NPI as f64 - 1.), m, self.x[state]);
             let v: Vec<f64> = vec![self.n_min,self.g_mean,self.g_sd,self.m_switch as f64,self.r_fighter,self.r_m,self.r_baseline,self.mu,self.y_max,self.lambda,self.gammah,self.gammal, s as f64, pi as f64/(NPI as f64 - 1.), m as f64, self.x[state] as f64, self.rhoi[state][0], self.rhoi[state][1], self.eta];
-            try_print(v, file);
+            let _=try_print(v, file);
         }
     }
 
@@ -868,7 +877,7 @@ fn main() -> std::io::Result<()>  {
         rhotilde: vec![0.;N_states], //(idx) state distribution of newborns
         L_g_i: vec![vec![0.;I];G],
         pipig: vec![vec![vec![0.;G];NPI];NPI], //Trans. prob. og pi prime given pi and g [piprime][pi][g]
-        x: vec![G-1;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
+        x: vec![G-3;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
         dev_m: vec![vec![vec![vec![0.;G];G];N_states];N_states], // P(idx prime, "surives"| idx, g, kappa) developmental transitions
         y_max: 1., // maximum maintenance investment
         lambda: 0.05, // Baseline rate of death
@@ -899,7 +908,6 @@ fn main() -> std::io::Result<()>  {
     
     r.exec(&format!("path <- '{}'", path))?;
     r.exec("source('src/sim_plot.r')")?;
-    // r.exec(&format!("run_stoch_plot('{}')", path)).unwrap();
 
 
 // // climate stochasticity: 
