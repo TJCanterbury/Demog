@@ -715,22 +715,21 @@ impl Environment {
                     for g in 0..G {
                         for k in 0..G{
 
-                        // After development:
-                        del_m = (g as f64-k as f64).max(0.);
-                        del_s = (g as f64-del_m-self.y(s as f64,m as f64)).max(0.);
-                        
-                        // Maintenance survival probs section 3.3.3 Maintenance
-                        self.survival[idx(s,pi,m)][g] = ((g as f64-del_m-del_s)/self.y(s as f64,m as f64)).min(1.);
+                            // After development:
+                            del_m = (g as f64-k as f64).max(0.);
+                            del_s = (g as f64-del_m-self.y(s as f64,m as f64)).max(0.);
+                            
+                            // Maintenance survival probs section 3.3.3 Maintenance
 
-                        // Interpolate onto s and m grids:
-                        let (md1,mp1,md2,mp2) = self.interpolate_m(del_m+(m as f64));
-                        let (sd1,sp1,sd2,sp2) = self.interpolate_s(del_s+(s as f64));
+                            // Interpolate onto s and m grids:
+                            let (md1,mp1,md2,mp2) = self.interpolate_m(del_m+(m as f64));
+                            let (sd1,sp1,sd2,sp2) = self.interpolate_s(del_s+(s as f64));
 
-                        // Developmental state transitions 
-                        self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp1;
-                        self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp2;
-                        self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp1;
-                        self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp2;
+                            // Developmental state transitions 
+                            self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp1*((g as f64-del_m-del_s)/self.y(s as f64,m as f64)).min(1.);
+                            self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp2*((g as f64-del_m-del_s)/self.y(s as f64,m as f64)).min(1.);
+                            self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp1*((g as f64-del_m-del_s)/self.y(s as f64,m as f64)).min(1.);
+                            self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp2*((g as f64-del_m-del_s)/self.y(s as f64,m as f64)).min(1.);
                         }
                         
                     }
