@@ -124,7 +124,6 @@ struct Environment {
     pipitime: Vec<Vec<f64>>, // (piprime,pi) prob of belief transition given time
     p_g_pi: Vec<Vec<f64>>, // (g,pi) the probability of food mass g given prior pi
     pert_survival: Vec<f64>, // (pi) probability of survival given prior belief pi
-    survival: Vec<Vec<f64>>, // ((s,pi,m),g) prob. survival maintenance
 }
 
 // Implementations
@@ -138,7 +137,7 @@ impl Environment {
         if i == 0 {
             return self.n_min;
         }else{
-            return self.n_min*5.;
+            return self.n_min*2.;
         }
     }
 
@@ -440,19 +439,44 @@ impl Environment {
                             
                     // Maintenance survival probs section 3.3.3 Maintenance
                     // self.survival[idx(s,pi,m)][g] = 0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
-
+                    if del_m > G as f64{
+                        println!("what? {}",del_m);
+                        std::process::exit(0);
+                    }
                     // Calculate the change in state expected for the investments del_m and del_s
-                    let del_mpost = del_m/(G as f64);
-                    let del_spost = del_s/(G as f64);
+                    let del_mpost = del_m;
+                    let del_spost = del_s;
                     // Interpolate onto s and m grids:
                     let (md1,mp1,md2,mp2) = self.interpolate_m(del_mpost+(m as f64));
                     let (sd1,sp1,sd2,sp2) = self.interpolate_s(del_spost+(s as f64));
 
                     // Developmental state transitions 
-                    self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp1*(0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
-                    self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]=mp1*sp2*(0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
-                    self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp1*(0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
-                    self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]=mp2*sp2*(0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
+                    // if s == NS-1{ // development ends at maturity s=S
+                    //     self.dev_m[idx(s, pi, m)][idx(s, pi, m)][g][k] = ((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
+                    // } else {
+                        self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k]+=mp1*sp1*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
+                        self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]+=mp1*sp2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
+                        self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]+=mp2*sp1*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
+                        self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]+=mp2*sp2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
+                    // }
+                    // if s==NS-1{
+                    //     if m==NM-2{
+
+                    //         println!("k: {}, g: {}, devm:{}, md1:{}, md2:{}, mp1:{}, mp2:{}, sd1:{}, sd2:{}, sp1:{}, sp2:{}, survival:{}",
+                    //             k,
+                    //             g,
+                    //             self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k],
+                    //             md1,
+                    //             md2,
+                    //             mp1,
+                    //             mp2,
+                    //             sd1,
+                    //             sd2,
+                    //             sp1,
+                    //             sp2,
+                    //             ((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
+                    //     }
+                    // }
                 }
             }
         }
@@ -740,7 +764,7 @@ impl Environment {
             for state in 0..N_states{
                 let (s,pi,m) = self.state_invert(state);
 
-                self.V[1][state] = self.r_state(state);
+                self.V[0][state] = self.r_state(state);
 
                 for g in 0..G{
                     for piprime in 0..NPI{
@@ -754,29 +778,50 @@ impl Environment {
                                 let (s_pri,pi_pripri,m_pri) = self.state_invert(state_prime);
                                 
                                 // value of action kappa
-                                Vn[k] += self.V[0][state_prime] 
+                                Vn[k] += self.V[1][state_prime] 
                                     * self.pipitime[pi_pripri][piprime]
                                     * self.dev_m[idx(s_pri, piprime, m_pri)][idx(s, piprime, m)][g][k];
+                                
+                                // if s==NS-1{
+                                //     // println!("hello");
+                                //     if m==NM-1{
+                                //         if self.dev_m[idx(s_pri, piprime, m_pri)][idx(s, piprime, m)][g][k] == 1.{
+
+                                //             println!("V+:{}", self.V[1][state_prime] 
+                                //                 * self.pipitime[pi_pripri][piprime]
+                                //                 * self.dev_m[idx(s_pri, piprime, m_pri)][idx(s, piprime, m)][g][k]);
+                                //             println!("kappa: {}, devm: {}, m_pri: {}, s_pri: {}, piprime: {}, s:{}, m:{}", 
+                                //                 k, 
+                                //                 self.dev_m[idx(s_pri, piprime, m_pri)][idx(s, piprime, m)][g][k],
+                                //                 m_pri, 
+                                //                 s_pri, 
+                                //                 piprime,
+                                //                 s,
+                                //                 m);
+                                //         } 
+                                //     }
+                                // }
                             }
                             
                             // Check if new best response for current state
-                            if Vn[k] > V_max {
+                            if Vn[k] >= V_max {
                                 max_k = k;
                                 V_max = Vn[k];
                             }
                         }
+                          
 
                         // running best response
                         self.x_prime[idx(s,piprime,m)] = max_k;
 
                         // Weight posterior V by probability of posterior piprime, probability of survival for pi, and probability of g given pi
-                        self.V[1][state] += self.p_g_pi[g][pi] * self.pipig[piprime][pi][g] * self.pert_survival[piprime] * V_max;
+                        self.V[0][state] += self.p_g_pi[g][pi] * self.pipig[piprime][pi][g] * self.pert_survival[piprime] * V_max;
                     }
                 }
             }
             dif_v = self.difv();
 
-            self.V[0] = self.V[1].clone();
+            self.V[1] = self.V[0].clone();
             println!("V updated, current difference: {}", dif_v);
         }
 
@@ -937,7 +982,6 @@ fn main() -> std::io::Result<()>  {
         pipitime: vec![vec![0.;NPI];NPI], // (piprime,pi) prob of belief transition given time
         p_g_pi: vec![vec![0.;NPI];G], // (g,pi) the probability of food mass g given prior pi
         pert_survival: vec![0.;NPI], // (pi) probability of survival given prior belief pi
-        survival: vec![vec![0.;G];N_states], // ((s,pi,m),g) prob. survival
     };
 
     env0.run(&path);
