@@ -1019,7 +1019,7 @@ where the parameters
  need only be defined once as
 \begin_inset Formula 
 \begin{equation}
-P_{pert}(survival|\pi^{\prime})=(1-\lambda)\cdot\pi^{\prime}\cdot P_{stoch}(q_{0}|q_{1})\cdot\frac{q_{0}}{q_{1}}.\label{eq:-45}
+P_{pert}(survival|\pi^{\prime})=(1-\lambda)\cdot(1-\pi^{\prime})+(1-\lambda)\cdot\pi^{\prime}\cdot(P_{stoch}(q_{1}|q_{1})+P_{stoch}(q_{0}|q_{1})\cdot\frac{q_{0}}{q_{1}}).\label{eq:-45}
 \end{equation}
 
 \end_inset
@@ -1804,7 +1804,7 @@ P_{\text{det}}(q_{0}|q_{o})=1-P_{\text{det}}(q_{1}|q_{o})\label{eq:-28}
 We then wish to add some demographic stochasticity to this deaths and births process for which we use our model of density-dependent perturbations for each possible transition
 \begin_inset Formula 
 \begin{equation}
-P(q_{n}|q_{o})=P_{det}(q_{n}|q_{1})\cdot P_{stoch}(q_{1}|q_{o})+P_{det}(q_{n}|q_{0})\cdot P_{stoch}(q_{0}|q_{o})\label{eq:-29}
+P(q_{n}|q_{o})=P_{stoch}(q_{n}|q_{1})\cdot P_{det}(q_{1}|q_{o})+P_{stoch}(q_{n}|q_{0})\cdot P_{det}(q_{0}|q_{o})\label{eq:-29}
 \end{equation}
 
 \end_inset
@@ -2338,69 +2338,20 @@ We know that they will begin life at the minimum size and quality states and wit
 \end_inset
 
 .
- However,
- to form a discrete grid of states that we can solve a Markov decision process for we need interpolate each 
-\begin_inset Formula $\pi$
-\end_inset
-
- onto a grid of possible discrete probability values,
- 
-\begin_inset Formula $\pi=i\in\{0/I,1/I,2/I,...,I/I\}$
-\end_inset
-
-,
- where 
-\begin_inset Formula $I$
-\end_inset
-
- is an integer determining the fineness of the grid.
- The first step of interpolation is to find the floor of 
-\begin_inset Formula $\eta^{*}_{1}$
-\end_inset
-
-when it is scaled by the grid size,
- which will give us the nearest grid cell 
-\begin_inset Formula $i$
-\end_inset
-
- below the continuous value
+ So we assume of our cohort,
+ the numbers of individuals that start at the state distribution of newborns and in each patch state are
 \begin_inset Formula 
-\begin{equation}
-i=\lfloor\eta^{*}_{1}\cdot I\rfloor,\label{eq:-42}
-\end{equation}
-
-\end_inset
-
-and subsequently the difference is the fractional part 
-\begin_inset Formula $f$
-\end_inset
-
- defined as
-\begin_inset Formula 
-\begin{equation}
-f=\eta^{*}_{1}\cdot I-i.\label{eq:-43}
-\end{equation}
-
-\end_inset
-
-We can then use the fractional part as a probability that the state should be interpolated to be 
-\begin_inset Formula $(i+1)$
-\end_inset
-
-,
- finally giving us two discrete states and associated probabilities for defining the state distribution of this cohort as 
-\begin_inset Formula 
-\begin{equation}
-\rho_{i,t}(s=1,\pi=i,m=0)=1-f\label{eq:-46}
-\end{equation}
+\[
+\rho_{0,t}(s,\pi,m)=\tilde{\rho}(s,\pi,m)\cdot(1-\eta^{*})\cdot N\cdot q_{0},
+\]
 
 \end_inset
 
 
 \begin_inset Formula 
-\begin{equation}
-\rho_{i,t}(s=1,\pi=i+1,m=0)=f\label{eq:-47}
-\end{equation}
+\[
+\rho_{1,t}(s,\pi,m)=\tilde{\rho}(s,\pi,m)\cdot(\eta^{*})\cdot N\cdot q_{0},
+\]
 
 \end_inset
 
@@ -2408,13 +2359,17 @@ We can then use the fractional part as a probability that the state should be in
 \end_layout
 
 \begin_layout Standard
-Very conveniently we already know the transition probabilities,
- 
-\begin_inset Formula $a(s^{\prime},\pi^{\prime\prime},m^{\prime}|s,\pi,m,\kappa=\bar{x}(s,\pi,m))$
+where 
+\begin_inset Formula $N$
 \end_inset
 
-,
- for individuals using the ESS strategy 
+ is some large number representing a plausible number of foraging patches within a metapopulation,
+ and where as a reminder 
+\begin_inset Formula $\tilde{\rho}(s,\pi,m)$
+\end_inset
+
+ is the physiological state distribution of newborns.
+ Very conveniently we already know the transition probabilities for individuals using the ESS strategy 
 \begin_inset Formula $\bar{x}(s,\pi,m)$
 \end_inset
 
@@ -2426,28 +2381,7 @@ Very conveniently we already know the transition probabilities,
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\rho_{i,t+1}(s^{\prime},\pi^{\prime\prime},m^{\prime})=\sum_{s}\sum_{\pi}\sum_{m}a(s^{\prime},\pi^{\prime\prime},m^{\prime}|s,\pi,m,\kappa=\bar{x}(s,\pi,m))\cdot(\rho_{0,t}(s,\pi,m)\cdot\tilde{P}(i|0)\cdot(1-\pi)+\rho_{1,t}(s,\pi,m)\cdot\tilde{P}(i|1)\cdot\pi).\label{eq:-17-1}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection
-Life history projection with controlled environment
-\end_layout
-
-\begin_layout Standard
-Alternatively,
- we may want to manipulate the patch densities or food availability to simulate a lab experiment,
- to make predictions as to what the results of such a lab experiment would be.
- In this case we need a more elaborate extension.
- We must run our old demographic projection but with fixed parameters for the transitions in patch density,
- and assume that deaths are replaced with lab specimens of certain state distribution.
-\begin_inset Formula 
-\begin{equation}
-\hat{\rho_{n}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}P(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)\cdot P(survival|g,s,\pi^{\prime},m)\cdot P(\pi^{\prime}|\pi,g)\cdot L(g|q_{n})\cdot\rho_{n,t}(s,\pi,m)\label{eq:-17-2}
+\hat{\rho_{n}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}P(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)\cdot P(survival|g,s,\pi^{\prime},m)\cdot P(\pi^{\prime}|\pi,g)\cdot L(g|q_{n})\cdot\rho_{n,t}(s,\pi,m).\label{eq:-17-2}
 \end{equation}
 
 \end_inset
@@ -2461,20 +2395,11 @@ Normally at this state we would then account for the addition of arrivals to the
 \end_inset
 
 ,
- giving us
-\begin_inset Formula 
-\begin{equation}
-\rho^{\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\frac{1}{\eta^{\prime}_{n}}\cdot\eta_{o}\cdot P_{lab}(q_{n}|q_{o})\cdot\frac{\hat{\rho_{o}}(s^{\prime},\pi^{\prime},m^{\prime})}{\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho_{o}}(s^{\prime},\pi^{\prime},m^{\prime})},\label{eq:-30-1-1}
-\end{equation}
-
+ and because 
+\begin_inset Formula $\eta^{*}$
 \end_inset
 
- and change 
-\begin_inset Formula $P_{lab}(q_{n}|q_{o})$
-\end_inset
-
- as per the lab controls;
- or if we are interested in the proportion that are alive we can ignore the normalisation step entirely giving us
+is fixed and as we are interested in the proportion that are alive we can ignore the normalisation step entirely giving us
 \begin_inset Formula 
 \begin{equation}
 \rho^{\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\frac{1}{\eta^{\prime}_{n}}\cdot\eta_{o}\cdot P_{lab}(q_{n}|q_{o})\cdot\hat{\rho_{o}}(s^{\prime},\pi^{\prime},m^{\prime}).\label{eq:-30-1-1-1}
@@ -2483,18 +2408,28 @@ Normally at this state we would then account for the addition of arrivals to the
 \end_inset
 
 Finally,
- we apply the time dependent updating of their belief state
+ we apply the time dependent updating of their belief state and generating the distribution of states in the next time step
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\rho_{n,t+1}(s^{\prime},\pi^{\prime\prime},m^{\prime})=\rho^{\prime\prime}_{n}(s^{\prime},\pi^{\prime\prime},m^{\prime})=\sum_{\pi^{\prime}}P(\pi^{\prime\prime}|\pi^{\prime},\text{time})\cdot\rho^{\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime}),\label{eq:-48-1}
+\rho_{n,t+1}(s^{\prime},\pi^{\prime\prime},m^{\prime})=\sum_{\pi^{\prime}}P(\pi^{\prime\prime}|\pi^{\prime},\text{time})\cdot\rho^{\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime}),\label{eq:-48-1}
 \end{equation}
 
 \end_inset
 
-and iterate further.
+which we can then print for visualistion before iterating further;
+ until 
+\begin_inset Formula 
+\[
+0\approx N\cdot\sum_{\{s,\pi,m\}}\rho_{0,t}(s,\pi,m)+\rho_{1,t}(s,\pi,m),
+\]
+
+\end_inset
+
+at which point we can be quite sure that most individuals of our cohort are dead,
+ giving us a complete picture of their life history.
 \end_layout
 
 \begin_layout Subsection
@@ -2502,13 +2437,14 @@ Vital Rates
 \end_layout
 
 \begin_layout Standard
-We will then know the rates at which individuals will be of each state and perform each action over the course of their life.
+We will then know the rates at which individuals will be of each state and perform each action over the course of their life,
+ and their age demographics.
  Crucially,
  we can weight actions within the ESS developmental strategy 
 \begin_inset Formula $x^{*}(s,\pi,m)$
 \end_inset
 
- by the proportion of individuals who are of that state.
+ by the proportion of individuals who are of that state at each time step.
  Of particular interest is at what age they begin to decide whether or not to invest in quality given their state distribution at that age.
  Alternatively,
  you can simply plot the proportion of individuals in the cohort who are of each quality state against time,

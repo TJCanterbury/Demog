@@ -61,6 +61,40 @@ fn write_csv_header(path: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+fn write_csv_headerLH(path: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let file_path1 = format!("{}LifeHistory.csv", path);
+
+    let file = match File::create(&file_path1) {
+        Ok(f) => f,
+        Err(e) => return Err(Box::new(e)),
+    };
+
+    let buf_writer = BufWriter::new(file);
+    let mut wtr = Writer::from_writer(buf_writer);
+
+    wtr.write_record(&[
+        "t", "s", "pi", "m", "i", "rhoi[state]", "x[state]"
+    ])?;
+
+    wtr.flush()?;
+    Ok(())
+}
+fn try_print(vec:Vec<f64>, file:&str) -> Result<(), Box<dyn Error>> {
+    let file = format!("{}LifeHistory.csv", file);
+    let strings: Vec<String> = vec.iter().map(|n| n.to_string()).collect();
+
+    let outfile = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .append(true)
+        .open(file)
+        .unwrap();
+    let mut wtr = csv::Writer::from_writer(outfile);
+    wtr.write_record(strings)?;
+    wtr.flush()?;
+    Ok(())
+}
+
 fn try_print(vec:Vec<f64>, file:&str) -> Result<(), Box<dyn Error>> {
     let file = format!("{}summaries.csv", file);
     let strings: Vec<String> = vec.iter().map(|n| n.to_string()).collect();
@@ -315,6 +349,11 @@ impl Environment {
         self.p_stoch[1][0] = self.gammal;
         self.p_stoch[0][1] = self.gammah;
         self.p_stoch[1][1] = 1. - self.gammah;
+        println!("pstoch 0|0: {}, 1|0: {}, 0|1: {}, 1|1: {}", 
+            self.p_stoch[0][0], 
+            self.p_stoch[1][0],
+            self.p_stoch[0][1],
+            self.p_stoch[1][1]);
     }
 
     fn update_pipitime(&mut self){
@@ -570,6 +609,13 @@ impl Environment {
             self.pdet[d1][i] += p1;
             self.pdet[d2][i] += p2;
         }
+        println!("u0: {}, a0: {}, q0:{}",self.u_q[0], self.a_q[0], self.q(0));
+        println!("u1: {}, a1: {}, q1:{}",self.u_q[1], self.a_q[1], self.q(1));
+        println!("p_det (0|1): {}, (0|0): {}, (1|0): {}, (1|1): {}", 
+            self.pdet[0][1], 
+            self.pdet[0][0], 
+            self.pdet[1][0], 
+            self.pdet[1][1]);
 
         // define pno
         self.pno[0][1] = self.p_stoch[0][1]*self.pdet[1][1] + self.p_stoch[0][0]*self.pdet[0][1];
@@ -739,17 +785,17 @@ impl Environment {
     fn init_pertsurvival(&mut self){
         // calcilate probability of survival for an individual of belief state pi, given transitions in patch population densitites and random deaths
         for pi in 0..NPI{
-            let pi1 = pi as f64/(NPI as f64 -1.);
-            let pi0 = 1. - pi1;
-            let mut sumjk = 0.;
-            for k in 0..I{
-                sumjk += pi0*(1. - self.p_stoch[k][0])*((self.q(0)-self.q(k)).max(0.)/self.q(0)); 
-                sumjk += pi1*(1. - self.p_stoch[k][1])*((self.q(1)-self.q(k)).max(0.)/self.q(1)); 
-            }
-            self.pert_survival[pi] = (1. - self.lambda) * sumjk;
-            if self.pert_survival[pi] <0.{
-                println!("sumjk: {}", sumjk);
-            }
+            let prior = pi as f64/(NPI as f64 -1.);
+            
+            self.pert_survival[pi] = (1. - self.lambda) * prior * (self.p_stoch[1][1] + self.p_stoch[0][1] * (self.q(0)/self.q(1))) +
+                (1. - self.lambda) * (1. - prior);
+            println!("pertsurvival: {}, pi: {}, pstoch01: {}, 1-lambda: {}, q0/q1: {}, remainder: {}", 
+                self.pert_survival[pi],
+                prior, 
+                self.p_stoch[0][1],
+                (1. - self.lambda),
+                (self.q(0)/self.q(1)),
+                (1. - self.lambda) * (1. - prior))
         }
     }
 
@@ -889,41 +935,77 @@ impl Environment {
         }
     }
 
-    fn lifehistory(&mut self, file:&str){
-        let tol = 0.1;
-        let mut dif = 10.;
+    fn lifehistory(&mut self, file:&str, plab:Vec<Vec<f64>>){
         // init distribution
         for state in 0..N_states{
-            self.rhoi[state][0] = self.rhotilde[state];
-            self.rhoi[state][1] = self.rhotilde[state];
+            self.rhoi[state][0] = self.rhotilde[state]*(1.-self.eta)*100.*self.q(0);
+            self.rhoi[state][1] = self.rhotilde[state]*(self.eta)*100.*self.q(1);
         }
+        let mut popsize: f64 = (1.-self.eta)*100.*self.q(0) + (self.eta)*100.*self.q(1);
+        let mut t: f64=1.;
         // project distribution
-        while dif > tol{
+        while popsize > 1.{
+            println!("Population size: {}", popsize);
+
+            // print distribution
+            for state in 0..N_states{
+                let (s,pi,m) = self.state_invert(state);
+                for i in 0..I{
+                    let v: Vec<f64> = vec![t, s as f64, (pi as f64)/(NPI as f64 - 1.), m as f64, i as f64, self.rhoi[state][i], self.x[state] as f64];
+                    let _=try_print(v, file);
+                }
+            }
+
             // calculate posterior distribution to developmnent
             for stateprime in 0..N_states{
+                let (_sprime, piprime, _mprime) = self.state_invert(stateprime);
                 self.rhohat[0][stateprime] = 0.;
                 self.rhohat[1][stateprime] = 0.;
                 for state in 0..N_states{
+                    let (s, pi, m) = self.state_invert(state);
                     for g in 0..G{
-                        // self.rhohat[0][stateprime] += self.dev_m[stateprime][state][g][self.x[idx(s, piprime, m)]] * self.survival[stateprime][state][g]
+                        self.rhohat[0][stateprime] += 
+                            self.dev_m[stateprime][state][g][self.x[idx(s, piprime, m)]] * 
+                            self.pipig[piprime][pi][g] *
+                            self.L_g_i[g][0] *
+                            self.rhoi[state][0];
+                        self.rhohat[1][stateprime] += 
+                            self.dev_m[stateprime][state][g][self.x[idx(s, piprime, m)]] * 
+                            self.pipig[piprime][pi][g] *
+                            self.L_g_i[g][1] *
+                            self.rhoi[state][1];
                     }
                 }
             }
+            
             // calculate posterior to deaths
+            for state in 0..N_states{
+                self.rhoi[state].fill(0.);
+                self.rhoi[state][0] += plab[0][1] * self.rhohat[1][state] + plab[0][0] * self.rhohat[0][state];
+                self.rhoi[state][1] += plab[1][1] * self.rhohat[1][state] + plab[1][0] * self.rhohat[0][state];
+            }         
 
             // calculate posterior to bayesian updating
+            let mut rhoi_prime: Vec<Vec<f64>> = vec![vec![0.0;I]; N_states];
+            for state in 0..N_states{
+                for i in 0..I{
+                    // retrieve state
+                    let (s,piprime,m) = self.state_invert(state);
 
-            // print distribution
+                    // update rhoi
+                    rhoi_prime[state][i] = (0..NPI)
+                        .map(|pi| self.pipitime[piprime][pi] * self.rhoi[idx(s,pi,m)][i]).sum();
+                    
+                }
+            }
+            self.rhoi = rhoi_prime;
 
             // update dif
-
-        }
-
-        for state in 0..N_states{
-            let (s,pi,m) = self.state_invert(state);
-            // println!("state s:{}, pi:{}, m:{}, ESS x(s,pi,m): {}", s, pi as f64/(NPI as f64 - 1.), m, self.x[state]);
-            let v: Vec<f64> = vec![self.n_min,self.g_mean,self.g_sd,self.m_switch as f64,self.r_fighter,self.r_m,self.r_baseline,self.mu,self.y_max,self.lambda,self.gammah,self.gammal, s as f64, pi as f64/(NPI as f64 - 1.), m as f64, self.x[state] as f64, self.rhoi[state][0], self.rhoi[state][1], self.eta];
-            let _=try_print(v, file);
+            popsize = 0.;
+            for state in 0..N_states{
+                popsize += self.rhoi[state][0] + self.rhoi[state][1];
+            }
+            t+=1.;
         }
     }
 
@@ -952,9 +1034,9 @@ fn main() -> std::io::Result<()>  {
         g_mean: (G as f64 -1.), // mean food mass
         g_sd: 2., // standard deviation of food mass
         m_switch: 5, //threshold m above which fighter phenotype is expressed
-        r_fighter: 2., // fitness benefit of fighter phenotype
-        r_m: 10., // fitness benefit of quality
-        r_baseline: 10., // baseline fitness
+        r_fighter: 0.5, // fitness benefit of fighter phenotype
+        r_m: 0.1, // fitness benefit of quality
+        r_baseline: 0.1, // baseline fitness
         u_q: vec![0.;I], //(i) survivals from maintenance
         a_q: vec![0.;I], //(i) arrivals from dispersal
         mu: 0.1, // Dispersal rate
@@ -967,7 +1049,7 @@ fn main() -> std::io::Result<()>  {
         x: vec![G-3;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
         dev_m: vec![vec![vec![vec![0.;G];G];N_states];N_states], // P(idx prime, "surives"| idx, g, kappa) developmental transitions
         y_max: 1., // maximum maintenance investment
-        lambda: 0.05, // Baseline rate of death
+        lambda: 0.15, // Baseline rate of death
         rhohat: vec![vec![0.;N_states];I], // state distribution after development fatalities, before normalisation
         gammah: 0.2, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
         gammal: 0.01, // parameter determining trans. prob low to high density patch, due to narrowing patch habitat quality
@@ -984,16 +1066,53 @@ fn main() -> std::io::Result<()>  {
         pert_survival: vec![0.;NPI], // (pi) probability of survival given prior belief pi
     };
 
+    // find ess strategy and demographic stability
     env0.run(&path);
-    
-    // start r session
-    // let mut r = RSession::new()?;
-    // r.exec("source('src/plots.r')")?;
-    // r.exec(&format!("run_stoch_plot('{}')", path)).unwrap();
     let mut r = RSession::new()?;
     
     r.exec(&format!("path <- '{}'", path))?;
     r.exec("source('src/sim_plot.r')")?;
+    
+    // life history projection with natural patch dynamics
+    // prepare file
+    let path = format!("./Results/{}/natural/", project_id);
+    // Construct the full path
+    let path_construct = Path::new(&path);
+    // Ensure parent directory exists
+    let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
+    let _ = write_csv_headerLH(&path);
+
+    // run
+    let pnatural = env0.pno.clone();
+    env0.lifehistory(&path, pnatural);
+    
+    // plot
+    r.exec(&format!("path <- '{}'", path))?;
+    r.exec("source('src/LifeHistory.r')")?;
+
+    // life history projection with lab patch dynamics (e.g. fixed patch sizes)
+    // prepare file
+    let path = format!("./Results/{}/lab/", project_id);
+    // Construct the full path
+    let path_construct = Path::new(&path);
+    // Ensure parent directory exists
+    let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
+    let _ = write_csv_headerLH(&path);
+
+    // run
+    let mut plab = vec![vec![0.;2];2];
+    plab[1][1] = 1.;
+    plab[0][0] = 1.;
+    env0.lifehistory(&path, plab);
+    
+    // plot
+    r.exec(&format!("path <- '{}'", path))?;
+    r.exec("source('src/LifeHistory.r')")?;
+
+    // start r session
+    // let mut r = RSession::new()?;
+    // r.exec("source('src/plots.r')")?;
+    // r.exec(&format!("run_stoch_plot('{}')", path)).unwrap();
 
 
 // // climate stochasticity: 
