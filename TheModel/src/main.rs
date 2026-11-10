@@ -43,9 +43,8 @@ impl RSession {
 
 //Functions
 fn write_csv_header(path: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let file_path1 = format!("{}summaries.csv", path);
 
-    let file = match File::create(&file_path1) {
+    let file = match File::create(&path) {
         Ok(f) => f,
         Err(e) => return Err(Box::new(e)),
     };
@@ -54,7 +53,29 @@ fn write_csv_header(path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let mut wtr = Writer::from_writer(buf_writer);
 
     wtr.write_record(&[
-    "n_min","g_mean","g_sd","m_switch","r_fighter","r_m","r_baseline","mu","y_max","lambda","gammah","gammal","s","pi", "m", "xstar","rho_0","rho_1","eta"
+        "n_min",
+        "g_mean",
+        "g_sd",
+        "m_switch",
+        "r_fighter",
+        "r_m",
+        "r_baseline",
+        "mu",
+        "y_max",
+        "lambda",
+        "gammah",
+        "gammal",
+        "s",
+        "pi", 
+        "m", 
+        "xstar",
+        "rho_0",
+        "rho_1",
+        "eta",
+        "P00",
+        "P10",
+        "P01",
+        "P11"
     ])?;
 
     wtr.flush()?;
@@ -62,9 +83,8 @@ fn write_csv_header(path: &str) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn write_csv_headerLH(path: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let file_path1 = format!("{}LifeHistory.csv", path);
 
-    let file = match File::create(&file_path1) {
+    let file = match File::create(&path) {
         Ok(f) => f,
         Err(e) => return Err(Box::new(e)),
     };
@@ -80,23 +100,6 @@ fn write_csv_headerLH(path: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 fn try_print(vec:Vec<f64>, file:&str) -> Result<(), Box<dyn Error>> {
-    let file = format!("{}LifeHistory.csv", file);
-    let strings: Vec<String> = vec.iter().map(|n| n.to_string()).collect();
-
-    let outfile = OpenOptions::new()
-        .write(true)
-        .create(true)
-        .append(true)
-        .open(file)
-        .unwrap();
-    let mut wtr = csv::Writer::from_writer(outfile);
-    wtr.write_record(strings)?;
-    wtr.flush()?;
-    Ok(())
-}
-
-fn try_print(vec:Vec<f64>, file:&str) -> Result<(), Box<dyn Error>> {
-    let file = format!("{}summaries.csv", file);
     let strings: Vec<String> = vec.iter().map(|n| n.to_string()).collect();
 
     let outfile = OpenOptions::new()
@@ -477,45 +480,25 @@ impl Environment {
                     del_s = (g as f64-del_m-self.y(s as f64+1.,m as f64+1.)).max(0.);
                             
                     // Maintenance survival probs section 3.3.3 Maintenance
-                    // self.survival[idx(s,pi,m)][g] = 0.8+0.2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
-                    if del_m > G as f64{
-                        println!("what? {}",del_m);
-                        std::process::exit(0);
-                    }
+                    let mu: f64 = ((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
+
                     // Calculate the change in state expected for the investments del_m and del_s
                     let del_mpost = del_m;
-                    let del_spost = del_s;
+                    let del_spost = del_s/(G as f64-1.);
                     // Interpolate onto s and m grids:
                     let (md1,mp1,md2,mp2) = self.interpolate_m(del_mpost+(m as f64));
                     let (sd1,sp1,sd2,sp2) = self.interpolate_s(del_spost+(s as f64));
 
-                    // Developmental state transitions 
-                    // if s == NS-1{ // development ends at maturity s=S
-                    //     self.dev_m[idx(s, pi, m)][idx(s, pi, m)][g][k] = ((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
-                    // } else {
-                        self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k]+=mp1*sp1*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
-                        self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]+=mp1*sp2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
-                        self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]+=mp2*sp1*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
-                        self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]+=mp2*sp2*((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
-                    // }
-                    // if s==NS-1{
-                    //     if m==NM-2{
 
-                    //         println!("k: {}, g: {}, devm:{}, md1:{}, md2:{}, mp1:{}, mp2:{}, sd1:{}, sd2:{}, sp1:{}, sp2:{}, survival:{}",
-                    //             k,
-                    //             g,
-                    //             self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k],
-                    //             md1,
-                    //             md2,
-                    //             mp1,
-                    //             mp2,
-                    //             sd1,
-                    //             sd2,
-                    //             sp1,
-                    //             sp2,
-                    //             ((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.));
-                    //     }
-                    // }
+                    // Developmental state transitions 
+                    if s == NS-1{ // development ends at maturity s=S
+                        self.dev_m[idx(s, pi, m)][idx(s, pi, m)][g][k] = mu;
+                    } else {
+                        self.dev_m[idx(sd1, pi, md1)][idx(s, pi, m)][g][k]+=mp1*sp1*mu;
+                        self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]+=mp1*sp2*mu;
+                        self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]+=mp2*sp1*mu;
+                        self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]+=mp2*sp2*mu;
+                    }
                 }
             }
         }
@@ -759,7 +742,8 @@ impl Environment {
                 std::process::exit(0);
             }
         }
-        println!("Demog done: eta: {}", self.eta);
+        println!("Demog done: eta: {}, pno00:{}, pno10:{}, pno01:{}, pno11:{}", self.eta, self.pno[0][0], self.pno[1][0], self.pno[0][1], self.pno[1][1]);
+
 
     }
 
@@ -927,11 +911,36 @@ impl Environment {
         }
     
         println!("Resident strategy was uninvadable, ESS found!");
+        // name of file
         for state in 0..N_states{
             let (s,pi,m) = self.state_invert(state);
             // println!("state s:{}, pi:{}, m:{}, ESS x(s,pi,m): {}", s, pi as f64/(NPI as f64 - 1.), m, self.x[state]);
-            let v: Vec<f64> = vec![self.n_min,self.g_mean,self.g_sd,self.m_switch as f64,self.r_fighter,self.r_m,self.r_baseline,self.mu,self.y_max,self.lambda,self.gammah,self.gammal, s as f64, pi as f64/(NPI as f64 - 1.), m as f64, self.x[state] as f64, self.rhoi[state][0], self.rhoi[state][1], self.eta];
-            let _=try_print(v, file);
+            let v: Vec<f64> = vec![
+                self.n_min,
+                self.g_mean,
+                self.g_sd,
+                self.m_switch as f64,
+                self.r_fighter,
+                self.r_m,
+                self.r_baseline,
+                self.mu,
+                self.y_max,
+                self.lambda,
+                self.gammah,
+                self.gammal, 
+                s as f64, 
+                pi as f64/(NPI as f64 - 1.), 
+                m as f64, 
+                self.x[state] as f64, 
+                self.rhoi[state][0], 
+                self.rhoi[state][1], 
+                self.eta,
+                self.pno[0][0],
+                self.pno[1][0],
+                self.pno[0][1],
+                self.pno[1][1]
+                ];
+            let _=try_print(v, &file);
         }
     }
 
@@ -943,6 +952,7 @@ impl Environment {
         }
         let mut popsize: f64 = (1.-self.eta)*100.*self.q(0) + (self.eta)*100.*self.q(1);
         let mut t: f64=1.;
+
         // project distribution
         while popsize > 1.{
             println!("Population size: {}", popsize);
@@ -952,7 +962,7 @@ impl Environment {
                 let (s,pi,m) = self.state_invert(state);
                 for i in 0..I{
                     let v: Vec<f64> = vec![t, s as f64, (pi as f64)/(NPI as f64 - 1.), m as f64, i as f64, self.rhoi[state][i], self.x[state] as f64];
-                    let _=try_print(v, file);
+                    let _=try_print(v, &file);
                 }
             }
 
@@ -1023,7 +1033,8 @@ fn main() -> std::io::Result<()>  {
     // Ensure parent directory exists
     let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
     
-    let _ = write_csv_header(&path);
+    let policypath = format!("{}Policies.csv", path);
+    let _ = write_csv_header(&policypath);
 
 /////////////////////////////////////////// Initialise parameters \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     let mut env0 = Environment {
@@ -1033,10 +1044,10 @@ fn main() -> std::io::Result<()>  {
         n_min: 100., // population bin sizes
         g_mean: (G as f64 -1.), // mean food mass
         g_sd: 2., // standard deviation of food mass
-        m_switch: 5, //threshold m above which fighter phenotype is expressed
-        r_fighter: 0.5, // fitness benefit of fighter phenotype
-        r_m: 0.1, // fitness benefit of quality
-        r_baseline: 0.1, // baseline fitness
+        m_switch: 5, // threshold m above which fighter phenotype is expressed
+        r_fighter: 2., // fitness benefit of fighter phenotype
+        r_m: 0., // fitness benefit of quality
+        r_baseline: 1., // baseline fitness
         u_q: vec![0.;I], //(i) survivals from maintenance
         a_q: vec![0.;I], //(i) arrivals from dispersal
         mu: 0.1, // Dispersal rate
@@ -1048,31 +1059,33 @@ fn main() -> std::io::Result<()>  {
         pipig: vec![vec![vec![0.;G];NPI];NPI], //Trans. prob. og pi prime given pi and g [piprime][pi][g]
         x: vec![G-3;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
         dev_m: vec![vec![vec![vec![0.;G];G];N_states];N_states], // P(idx prime, "surives"| idx, g, kappa) developmental transitions
-        y_max: 1., // maximum maintenance investment
-        lambda: 0.15, // Baseline rate of death
+        y_max: 3., // maximum maintenance investment
+        lambda: 0.04, // Baseline rate of death
         rhohat: vec![vec![0.;N_states];I], // state distribution after development fatalities, before normalisation
-        gammah: 0.2, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
+        gammah: 0.02, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
         gammal: 0.01, // parameter determining trans. prob low to high density patch, due to narrowing patch habitat quality
-        tol: 0.001, // tolerance threshold for difference in demographic state, below which projections end
+        tol: 0.1, // tolerance threshold for difference in demographic state, below which projections end
         p_stoch: vec![vec![0.;I];I], // transition probabilities of patches given demo stoch and perturbations
         pno: vec![vec![0.;I];I], // (i_prime,i) latent transition prob. of patches between cycles
         pdet: vec![vec![0.;I];I], // (i_prime,i) latent transition prob. of patches between cycles given deterministic processes
         x_prime: vec![G-1;N_states], // Best response strategy
         ptilde: vec![vec![0.;I];I], // (i_prime,i) Evolved prior for transition prob. of patches at demographic stability
         V: vec![vec![0.;N_states];2], // (n, state) Fitness
-        tolv: 0.001, // tolerance threshold in the difference in v for finding the best response
+        tolv: 0.1, // tolerance threshold in the difference in v for finding the best response
         pipitime: vec![vec![0.;NPI];NPI], // (piprime,pi) prob of belief transition given time
         p_g_pi: vec![vec![0.;NPI];G], // (g,pi) the probability of food mass g given prior pi
         pert_survival: vec![0.;NPI], // (pi) probability of survival given prior belief pi
     };
 
     // find ess strategy and demographic stability
-    env0.run(&path);
+    env0.run(&policypath);
     let mut r = RSession::new()?;
     
     r.exec(&format!("path <- '{}'", path))?;
     r.exec("source('src/sim_plot.r')")?;
     
+
+
     // life history projection with natural patch dynamics
     // prepare file
     let path = format!("./Results/{}/natural/", project_id);
@@ -1080,40 +1093,39 @@ fn main() -> std::io::Result<()>  {
     let path_construct = Path::new(&path);
     // Ensure parent directory exists
     let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
-    let _ = write_csv_headerLH(&path);
+    let LHpath = format!("{}LifeHistory.csv", path);
+    let _ = write_csv_headerLH(&LHpath);
 
     // run
     let pnatural = env0.pno.clone();
-    env0.lifehistory(&path, pnatural);
+    env0.lifehistory(&LHpath, pnatural);
     
     // plot
     r.exec(&format!("path <- '{}'", path))?;
     r.exec("source('src/LifeHistory.r')")?;
 
+
+
     // life history projection with lab patch dynamics (e.g. fixed patch sizes)
+
     // prepare file
     let path = format!("./Results/{}/lab/", project_id);
     // Construct the full path
     let path_construct = Path::new(&path);
     // Ensure parent directory exists
     let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
-    let _ = write_csv_headerLH(&path);
+    let LHpath = format!("{}LifeHistory.csv", path);
+    let _ = write_csv_headerLH(&LHpath);
 
     // run
     let mut plab = vec![vec![0.;2];2];
     plab[1][1] = 1.;
     plab[0][0] = 1.;
-    env0.lifehistory(&path, plab);
+    env0.lifehistory(&LHpath, plab);
     
     // plot
     r.exec(&format!("path <- '{}'", path))?;
     r.exec("source('src/LifeHistory.r')")?;
-
-    // start r session
-    // let mut r = RSession::new()?;
-    // r.exec("source('src/plots.r')")?;
-    // r.exec(&format!("run_stoch_plot('{}')", path)).unwrap();
-
 
 // // climate stochasticity: 
 //     let path = format!("./Results/{}/stoch/", project_id);

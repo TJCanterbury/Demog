@@ -16,43 +16,7 @@ suppressPackageStartupMessages({
 
 run_policy_plots <- function(path) {
 
-  readfile <- read.csv(paste0(path, "summaries.csv"))
-
-  # Perceived low population density
-  df <- readfile %>%
-    filter(m == 0) %>%
-    arrange(s, pi)
-  s_vals <- sort(unique(df$s))
-  pi_vals <- sort(unique(df$pi))
-
-  z <- matrix(
-    NA_real_,
-    nrow = length(s_vals),
-    ncol = length(pi_vals)
-  )
-  z[cbind(
-    match(df$s, s_vals),
-    match(df$pi, pi_vals)
-  )] <- df$xstar / 4
-
-  pdf(paste0(path, "/lowm.pdf"), width = 10, height = 8)
-  par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
-
-  # Heatmap
-  image.plot(
-    s_vals, pi_vals, z,
-    col = hcl.colors(100, "Inferno"),
-    zlim = c(0,1),
-    xlab = bquote("Life stage "(s)),
-    ylab = bquote("Belief state "(pi)),
-    legend.lab = expression("Investment threshold"),
-    cex.axis = 1.5,
-    cex.lab = 1.5,
-    legend.cex = 1.5,
-    legend.line = 4,
-    axis.args = list(cex.axis = 1.5)
-  )
-  dev.off()
+  readfile <- read.csv(paste0(path, "Policies.csv"))
 
   # Perceived low population density
   df <- readfile %>%
@@ -72,7 +36,7 @@ run_policy_plots <- function(path) {
   )] <- df$xstar / 4
 
   print(z)
-  pdf(paste0(path, "/lowdensity", ".pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/Policy_lowdensity", ".pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
@@ -88,7 +52,8 @@ run_policy_plots <- function(path) {
     legend.cex = 1.5,
     legend.line = 4,
     asp = 1,
-    axis.args = list(cex.axis = 1.5)
+    axis.args = list(cex.axis = 1.5),
+    main = "ESS developmental policy when individuals believe densities are low"
   )
   dev.off()
 
@@ -110,7 +75,7 @@ run_policy_plots <- function(path) {
     match(df$m, m_vals)
   )] <- df$xstar/4
 
-  pdf(paste0(path, "/highdensity", ".pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/Policy_highdensity", ".pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
@@ -126,7 +91,8 @@ run_policy_plots <- function(path) {
     legend.cex = 1.5,
     legend.line = 4,
     asp = 1,
-    axis.args = list(cex.axis = 1.5)
+    axis.args = list(cex.axis = 1.5),
+    main = "ESS developmental policy when individuals believe densities are high"
   )
   dev.off()
 
@@ -148,7 +114,7 @@ run_policy_plots <- function(path) {
   )] <- df$xstar / 4
 
 
-  pdf(paste0(path, "/uncertaindensity", ".pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/Policy_uncertaindensity", ".pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
@@ -164,7 +130,8 @@ run_policy_plots <- function(path) {
     legend.cex = 1.5,
     legend.line = 4,
     asp = 1,
-    axis.args = list(cex.axis = 1.5)
+    axis.args = list(cex.axis = 1.5),
+    main = "ESS developmental policy when individuals are uncertain"
   )
   dev.off()
 
