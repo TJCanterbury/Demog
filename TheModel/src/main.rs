@@ -115,9 +115,9 @@ fn try_print(vec:Vec<f64>, file:&str) -> Result<(), Box<dyn Error>> {
 }
 
 // Structs
-const NS: usize = 11;
-const NPI: usize = 6;
-const NM: usize = 11;
+const NS: usize = 10;
+const NPI: usize = 7;
+const NM: usize = 10;
 const I: usize = 2;
 const G: usize = 5;
 const N_states: usize = NS * NM * NPI;
@@ -174,7 +174,7 @@ impl Environment {
         if i == 0 {
             return self.n_min;
         }else{
-            return self.n_min*2.;
+            return self.n_min*10.;
         }
     }
 
@@ -413,6 +413,16 @@ impl Environment {
         println!("Initialising P(pi|pi,g)");
         self.init_pipig();
 
+        for g in 0..G{
+            for pi in 0..NPI{
+                let mut sum = 0.; 
+                for piprime in 0..NPI{
+                    sum +=  self.pipig[piprime][pi][g];
+                }
+                println!("pi: {}, g: {}, sumpipig: {}", pi as f64/NPI as f64, g, sum);
+            }
+        }
+
         // init reproductive rates
         println!("Initialising R");
         self.init_R();
@@ -445,6 +455,13 @@ impl Environment {
         println!("initial eta: {}", self.eta);
         
         println!("Initialisations done!");
+            // let mut l0 = 0.;
+            // let mut l1 = 0.;
+            // for g in 0..G{
+            //     l0 += self.L_g_i[g][0];
+            //     l1 += self.L_g_i[g][1];
+            // }
+            // println!("L0: {}, L1:{}", l0, l1);
     }
 
     fn r_state(&self, state:usize) -> f64{
@@ -481,6 +498,7 @@ impl Environment {
                             
                     // Maintenance survival probs section 3.3.3 Maintenance
                     let mu: f64 = ((g as f64-del_m-del_s)/self.y(s as f64+1.,m as f64+1.)).min(1.);
+                    // println!("mu: {}", mu);
 
                     // Calculate the change in state expected for the investments del_m and del_s
                     let del_mpost = del_m;
@@ -488,7 +506,6 @@ impl Environment {
                     // Interpolate onto s and m grids:
                     let (md1,mp1,md2,mp2) = self.interpolate_m(del_mpost+(m as f64));
                     let (sd1,sp1,sd2,sp2) = self.interpolate_s(del_spost+(s as f64));
-
 
                     // Developmental state transitions 
                     if s == NS-1{ // development ends at maturity s=S
@@ -498,6 +515,8 @@ impl Environment {
                         self.dev_m[idx(sd2, pi, md1)][idx(s, pi, m)][g][k]+=mp1*sp2*mu;
                         self.dev_m[idx(sd1, pi, md2)][idx(s, pi, m)][g][k]+=mp2*sp1*mu;
                         self.dev_m[idx(sd2, pi, md2)][idx(s, pi, m)][g][k]+=mp2*sp2*mu;
+
+                        // println!("post {}, {}, {}, {}, mu: {}", mp1*sp1*mu, mp1*sp2*mu, mp2*sp1*mu, mp2*sp2*mu, mu);
                     }
                 }
             }
@@ -605,6 +624,8 @@ impl Environment {
         self.pno[0][0] = self.p_stoch[0][1]*self.pdet[1][0] + self.p_stoch[0][0]*self.pdet[0][0];
         self.pno[1][0] = self.p_stoch[1][1]*self.pdet[1][0] + self.p_stoch[1][0]*self.pdet[0][0];
         self.pno[1][1] = self.p_stoch[1][1]*self.pdet[1][1] + self.p_stoch[1][0]*self.pdet[0][1];
+        // self.pno[1][1] = 1.;
+        // self.pno[0][0] = 1.;
         println!("p(0|1): {}, p(0|0): {}, p(1|0): {}, p(1|1): {}", self.pno[0][1], self.pno[0][0], self.pno[1][0], self.pno[1][1]);
         // Patch state distribution projections
         self.eta_prime = self.eta * self.pno[1][1] + (1.-self.eta) * self.pno[1][0];
@@ -977,25 +998,35 @@ impl Environment {
                     let (s, pi, m) = self.state_invert(state);
                     for g in 0..G{
                         self.rhohat[0][stateprime] += 
-                            self.dev_m[stateprime][state][g][self.x[idx(s, piprime, m)]] * 
+                            self.dev_m[stateprime][idx(s, piprime, m)][g][self.x[idx(s, piprime, m)]] * 
                             self.pipig[piprime][pi][g] *
                             self.L_g_i[g][0] *
                             self.rhoi[state][0];
                         self.rhohat[1][stateprime] += 
-                            self.dev_m[stateprime][state][g][self.x[idx(s, piprime, m)]] * 
+                            self.dev_m[stateprime][idx(s, piprime, m)][g][self.x[idx(s, piprime, m)]] * 
                             self.pipig[piprime][pi][g] *
                             self.L_g_i[g][1] *
                             self.rhoi[state][1];
                     }
                 }
             }
-            
+            let mut cumul = 0.;
+            for state in 0..N_states{
+                cumul += self.rhohat[0][state] + self.rhohat[1][state];
+            }
+            println!("popsize post development: {}", cumul);
+
             // calculate posterior to deaths
             for state in 0..N_states{
                 self.rhoi[state].fill(0.);
-                self.rhoi[state][0] += plab[0][1] * self.rhohat[1][state] + plab[0][0] * self.rhohat[0][state];
-                self.rhoi[state][1] += plab[1][1] * self.rhohat[1][state] + plab[1][0] * self.rhohat[0][state];
+                self.rhoi[state][0] += (1.-self.lambda)*(plab[0][1] * self.rhohat[1][state] * (self.q(0)/self.q(1)) + plab[0][0] * self.rhohat[0][state]);
+                self.rhoi[state][1] += (1.-self.lambda)*(plab[1][1] * self.rhohat[1][state] + plab[1][0] * self.rhohat[0][state]);
             }         
+            let mut cumul = 0.;
+            for state in 0..N_states{
+                cumul += self.rhoi[state][0] + self.rhoi[state][1];
+            }
+            println!("popsize post plab: {}", cumul);
 
             // calculate posterior to bayesian updating
             let mut rhoi_prime: Vec<Vec<f64>> = vec![vec![0.0;I]; N_states];
@@ -1011,6 +1042,11 @@ impl Environment {
                 }
             }
             self.rhoi = rhoi_prime;
+            let mut cumul = 0.;
+            for state in 0..N_states{
+                cumul += self.rhoi[state][0] + self.rhoi[state][1];
+            }
+            println!("popsize post bayes: {}", cumul);
 
             // update dif
             popsize = 0.;
@@ -1061,10 +1097,10 @@ fn main() -> std::io::Result<()>  {
         eta_prime: 0.5, //(i) pdf over patch population densities post some event
         n_min: 100., // population bin sizes
         g_mean: (G as f64 -1.), // mean food mass
-        g_sd: 2., // standard deviation of food mass
+        g_sd: 1., // standard deviation of food mass
         m_switch: 5, // threshold m above which fighter phenotype is expressed
         r_fighter: 2., // fitness benefit of fighter phenotype
-        r_m: 0., // fitness benefit of quality
+        r_m: 1., // fitness benefit of quality
         r_baseline: 1., // baseline fitness
         u_q: vec![0.;I], //(i) survivals from maintenance
         a_q: vec![0.;I], //(i) arrivals from dispersal
@@ -1077,7 +1113,7 @@ fn main() -> std::io::Result<()>  {
         pipig: vec![vec![vec![0.;G];NPI];NPI], //Trans. prob. og pi prime given pi and g [piprime][pi][g]
         x: vec![G-3;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
         dev_m: vec![vec![vec![vec![0.;G];G];N_states];N_states], // P(idx prime, "surives"| idx, g, kappa) developmental transitions
-        y_max: 3., // maximum maintenance investment
+        y_max: 1., // maximum maintenance investment
         lambda: 0.04, // Baseline rate of death
         rhohat: vec![vec![0.;N_states];I], // state distribution after development fatalities, before normalisation
         gammah: 0.02, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
@@ -1089,7 +1125,7 @@ fn main() -> std::io::Result<()>  {
         x_prime: vec![G-1;N_states], // Best response strategy
         ptilde: vec![vec![0.;I];I], // (i_prime,i) Evolved prior for transition prob. of patches at demographic stability
         V: vec![vec![0.;N_states];2], // (n, state) Fitness
-        tolv: 0.01, // tolerance threshold in the difference in v for finding the best response
+        tolv: 0.1, // tolerance threshold in the difference in v for finding the best response
         pipitime: vec![vec![0.;NPI];NPI], // (piprime,pi) prob of belief transition given time
         p_g_pi: vec![vec![0.;NPI];G], // (g,pi) the probability of food mass g given prior pi
         pert_survival: vec![0.;NPI], // (pi) probability of survival given prior belief pi

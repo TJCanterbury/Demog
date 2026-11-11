@@ -2397,7 +2397,7 @@ where
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\hat{\rho_{n}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}P(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)\cdot P(survival|g,s,\pi^{\prime},m)\cdot P(\pi^{\prime}|\pi,g)\cdot L(g|q_{n})\cdot\rho_{n,t}(s,\pi,m).\label{eq:-17-2}
+\hat{\rho_{n}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}P(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g,x^{*}(s,\pi^{\prime},m))\cdot P(survival|g,s,\pi^{\prime},m)\cdot P(\pi^{\prime}|\pi,g)\cdot L(g|q_{n})\cdot\rho_{n,t}(s,\pi,m).\label{eq:-17-2}
 \end{equation}
 
 \end_inset
@@ -2418,12 +2418,47 @@ Normally at this state we would then account for the addition of arrivals to the
 is fixed and as we are interested in the proportion that are alive we can ignore the normalisation step entirely giving us
 \begin_inset Formula 
 \begin{equation}
-\rho^{\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\frac{1}{\eta^{\prime}_{n}}\cdot\eta_{o}\cdot P_{lab}(q_{n}|q_{o},t)\cdot\hat{\rho_{o}}(s^{\prime},\pi^{\prime},m^{\prime}).\label{eq:-30-1-1-1}
+\rho^{\prime}_{0}(s^{\prime},\pi^{\prime},m^{\prime})=(1-\lambda)\cdot(P_{lab}(q_{0}|q_{0},t)\cdot\hat{\rho_{0}}(s^{\prime},\pi^{\prime},m^{\prime})+P_{lab}(q_{0}|q_{1},t)\cdot\hat{\rho_{1}}(s^{\prime},\pi^{\prime},m^{\prime})\cdot\frac{q_{0}}{q_{1}}),\label{eq:-30-1-1-1}
 \end{equation}
 
 \end_inset
 
-Finally,
+
+\begin_inset Formula 
+\begin{equation}
+\rho^{\prime}_{1}(s^{\prime},\pi^{\prime},m^{\prime})=(1-\lambda)\cdot(P_{lab}(q_{1}|q_{0},t)\cdot\hat{\rho_{0}}(s^{\prime},\pi^{\prime},m^{\prime})+P_{lab}(q_{1}|q_{1},t)\cdot\hat{\rho_{1}}(s^{\prime},\pi^{\prime},m^{\prime})),\label{eq:-30-1-1-1-2}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $P_{lab}(q_{n}|q_{o},t)$
+\end_inset
+
+ is the transition probability from a patch density state of 
+\begin_inset Formula $o$
+\end_inset
+
+ to 
+\begin_inset Formula $n$
+\end_inset
+
+ at time step 
+\begin_inset Formula $t$
+\end_inset
+
+ under lab conditions,
+ or alternatively in natural conditions,
+ 
+\begin_inset Formula $\forall t$
+\end_inset
+
+ 
+\begin_inset Formula $P_{lab}(q_{n}|q_{o},t)=\tilde{P}(q_{n}|q_{o})$
+\end_inset
+
+.
+ Finally,
  we apply the time dependent updating of their belief state and generating the distribution of states in the next time step
 \end_layout
 

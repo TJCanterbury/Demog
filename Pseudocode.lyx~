@@ -807,7 +807,23 @@ P(s^{\prime},m^{\prime}|x,s,\pi^{\prime},m,g)=0.\label{eq:-10}
 \end_layout
 
 \begin_layout Enumerate
-For all 
+If 
+\begin_inset Formula $s=S$
+\end_inset
+
+,
+ 
+\begin_inset Formula $P(s,m|x,s,\pi^{\prime},m,g)=1$
+\end_inset
+
+,
+ because development concludes at maturity.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Else,
+ for all 
 \begin_inset Formula $g$
 \end_inset
 
@@ -2381,7 +2397,7 @@ where
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\hat{\rho_{n}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}P(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g)\cdot P(survival|g,s,\pi^{\prime},m)\cdot P(\pi^{\prime}|\pi,g)\cdot L(g|q_{n})\cdot\rho_{n,t}(s,\pi,m).\label{eq:-17-2}
+\hat{\rho_{n}}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{g}\sum_{s}\sum_{\pi}\sum_{m}P(s^{\prime},m^{\prime}|s,\pi^{\prime},m,g,x^{*}(s,\pi^{\prime},m))\cdot P(survival|g,s,\pi^{\prime},m)\cdot P(\pi^{\prime}|\pi,g)\cdot L(g|q_{n})\cdot\rho_{n,t}(s,\pi,m).\label{eq:-17-2}
 \end{equation}
 
 \end_inset
