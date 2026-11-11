@@ -98,7 +98,7 @@ run_policy_plots <- function(path) {
 
   # Perceived uncertain population density
   df <- readfile %>%
-    filter(pi == 0.4)
+    filter(pi == 0.5)
   s_vals <- sort(unique(df$s))
   m_vals <- sort(unique(df$m))
 

@@ -174,7 +174,7 @@ impl Environment {
         if i == 0 {
             return self.n_min;
         }else{
-            return self.n_min*10.;
+            return self.n_min*5.;
         }
     }
 
@@ -1098,10 +1098,10 @@ fn main() -> std::io::Result<()>  {
         n_min: 100., // population bin sizes
         g_mean: (G as f64 -1.), // mean food mass
         g_sd: 1., // standard deviation of food mass
-        m_switch: 5, // threshold m above which fighter phenotype is expressed
+        m_switch: NM-1, // threshold m above which fighter phenotype is expressed
         r_fighter: 2., // fitness benefit of fighter phenotype
         r_m: 1., // fitness benefit of quality
-        r_baseline: 1., // baseline fitness
+        r_baseline: 5., // baseline fitness
         u_q: vec![0.;I], //(i) survivals from maintenance
         a_q: vec![0.;I], //(i) arrivals from dispersal
         mu: 0.1, // Dispersal rate
@@ -1113,11 +1113,11 @@ fn main() -> std::io::Result<()>  {
         pipig: vec![vec![vec![0.;G];NPI];NPI], //Trans. prob. og pi prime given pi and g [piprime][pi][g]
         x: vec![G-3;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
         dev_m: vec![vec![vec![vec![0.;G];G];N_states];N_states], // P(idx prime, "surives"| idx, g, kappa) developmental transitions
-        y_max: 1., // maximum maintenance investment
+        y_max: 0., // maximum maintenance investment
         lambda: 0.04, // Baseline rate of death
         rhohat: vec![vec![0.;N_states];I], // state distribution after development fatalities, before normalisation
-        gammah: 0.02, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
-        gammal: 0.01, // parameter determining trans. prob low to high density patch, due to narrowing patch habitat quality
+        gammah: 0.05, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
+        gammal: 0.0, // parameter determining trans. prob low to high density patch, due to narrowing patch habitat quality
         tol: 0.001, // tolerance threshold for difference in demographic state, below which projections end
         p_stoch: vec![vec![0.;I];I], // transition probabilities of patches given demo stoch and perturbations
         pno: vec![vec![0.;I];I], // (i_prime,i) latent transition prob. of patches between cycles
