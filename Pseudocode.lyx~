@@ -815,7 +815,7 @@ For all
  calculate the changes in quality and size
 \begin_inset Formula 
 \begin{equation}
-\Delta m=max(g-x(s,\pi^{\prime},m),0)\label{eq:-20-1}
+\Delta m=max(g-x(s,\pi^{\prime},m),0)/G\label{eq:-20-1}
 \end{equation}
 
 \end_inset
@@ -832,7 +832,7 @@ where
  and where
 \begin_inset Formula 
 \begin{equation}
-\Delta s=max(g-\Delta m-y(s,m),0),\label{eq:-19-1}
+\Delta s=max(g-\Delta m-y(s,m),0)/G,\label{eq:-19-1}
 \end{equation}
 
 \end_inset
@@ -2350,7 +2350,7 @@ We know that they will begin life at the minimum size and quality states and wit
 
 \begin_inset Formula 
 \[
-\rho_{1,t}(s,\pi,m)=\tilde{\rho}(s,\pi,m)\cdot(\eta^{*})\cdot N\cdot q_{0},
+\rho_{1,t}(s,\pi,m)=\tilde{\rho}(s,\pi,m)\cdot(\eta^{*})\cdot N\cdot q_{1},
 \]
 
 \end_inset
@@ -2402,7 +2402,7 @@ Normally at this state we would then account for the addition of arrivals to the
 is fixed and as we are interested in the proportion that are alive we can ignore the normalisation step entirely giving us
 \begin_inset Formula 
 \begin{equation}
-\rho^{\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\frac{1}{\eta^{\prime}_{n}}\cdot\eta_{o}\cdot P_{lab}(q_{n}|q_{o})\cdot\hat{\rho_{o}}(s^{\prime},\pi^{\prime},m^{\prime}).\label{eq:-30-1-1-1}
+\rho^{\prime}_{n}(s^{\prime},\pi^{\prime},m^{\prime})=\sum_{q_{o}}\frac{1}{\eta^{\prime}_{n}}\cdot\eta_{o}\cdot P_{lab}(q_{n}|q_{o},t)\cdot\hat{\rho_{o}}(s^{\prime},\pi^{\prime},m^{\prime}).\label{eq:-30-1-1-1}
 \end{equation}
 
 \end_inset
@@ -2423,7 +2423,7 @@ which we can then print for visualistion before iterating further;
  until 
 \begin_inset Formula 
 \[
-0\approx N\cdot\sum_{\{s,\pi,m\}}\rho_{0,t}(s,\pi,m)+\rho_{1,t}(s,\pi,m),
+1>N\cdot\sum_{\{s,\pi,m\}}\rho_{0,t}(s,\pi,m)+\rho_{1,t}(s,\pi,m),
 \]
 
 \end_inset

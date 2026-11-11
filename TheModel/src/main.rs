@@ -93,7 +93,7 @@ fn write_csv_headerLH(path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let mut wtr = Writer::from_writer(buf_writer);
 
     wtr.write_record(&[
-        "t", "s", "pi", "m", "i", "rhoi[state]", "x[state]"
+        "t", "s", "pi", "m", "i", "rhoi", "x"
     ])?;
 
     wtr.flush()?;
@@ -940,8 +940,10 @@ impl Environment {
                 self.pno[0][1],
                 self.pno[1][1]
                 ];
-            let _=try_print(v, &file);
+            let _=try_print(v, file);
         }
+        
+        println!("ESS found and printed to file: {}", file);
     }
 
     fn lifehistory(&mut self, file:&str, plab:Vec<Vec<f64>>){
@@ -1026,15 +1028,31 @@ fn main() -> std::io::Result<()>  {
 // Comand-line arguments
     let args: Vec<String> = env::args().collect();
     let project_id = &args[1];
-    let path = format!("./Results/{}/", project_id);
-    // Construct the full path
-    let path_construct = Path::new(&path);
+
     
-    // Ensure parent directory exists
-    let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
+    // prepare folder for project and ESS results
+    let projectpath = format!("./Results/{}/", project_id);
+    let path_construct1 = Path::new(&projectpath);
+    let _ = fs::create_dir_all(path_construct1); // Create directory path if it doesn't exist
     
-    let policypath = format!("{}Policies.csv", path);
+    // prepare folder for natural patch dynamics
+    let path2 = format!("./Results/{}/natural/", project_id);
+    let path_construct2 = Path::new(&path2);
+    let _ = fs::create_dir_all(path_construct2); // Create directory path if it doesn't exist
+
+    // prepare folder for lab patch dynamics
+    let path3 = format!("./Results/{}/lab/", project_id);
+    let path_construct3 = Path::new(&path3);
+    let _ = fs::create_dir_all(path_construct3); // Create directory path if it doesn't exist
+    
+    let policypath = format!("{}Policies.csv", projectpath);
     let _ = write_csv_header(&policypath);
+    
+    let LHpath1 = format!("{}LifeHistory.csv", path2);
+    let _ = write_csv_headerLH(&LHpath1); 
+    
+    let LHpath2 = format!("{}LifeHistory.csv", path3);
+    let _ = write_csv_headerLH(&LHpath2);
 
 /////////////////////////////////////////// Initialise parameters \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     let mut env0 = Environment {
@@ -1064,14 +1082,14 @@ fn main() -> std::io::Result<()>  {
         rhohat: vec![vec![0.;N_states];I], // state distribution after development fatalities, before normalisation
         gammah: 0.02, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
         gammal: 0.01, // parameter determining trans. prob low to high density patch, due to narrowing patch habitat quality
-        tol: 0.1, // tolerance threshold for difference in demographic state, below which projections end
+        tol: 0.001, // tolerance threshold for difference in demographic state, below which projections end
         p_stoch: vec![vec![0.;I];I], // transition probabilities of patches given demo stoch and perturbations
         pno: vec![vec![0.;I];I], // (i_prime,i) latent transition prob. of patches between cycles
         pdet: vec![vec![0.;I];I], // (i_prime,i) latent transition prob. of patches between cycles given deterministic processes
         x_prime: vec![G-1;N_states], // Best response strategy
         ptilde: vec![vec![0.;I];I], // (i_prime,i) Evolved prior for transition prob. of patches at demographic stability
         V: vec![vec![0.;N_states];2], // (n, state) Fitness
-        tolv: 0.1, // tolerance threshold in the difference in v for finding the best response
+        tolv: 0.01, // tolerance threshold in the difference in v for finding the best response
         pipitime: vec![vec![0.;NPI];NPI], // (piprime,pi) prob of belief transition given time
         p_g_pi: vec![vec![0.;NPI];G], // (g,pi) the probability of food mass g given prior pi
         pert_survival: vec![0.;NPI], // (pi) probability of survival given prior belief pi
@@ -1080,51 +1098,32 @@ fn main() -> std::io::Result<()>  {
     // find ess strategy and demographic stability
     env0.run(&policypath);
     let mut r = RSession::new()?;
-    
-    r.exec(&format!("path <- '{}'", path))?;
+    println!("Running R script to plot ESS strategy...");
+    r.exec(&format!("path <- '{}'", projectpath))?;
     r.exec("source('src/sim_plot.r')")?;
     
 
 
     // life history projection with natural patch dynamics
-    // prepare file
-    let path = format!("./Results/{}/natural/", project_id);
-    // Construct the full path
-    let path_construct = Path::new(&path);
-    // Ensure parent directory exists
-    let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
-    let LHpath = format!("{}LifeHistory.csv", path);
-    let _ = write_csv_headerLH(&LHpath);
-
-    // run
+    println!("Running life history projection with natural patch dynamics...");
     let pnatural = env0.pno.clone();
-    env0.lifehistory(&LHpath, pnatural);
+    env0.lifehistory(&LHpath1, pnatural);
     
     // plot
-    r.exec(&format!("path <- '{}'", path))?;
+    r.exec(&format!("path <- '{}'", path2))?;
     r.exec("source('src/LifeHistory.r')")?;
 
 
 
     // life history projection with lab patch dynamics (e.g. fixed patch sizes)
-
-    // prepare file
-    let path = format!("./Results/{}/lab/", project_id);
-    // Construct the full path
-    let path_construct = Path::new(&path);
-    // Ensure parent directory exists
-    let _ = fs::create_dir_all(path_construct); // Create directory path if it doesn't exist
-    let LHpath = format!("{}LifeHistory.csv", path);
-    let _ = write_csv_headerLH(&LHpath);
-
-    // run
+    println!("Running life history projection with lab patch dynamics...");
     let mut plab = vec![vec![0.;2];2];
     plab[1][1] = 1.;
     plab[0][0] = 1.;
-    env0.lifehistory(&LHpath, plab);
+    env0.lifehistory(&LHpath2, plab);
     
     // plot
-    r.exec(&format!("path <- '{}'", path))?;
+    r.exec(&format!("path <- '{}'", path3))?;
     r.exec("source('src/LifeHistory.r')")?;
 
 // // climate stochasticity: 
