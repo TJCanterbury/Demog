@@ -20,42 +20,42 @@ run_LH_plots <- function(path) {
 
   # low population density
   df <- readfile %>%
-    filter(i == 0)
+    filter(n == 0)
   t_vals <- sort(unique(df$t))
-  m_vals <- sort(unique(df$m))
+  e_vals <- sort(unique(df$e))
   s_vals <- sort(unique(df$s))
-  pi_vals <- sort(unique(df$pi))
+  i_vals <- sort(unique(df$i))
 
   z <- matrix(
     NA_real_,
     nrow = length(t_vals),
-    ncol = length(m_vals)
+    ncol = length(e_vals)
   )
 
   for (ti in seq_along(t_vals)){
-    for (mi in seq_along(m_vals)){
+    for (ei in seq_along(e_vals)){
       slice <- df %>%
-        filter(t == t_vals[ti], m == m_vals[mi])
-      z[ti, mi] <- sum(slice$"rhoi")
+        filter(t == t_vals[ti], e == e_vals[ei])
+      z[ti, ei] <- sum(slice$"rho")
     }
   }
   for (ti in seq_along(t_vals)){
     tsum <- sum(z[ti,])
-    for (mi in seq_along(m_vals)){
-      z[ti, mi] <- z[ti, mi] / tsum
+    for (ei in seq_along(e_vals)){
+      z[ti, ei] <- z[ti, ei] / tsum
     }
   }
 
-  pdf(paste0(path, "/LH_lowi.pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/LH_lown.pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
   image.plot(
-    t_vals, m_vals, z,
+    t_vals, e_vals, z,
     col = hcl.colors(100, "Inferno"),
     xlab = bquote("Age in growth cycles "(t)),
-    ylab = bquote("Expected reproductive quality "(m)),
-    legend.lab = expression("Frequency of state m"),
+    ylab = bquote("Energy reserves "(e)),
+    legend.lab = expression("Frequency of state e"),
     cex.axis = 1.5,
     cex.lab = 1.5,
     legend.cex = 1.5,
@@ -67,41 +67,41 @@ run_LH_plots <- function(path) {
 
   # high population density
   df <- readfile %>%
-    filter(i == 1.0) %>%
-    arrange(t, m)
+    filter(n == 1.0) %>%
+    arrange(t, e)
   t_vals <- sort(unique(df$t))
-  m_vals <- sort(unique(df$m))
+  e_vals <- sort(unique(df$e))
 
   z <- matrix(
     NA_real_,
     nrow = length(t_vals),
-    ncol = length(m_vals)
+    ncol = length(e_vals)
   )
 
   for (ti in seq_along(t_vals)){
-    for (mi in seq_along(m_vals)){
+    for (mi in seq_along(e_vals)){
       slice <- df %>%
-        filter(t == t_vals[ti], m == m_vals[mi])
-      z[ti, mi] <- sum(slice$"rhoi")
+        filter(t == t_vals[ti], e == e_vals[mi])
+      z[ti, mi] <- sum(slice$"rho")
     }
   }
   for (ti in seq_along(t_vals)){
     tsum <- sum(z[ti, ])
-    for (mi in seq_along(m_vals)){
-      z[ti, mi] <- z[ti, mi] / tsum
+    for (ei in seq_along(e_vals)){
+      z[ti, ei] <- z[ti, ei] / tsum
     }
   }
 
-  pdf(paste0(path, "/LH_highi.pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/LH_highn.pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
   image.plot(
-    t_vals, m_vals, z,
+    t_vals, e_vals, z,
     col = hcl.colors(100, "Inferno"),
     xlab = bquote("Age in growth cycles "(t)),
-    ylab = bquote("Expected reproductive quality "(m)),
-    legend.lab = expression("Frequency of state m"),
+    ylab = bquote("Energy reserves "(e)),
+    legend.lab = expression("Frequency of state e"),
     cex.axis = 1.5,
     cex.lab = 1.5,
     legend.cex = 1.5,
@@ -113,7 +113,7 @@ run_LH_plots <- function(path) {
   
   # Low population density and life stages
   df <- readfile %>%
-    filter(i == 0.0) %>%
+    filter(n == 0.0) %>%
     arrange(t, s)
   t_vals <- sort(unique(df$t))
   s_vals <- sort(unique(df$s))
@@ -128,7 +128,7 @@ run_LH_plots <- function(path) {
     for (si in seq_along(s_vals)){
       slice <- df %>%
         filter(t == t_vals[ti], s == s_vals[si])
-      z[ti, si] <- sum(slice$"rhoi")
+      z[ti, si] <- sum(slice$"rho")
     }
   }
   for (ti in seq_along(t_vals)){
@@ -138,12 +138,12 @@ run_LH_plots <- function(path) {
     }
   }
 
-  pdf(paste0(path, "/size_lowi.pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/size_lown.pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
   image.plot(
-    t_vals, m_vals, z,
+    t_vals, s_vals, z,
     col = hcl.colors(100, "Inferno"),
     xlab = bquote("Age in growth cycles "(t)),
     ylab = bquote("Life stage "(s)),
@@ -159,7 +159,7 @@ run_LH_plots <- function(path) {
 
   # high population density and life stages
   df <- readfile %>%
-    filter(i == 1.0) %>%
+    filter(n == 1.0) %>%
     arrange(t, s)
   t_vals <- sort(unique(df$t))
   s_vals <- sort(unique(df$s))
@@ -174,7 +174,7 @@ run_LH_plots <- function(path) {
     for (si in seq_along(s_vals)){
       slice <- df %>%
         filter(t == t_vals[ti], s == s_vals[si])
-      z[ti, si] <- sum(slice$"rhoi")
+      z[ti, si] <- sum(slice$"rho")
     }
   }
   for (ti in seq_along(t_vals)){
@@ -184,12 +184,12 @@ run_LH_plots <- function(path) {
     }
   }
 
-  pdf(paste0(path, "/size_highi.pdf"), width = 10, height = 8)
+  pdf(paste0(path, "/size_highn.pdf"), width = 10, height = 8)
   par(mar = c(5, 5, 5, 5), oma = c(3, 6, 1, 6.65))
 
   # Heatmap
   image.plot(
-    t_vals, m_vals, z,
+    t_vals, s_vals, z,
     col = hcl.colors(100, "Inferno"),
     xlab = bquote("Age in growth cycles "(t)),
     ylab = bquote("Life stage "(s)),

@@ -20,19 +20,19 @@ run_policy_plots <- function(path) {
 
   # Perceived low population density
   df <- readfile %>%
-    filter(pi == 0.0) %>%
-    arrange(s, m)
+    filter(i == 0.0) %>%
+    arrange(s, e)
   s_vals <- sort(unique(df$s))
-  m_vals <- sort(unique(df$m))
+  e_vals <- sort(unique(df$e))
 
   z <- matrix(
     NA_real_,
     nrow = length(s_vals),
-    ncol = length(m_vals)
+    ncol = length(e_vals)
   )
   z[cbind(
     match(df$s, s_vals),
-    match(df$m, m_vals)
+    match(df$e, e_vals)
   )] <- df$xstar / 4
 
   print(z)
@@ -41,11 +41,11 @@ run_policy_plots <- function(path) {
 
   # Heatmap
   image.plot(
-    s_vals, m_vals, z,
+    s_vals, e_vals, z,
     col = hcl.colors(100, "Inferno"),
     zlim = c(0,1),
     xlab = bquote("Life stage "(s)),
-    ylab = bquote("Expected reproductive quality "(m)),
+    ylab = bquote("Energy reserves "(e)),
     legend.lab = expression("Investment threshold"),
     cex.axis = 1.5,
     cex.lab = 1.5,
@@ -59,20 +59,20 @@ run_policy_plots <- function(path) {
 
   # Perceived high population density
   df <- readfile %>%
-    filter(pi == 1.0)
+    filter(i == 1.0)
 
   s_vals <- sort(unique(df$s))
-  m_vals <- sort(unique(df$m))
+  e_vals <- sort(unique(df$e))
 
   z <- matrix(
     NA_real_,
     nrow = length(s_vals),
-    ncol = length(m_vals)
+    ncol = length(e_vals)
   )
 
   z[cbind(
     match(df$s, s_vals),
-    match(df$m, m_vals)
+    match(df$e, e_vals)
   )] <- df$xstar/4
 
   pdf(paste0(path, "/Policy_highdensity", ".pdf"), width = 10, height = 8)
@@ -80,11 +80,11 @@ run_policy_plots <- function(path) {
 
   # Heatmap
   image.plot(
-    s_vals, m_vals, z,
+    s_vals, e_vals, z,
     col  = hcl.colors(100, "Inferno"),
     zlim = c(0,1),
     xlab = bquote("Life stage "(s)),
-    ylab = bquote("Expected reproductive quality "(m)),
+    ylab = bquote("Energy reserves "(e)),
     legend.lab = expression("Investment threshold"),
     cex.axis = 1.5,
     cex.lab  = 1.5,
@@ -98,19 +98,19 @@ run_policy_plots <- function(path) {
 
   # Perceived uncertain population density
   df <- readfile %>%
-    filter(pi == 0.5)
+    filter(i == 0.5)
   s_vals <- sort(unique(df$s))
-  m_vals <- sort(unique(df$m))
+  e_vals <- sort(unique(df$e))
 
   z <- matrix(
     NA_real_,
     nrow = length(s_vals),
-    ncol = length(m_vals)
+    ncol = length(e_vals)
   )
 
   z[cbind(
     match(df$s, s_vals),
-    match(df$m, m_vals)
+    match(df$e, e_vals)
   )] <- df$xstar / 4
 
 
@@ -119,11 +119,11 @@ run_policy_plots <- function(path) {
 
   # Heatmap
   image.plot(
-    s_vals, m_vals, z,
+    s_vals, e_vals, z,
     col  = hcl.colors(100, "Inferno"),
     zlim = c(0,1),
     xlab = bquote("Life stage "(s)),
-    ylab = bquote("Expected reproductive quality "(m)),
+    ylab = bquote("Energy reserves "(e)),
     legend.lab = expression("Investment threshold"),
     cex.axis = 1.5,
     cex.lab  = 1.5,
