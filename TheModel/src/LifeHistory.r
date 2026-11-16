@@ -11,8 +11,8 @@ suppressPackageStartupMessages({
   library(ggpubr)
 })
 
-# args <- commandArgs(trailingOnly = TRUE)
-# path <- args[1]
+args <- commandArgs(trailingOnly = TRUE)
+path <- args[1]
 
 run_LH_plots <- function(path) {
 

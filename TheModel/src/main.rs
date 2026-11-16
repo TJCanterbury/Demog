@@ -23,7 +23,7 @@ pub struct RSession {
 impl RSession {
     pub fn new() -> std::io::Result<Self> {
         let child = Command::new("R")
-            .args(["--vanilla", "--quiet", "--slave"])
+            .args(["--vanilla", "--slave"])
             .stdin(Stdio::piped())
             .stdout(Stdio::inherit())
             .stderr(Stdio::inherit())
@@ -310,8 +310,11 @@ impl Environment {
     }
 
     fn c(&self, s:f64, e:f64) -> f64{
-        let size3 = (s+e).powf(3.);
-        return size3*self.c_max
+        // let size3 = (s+e).powf(3.);
+        // return size3*self.c_max
+        let s3 = s*s*s;
+        let max_s3 = (S as f64).powf(3.);
+        return (s3*e/(max_s3 * E as f64))*self.c_max
     }
 
     fn interpolate_e(&self, mut post_e:f64) -> (usize,f64,usize,f64){
@@ -335,10 +338,11 @@ impl Environment {
     }
 
     fn state_invert(&self, state:usize) -> (usize,usize,usize){
-        let e = state % S;
-        let i = ((state-e)/S) % I;
-        let s = ((state-e)/(S)-i) / I;
-        return (s,i,e)
+        let e = state % E;
+        let i = (state / E) % I;
+        let s = state / (I * E);
+
+        return (s, i, e)
     }
 
     fn init_pstoch(&mut self) {        
@@ -460,10 +464,10 @@ impl Environment {
     }
 
     fn r_state(&self, state:usize) -> f64{
-        let (s,pi,m) = self.state_invert(state);
+        let (s,pi,e) = self.state_invert(state);
         let pi0 = pi as f64/(I as f64 - 1.);
         let pi1 = 1. - pi0;
-        return self.R[s][m][0]*pi0 + self.R[s][m][1]*pi1;
+        return self.R[s][e][0]*pi0 + self.R[s][e][1]*pi1;
     }
 
     fn init_dev_m_kappa(&mut self){
@@ -877,7 +881,7 @@ impl Environment {
 
 
         // evolutionary stability:
-        let mut difx: f64 = 1.;
+        let mut difx: f64 = 10.;
         while difx > 0.{
 
             // demographic stability:
@@ -947,10 +951,10 @@ impl Environment {
                 self.pno[0][1],
                 self.pno[1][1]
                 ];
-            let _=try_print(v, file);
+            let _=try_print(v, &file);
         }
         
-        println!("ESS found and printed to file: {}", file);
+        println!("ESS found and printed to file: {}", &file);
     }
 
     fn lifehistory(&mut self, file:&str, plab:Vec<Vec<f64>>){
@@ -1097,7 +1101,7 @@ fn main() -> std::io::Result<()>  {
         rhotilde: vec![0.;N_states], //(idx) state distribution of newborns
         L_g_n: vec![vec![0.;N];G],
         pipig: vec![vec![vec![0.;G];I];I], //Trans. prob. og pi prime given pi and g [piprime][pi][g]
-        x: vec![E-3;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
+        x: vec![G/2;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
         dev_m: vec![vec![vec![vec![0.;G];G];N_states];N_states], // P(idx prime, "surives"| idx, g, kappa) developmental transitions
         c_max: 0., // maximum maintenance investment
         lambda: 0.04, // Baseline rate of death
