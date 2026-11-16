@@ -340,9 +340,9 @@ impl Environment {
     }
 
     fn state_invert(&self, state:usize) -> (usize,usize,usize){
-        let m = state % NS;
-        let pi = ((state-m)/NS) % NPI;
-        let s = ((state-m)/(NS)-pi) / NPI;
+        let m = state % NM;
+        let pi = (state / NM) % NPI;
+        let s = state / (NPI * NM);
         return (s,pi,m)
     }
 
@@ -1065,6 +1065,8 @@ fn main() -> std::io::Result<()>  {
     let args: Vec<String> = env::args().collect();
     let project_id = &args[1];
 
+    let mut r = RSession::new()?;
+    
     
     // prepare folder for project and ESS results
     let projectpath = format!("./Results/{}/", project_id);
@@ -1133,32 +1135,30 @@ fn main() -> std::io::Result<()>  {
 
     // find ess strategy and demographic stability
     env0.run(&policypath);
-    let mut r = RSession::new()?;
-    println!("Running R script to plot ESS strategy...");
-    r.exec(&format!("path <- '{}'", projectpath))?;
-    r.exec("source('src/sim_plot.r')")?;
-    
-
 
     // life history projection with natural patch dynamics
     println!("Running life history projection with natural patch dynamics...");
     let pnatural = env0.pno.clone();
     env0.lifehistory(&LHpath1, pnatural);
     
-    // plot
-    r.exec(&format!("path <- '{}'", path2))?;
-    r.exec("source('src/LifeHistory.r')")?;
-
-
-
     // life history projection with lab patch dynamics (e.g. fixed patch sizes)
     println!("Running life history projection with lab patch dynamics...");
     let mut plab = vec![vec![0.;2];2];
     plab[1][1] = 1.;
     plab[0][0] = 1.;
     env0.lifehistory(&LHpath2, plab);
+
+    println!("Running R script to plot ESS strategy...");
+    r.exec(&format!("path <- '{}'", projectpath))?;
+    r.exec("source('src/sim_plot.r')")?;
     
     // plot
+    println!("Running R script to plot Life History with natural patch dynamics...");
+    r.exec(&format!("path <- '{}'", path2))?;
+    r.exec("source('src/LifeHistory.r')")?;
+
+    // plot
+    println!("Running R script to plot Life History with lab patch dynamics...");
     r.exec(&format!("path <- '{}'", path3))?;
     r.exec("source('src/LifeHistory.r')")?;
 
