@@ -116,7 +116,15 @@ natbibapa
 \begin_body
 
 \begin_layout Title
+Appendix I of 
+\begin_inset Quotes eld
+\end_inset
+
 The role of demographic feedback on the evolution of developmental windows
+\begin_inset Quotes erd
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -291,11 +299,6 @@ Energy reserves state,
 ,
  they transition into a mature fighter,
  else a scrambler.
-\end_layout
-
-\begin_layout Part
-Appendix:
- The Dynamic Game
 \end_layout
 
 \begin_layout Section
@@ -685,21 +688,25 @@ Adults,
  as 
 \begin_inset Formula 
 \begin{equation}
-R(s,i,e)=\begin{cases}
-\text{if \ensuremath{s=S}} & x(s,i,e)\cdot e\cdot(r_{e}+r_{fighter})\\
-\text{if \ensuremath{s=S-1}} & x(s,i,e)\cdot e\cdot(r_{e})\\
+R(s,i,e,\kappa=x(s,i,e))=\begin{cases}
+\text{if \ensuremath{s=S}} & \kappa\cdot e\cdot(r_{e}+r_{fighter})\\
+\text{if \ensuremath{s=S-1}} & \kappa\cdot e\cdot(r_{e})\\
 \text{else}: & 0
 \end{cases}\label{eq:-1-1}
 \end{equation}
 
 \end_inset
 
-where per unit of reserve energy invested,
+where 
+\begin_inset Formula $\kappa$
+\end_inset
+
+ is the developmental strategy of the individual for its given state and the proportion of energy they will invest in development of offspring,
  
 \begin_inset Formula $r_{e}$
 \end_inset
 
- is the baseline rate of reproduction,
+ is the baseline fecundity per unit of energy invested,
  and 
 \begin_inset Formula $r_{fighter}$
 \end_inset
@@ -908,7 +915,7 @@ where
  giving 
 \begin_inset Formula 
 \[
-e_{1}=\lfloor min(E,max(0,c(s,e^{\prime\prime})))\rfloor
+e_{1}=\lfloor min(E,max(0,c(s,e^{\prime},g)))\rfloor
 \]
 
 \end_inset
@@ -916,7 +923,7 @@ e_{1}=\lfloor min(E,max(0,c(s,e^{\prime\prime})))\rfloor
 
 \begin_inset Formula 
 \[
-p_{2}=max(0,c(s,e^{\prime\prime}))-e_{1}
+p_{2}=max(0,c(s,e^{\prime},g))-e_{1}
 \]
 
 \end_inset
@@ -940,7 +947,7 @@ p_{1}=1-p_{2}.
 which gives a transition probability matrix of 
 \begin_inset Formula 
 \[
-P_{c}(e^{\prime\prime}=e_{1}|e^{\prime},g)=p_{1}
+P_{c}(e^{\prime\prime}=e_{1}|s,e^{\prime},g)=p_{1}
 \]
 
 \end_inset
@@ -952,7 +959,7 @@ and if
 
 \begin_inset Formula 
 \[
-P_{c}(e^{\prime\prime}=e_{2}|e^{\prime},g)=p_{2}
+P_{c}(e^{\prime\prime}=e_{2}|s,e^{\prime},g)=p_{2}
 \]
 
 \end_inset
@@ -960,7 +967,7 @@ P_{c}(e^{\prime\prime}=e_{2}|e^{\prime},g)=p_{2}
 with probability of survival of 
 \begin_inset Formula 
 \[
-P(survival|e^{\prime\prime})=(1-\frac{E-e^{\prime\prime}}{E}\cdot\mu_{e})\cdot(1-\mu_{base})\cdot
+P_{c}(survival|s,e^{\prime\prime})=(1-\frac{E-e^{\prime\prime}}{E}\cdot\mu_{e})\cdot(1-\mu_{base})\cdot
 \]
 
 \end_inset
@@ -1725,7 +1732,7 @@ Individuals forage and find food of mass
  therefore their posterior physiological distribution is
 \begin_inset Formula 
 \begin{equation}
-\hat{\rho_{n}}(s^{\prime},i^{\prime},e^{\prime\prime})=P(survival|e^{\prime\prime})\cdot\sum_{s^{\prime}}\sum_{i}\sum_{e^{\prime}}\rho^{\prime}_{n}(s^{\prime},i,e^{\prime})\cdot\sum_{g}P(e^{\prime\prime}|e^{\prime},g)\cdot P(i^{\prime}|i,g)\cdot L(g|q_{n}),\label{eq:-17-1}
+\hat{\rho_{n}}(s^{\prime},i^{\prime},e^{\prime\prime})=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot\sum_{i}\sum_{e^{\prime}}\sum_{g}\rho^{\prime}_{n}(s^{\prime},i,e^{\prime})\cdot P(e^{\prime\prime}|e^{\prime},g)\cdot P(i^{\prime}|i,g)\cdot L(g|q_{n}),\label{eq:-17-1}
 \end{equation}
 
 \end_inset
@@ -2112,7 +2119,7 @@ and for a given developmental policy
  which is defined as 
 \begin_inset Formula 
 \[
-M(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,\kappa)=P(survival|e^{\prime\prime})\cdot\sum_{i^{\prime}}\tilde{P}(i^{\prime\prime}|i^{\prime},time)\cdot P_{pert}(survival|i^{\prime})\cdot\sum_{g}P(g|i)\cdot\sum_{e^{\prime}}P(e^{\prime\prime}|e^{\prime},g)\cdot P(i^{\prime}|i,g)\cdot P(s^{\prime},e^{\prime}|s,i,e,x)
+M(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,\kappa)=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot\sum_{i^{\prime}}\tilde{P}(i^{\prime\prime}|i^{\prime},time)\cdot P_{pert}(survival|i^{\prime})\cdot\sum_{g}P(g|i)\cdot\sum_{e^{\prime}}P(e^{\prime\prime}|e^{\prime},g)\cdot P(i^{\prime}|i,g)\cdot P(s^{\prime},e^{\prime}|s,i,e,x)
 \]
 
 \end_inset
@@ -2342,7 +2349,7 @@ where
  First we define the physiological state transition matrix of the cohort given lab conditions for the availability of food
 \begin_inset Formula 
 \begin{equation}
-M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})=P(\text{survival}|e^{\prime\prime})\cdot\sum_{i^{\prime}}\tilde{P}(i^{\prime\prime}|i^{\prime},time)\cdot\sum_{g}L_{lab}(g|q_{n})\cdot\sum_{e^{\prime}}P(e^{\prime\prime}|e^{\prime},g)\cdot P(i^{\prime}|i,g)\cdot P(s^{\prime},e^{\prime}|s,i,e,x^{*})\label{eq:-11}
+M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})=P_{c}(\text{survival}|e^{\prime\prime},s^{\prime})\cdot\sum_{i^{\prime}}\tilde{P}(i^{\prime\prime}|i^{\prime},time)\cdot\sum_{g}L_{lab}(g|q_{n})\cdot\sum_{e^{\prime}}P(e^{\prime\prime}|e^{\prime},g)\cdot P(i^{\prime}|i,g)\cdot P(s^{\prime},e^{\prime}|s,i,e,x^{*})\label{eq:-11}
 \end{equation}
 
 \end_inset

@@ -1,0 +1,417 @@
+#LyX 2.5 created this file. For more info see https://www.lyx.org/
+\lyxformat 643
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children no
+\language british
+\language_package default
+\inputencoding utf8
+\fontencoding auto
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement class
+\float_alignment class
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification default
+\crossref_package refstyle
+\use_formatted_ref 0
+\use_minted 0
+\use_lineno 0
+\backgroundcolor none
+\fontcolor none
+\notefontcolor lightgray
+\boxbgcolor red
+\table_border_color default
+\table_odd_row_color default
+\table_even_row_color default
+\table_alt_row_colors_start 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tablestyle default
+\tracking_changes false
+\output_changes false
+\change_bars false
+\postpone_fragile_content true
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\docbook_mathml_version 0
+\end_header
+
+\begin_body
+
+\begin_layout Title
+
+\lang english
+The role of demographic feedback on the evolution of developmental windows
+\end_layout
+
+\begin_layout Section
+
+\lang english
+Introduction
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+There is an ongoing mass extinction event and,
+ as many of the relevant anthropogenic stressors continue to worsen—
+not least but not limited to rising global temperatures and the consequent risks of climate system breakdown (CITE)—
+biological models have an important job to do in predicting the demographic and adaptive responses of species and ecosystems to these changing conditions.
+ There remains much we can do,
+ in principle,
+ to improve these models and so generate more robust and informative guidance for policy makers.
+ For instance,
+ models of demographic change have yet to synthesise reports from the evolutionary theory literature of the great speeds (within ecological timescales) at which adaptation can occur and of the important role of plasticity and agency of individuals in directing this adaptation (CITE).
+ Benton (2012) (CITE),
+ shows how the complexities of real populations resulting from individual-level genetic variation and plasticity can play a strong role in population responses.
+ We need more models like this,
+ elucidating what variables are important in population dynamics,
+ in order to develop appropriate theory,
+ generate accurate empirical predictions,
+ and present robust and effective policy guidance (CITE).
+ Research within behavioural ecology has increasingly focused on the roles of uncertainty,
+ state-dependent decision making,
+ and learning;
+ with implications for the evolution of various behavioural and developmental strategies (CITE CITE CITE),
+ but their roles in population dynamics and the implications for us remain largely speculative (CITE).
+ 
+\end_layout
+
+\begin_layout Subsection
+
+\lang english
+Main question with examples
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+The main question is,
+ given the predictability and severity of food limitations in an organism's environment,
+ over what length of time do individuals invest in developing higher reproductive quality at an opportunity cost to investing in growth to exploit periods of abundant food?
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+Developmental windows are periods in development where sensitivity to cues is heightened.
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+Walasek et al.
+ (2021),
+ Walasek et al.
+ (2022) find that the timing of when sensitive periods emerge depends on the reliability of cues increases across ontogeny,
+ and their results suggest that both information and phenotypic states are modeled,
+ with incremental development in fluctuating environments favouring residual development across ontogeny.
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+Further,
+ Walasek et al (2024) review current theory and empirical literature and suggest future models could better integrate with empirical research by incorporating phenomena found in empirical systems into our models,
+ and design more models that can be tailored to the life histories of specific species.
+ They encourage for instance that models that incorporate the life history trade-offs we see in the development of alternative phenotypes in bulb mites (between scramblers and fighters) (Smallegange,
+ 2023;
+ Smallegange et al.,
+ 2019),
+ and it happens that authors interested in these taxa are also interested in bridging the gap in research between demographic modelling and agency with respect to development shaping demography (Smallegange ).
+\end_layout
+
+\begin_layout Subsection
+
+\lang english
+Developmental windows and sensitive periods
+\end_layout
+
+\begin_layout Subsection
+
+\lang english
+Demography,
+ agency and life-history
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+Feedback between plastic responses and population dynamics has been explored for fixed reaction norms by Brass et al.
+ (2021) who showed that ___.
+ However,
+ it is unclear how these eco-devo dynamics will play out over evolutionary time.
+\end_layout
+
+\begin_layout Subsection
+
+\lang english
+Hypothesis
+\end_layout
+
+\begin_layout Subsection
+
+\lang english
+Methods
+\end_layout
+
+\begin_layout Section
+
+\lang english
+The Model Outline
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+We model a large population of asexual individuals,
+ distributed in a metapopulation across habitat patches of equal size and quality,
+ but each with a population density state with transition probabilities determined by the local population's growth rate.
+ Each individual has three state dimensions—
+size (
+\begin_inset Formula $s$
+\end_inset
+
+),
+ patch information (
+\begin_inset Formula $\pi$
+\end_inset
+
+),
+ and reproductive quality (
+\begin_inset Formula $m$
+\end_inset
+
+)—
+upon which their developmental strategy is dependent,
+ 
+\begin_inset Formula $x(s,\pi,m)$
+\end_inset
+
+,
+ which determines the fraction of ingested energy allocated to developing greater reproductive quality over growth to increase their size state (and so ultimately the local population growth rate).
+ Size determines whether or not an individual is mature given they can only reproduce when they reach their maximum size 
+\begin_inset Formula $S$
+\end_inset
+
+.
+ An individual's patch information state gives them the subjective probabilities regarding each possible population density state of their habitat patch.
+ Finally,
+ an individual's reproductive quality state 
+\begin_inset Formula $m$
+\end_inset
+
+ determines their rate of reproduction at maturity.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+We assume mutations are rare and of small effect such that effectively all individuals across the metapopulation have the same state-dependent developmental strategy (henceforth referred to as the resident strategy).
+ Given the resident strategy we then do a forward projection using a Markov chain until demographic stability is reached at the metapopulation level (i.e.
+ among patches).
+ Given the probability distribution of population density states of patches,
+ and assuming individuals have complete information as to this probability distribution and of the transition probabilities between patch pop.
+ density states,
+ we find the best response strategy for an invading individual (i.e.
+ the developmental strategy that maximises their expected fitness).
+\end_layout
+
+\begin_layout Subsection
+
+\lang english
+The Life Cycle and Demographic Feedback
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+We model the life cycle of both individuals and of the patches they reside in (see figure 1).
+\end_layout
+
+\begin_layout Enumerate
+
+\lang english
+Newborns disperse into random patches,
+ with accurate prior information as to the probability distribution over patch population density states,
+ and causing transitions in patch population density states.
+\end_layout
+
+\begin_layout Enumerate
+
+\lang english
+Individuals forage,
+ with food availability being a random variable,
+ normally distributed,
+ with mean determined by the population density.
+\end_layout
+
+\begin_layout Enumerate
+
+\lang english
+Individuals update their patch information state given informativeness of food availability.
+\end_layout
+
+\begin_layout Enumerate
+
+\lang english
+Immature individuals allocate a proportion of their ingested energy towards increasing their future reproductive quality given their developmental strategy,
+ the rest of the energy goes towards maturation (increasing their size).
+ Mature individuals do not grow,
+ investing all ingested energy towards current reproduction.
+\end_layout
+
+\begin_layout Enumerate
+
+\lang english
+Individuals die given a baseline probability of death from exogenous factors and given perturbations in patch quality (e.g.
+ disease outbreaks) influenced by the patch population density state,
+ and in turn causing transitions of patch states to lower population densities.
+\end_layout
+
+\begin_layout Enumerate
+
+\lang english
+Individuals that are of maximum size are mature and reproduce at rate determined by their reproductive quality state.
+\end_layout
+
+\begin_layout Subsection
+
+\lang english
+State dimensions
+\end_layout
+
+\begin_layout Itemize
+
+\lang english
+Patch population density state,
+ 
+\begin_inset Formula $n\in\{0,1\}$
+\end_inset
+
+,
+ corresponding to low and high population density states respectively.
+ We assume that 
+\begin_inset Formula $n$
+\end_inset
+
+ determines the probability of patch quality decline and determining the availability of food.
+\end_layout
+
+\begin_layout Itemize
+
+\lang english
+Size state,
+ 
+\begin_inset Formula $s\in\{1,2,...,S\}$
+\end_inset
+
+,
+ where 
+\begin_inset Formula $S$
+\end_inset
+
+ is their size at maturity.
+\end_layout
+
+\begin_layout Itemize
+
+\lang english
+Patch belief state,
+ 
+\begin_inset Formula $\pi=\{0,1/I,2/I,...,(I-1)/I,I/I\}$
+\end_inset
+
+,
+ is an individual's implicit and subjective probability that the patch population density state is high,
+ where 
+\begin_inset Formula $L$
+\end_inset
+
+ determines the resolution of the belief state.
+\end_layout
+
+\begin_layout Itemize
+
+\lang english
+Reproductive quality state,
+ 
+\begin_inset Formula $m\in\{0,1/M,2/M,...,M/M\}$
+\end_inset
+
+,
+ corresponding to the quality of an individual's physiology and so the mass of their offspring.
+ Further,
+ any investment in quality above the quality threshold 
+\begin_inset Formula $m_{switch}$
+\end_inset
+
+,
+ results in an individual developing an alternative fighter phenotype,
+ giving additional reproductive benefit 
+\begin_inset Formula $r_{fighter}$
+\end_inset
+
+.
+\end_layout
+
+\end_body
+\end_document

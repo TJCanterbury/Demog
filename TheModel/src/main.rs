@@ -132,9 +132,10 @@ struct Environment {
     r_fighter: f64,
     r_e: f64, // benefit of reserves
     r_baseline: f64,
-    mu: f64, // Dispersal rate
+    lambda: f64, // Dispersal rate
+    mu_e: f64, // mortality rate due to low energy reserves
+    mu_base: f64, // baseline mortality rate
     c_max:f64, // maximum maintenance investment
-    lambda: f64, // Baseline rate of death
     gammah: f64, // parameter transition prob from high to low
     gammal: f64, // parameter transition prob from low to high
     eta: f64, // proportion of patches that are high density
@@ -142,7 +143,7 @@ struct Environment {
     u_q: Vec<f64>, //(i) survivals from development
     a_q: Vec<f64>, //(i) arrivals from dispersal
     r_q: Vec<f64>, //(i) arrivals from local births
-    R: Vec<Vec<Vec<f64>>>, //(s,m,i) fecundity of individual of size s and maturity m
+    R: Vec<f64>, //(s,i,e) fecundity of individual of state (s,i,e)
     rhon: Vec<Vec<f64>>, //(idx,i) prob. distribution over states for individuals in patches of density qi
     rhotilde: Vec<f64>, //(idx) distribution of newborns
     L_g_n: Vec<Vec<f64>>,
@@ -195,24 +196,19 @@ impl Environment {
 
     fn init_R(&mut self){
         let mut r:f64;
-        for n in 0..N{
-            // Sum of g
-            let sum_g:f64 = (0..G)
-                .map(|g| self.L_g_n[g][n] * g as f64)
-                .sum();
-
-            for e in 0..E{
+        for e in 0..E{
+            for i in 0..I{
                 for s in 0..S{
 
                     r = 0.;
                     
                     if s == S-2 {
-                        r = sum_g * (self.r_baseline + (e as f64) *self.r_e);
+                        r = self.x[idx(s, i, e)] as f64 * (e as f64) * (self.r_e);
                     } else if s == S-1 {
-                        r = sum_g * (self.r_baseline + (e as f64) *self.r_e + self.r_fighter);
+                        r = self.x[idx(s, i, e)] as f64 * (e as f64) * (self.r_e + self.r_fighter);
                     }
 
-                    self.R[s][e][n] = r;
+                    self.R[idx(s,i,e)] = r;
 
                 }
             }
@@ -223,12 +219,8 @@ impl Environment {
         for n in 0..N {
             self.r_q[n] = 0.0;
 
-            for s in 0..S{
-                for i in 0..I{
-                    for e in 0..E{
-                        self.r_q[n] += self.rhon[idx(s,i,e)][n]*self.R[s][e][n]
-                    }
-                }
+            for state in 0..N_states{
+                self.r_q[n] += self.rhon[state][n]*self.R[state]
             }
         }
     }
@@ -309,12 +301,28 @@ impl Environment {
         }
     }
 
-    fn c(&self, s:f64, e:f64) -> f64{
-        // let size3 = (s+e).powf(3.);
-        // return size3*self.c_max
-        let s3 = s*s*s;
-        let max_s3 = (S as f64).powf(3.);
-        return (s3*e/(max_s3 * E as f64))*self.c_max
+    fn c(&self, s:f64, e:f64, g:f64) -> f64{
+        let size3 = (s+e).powf(3.);
+        return e + g - size3*self.c_max
+    }
+
+    fn init_maintenance(&mut self){
+        for state in 0..N_states{
+            
+            let (s, i, e) = self.state_invert(state);
+            
+            // Define probability of survival given energy reserves
+            self.pcsurival[state] = (1. - (E as f64 - 1. - e as f64)/(E as f64 - 1.) * self.mu_e) * (1. - self.mu_base);
+
+            // Define transition probabilities of energy reserves given maintenance costs
+            for g in 0..G{
+                
+                let epost = self.c(s as f64, e as f64, g as f64).min(E as f64 -1.).max(0.);
+                let (e1, p1, e2, p2) = self.interpolate_e(epost);
+                self.pceeg[e1][state][g] += p1;
+                self.pceeg[e2][state][g] += p2;
+            }
+        }
     }
 
     fn interpolate_e(&self, mut post_e:f64) -> (usize,f64,usize,f64){
@@ -430,6 +438,9 @@ impl Environment {
         println!("Initialising P(g|pi)");
         self.init_gpi();
 
+        // Init prob of survival given maintenance and transition probabilities of energy reserves given maintenance costs
+        self.init_maintenance();
+        
         // init prob of survival given perturbations
         println!("Initialising P(survival|pert");
         self.init_pertsurvival();
@@ -461,13 +472,6 @@ impl Environment {
             //     l1 += self.L_g_i[g][1];
             // }
             // println!("L0: {}, L1:{}", l0, l1);
-    }
-
-    fn r_state(&self, state:usize) -> f64{
-        let (s,pi,e) = self.state_invert(state);
-        let pi0 = pi as f64/(I as f64 - 1.);
-        let pi1 = 1. - pi0;
-        return self.R[s][e][0]*pi0 + self.R[s][e][1]*pi1;
     }
 
     fn init_dev_m_kappa(&mut self){
@@ -586,11 +590,11 @@ impl Environment {
         for n in 0..N {
             // proportion that survived in patches of density n
             self.u_q[n] = (0..N_states)
-                .map(|state| self.q(n)*(1.-self.lambda)*self.rhohat[n][state])
+                .map(|state| self.q(n)*self.pcsurvival[state]*self.rhohat[n][state])
                 .sum();
 
             // calculating alpha, equation 4
-            self.a_q[n] = (1. - self.mu)*self.q(n)*self.r_q[n] + self.mu*dispersing_pool;
+            self.a_q[n] = (1. - self.lambda)*self.q(n)*self.r_q[n] + self.lambda*dispersing_pool;
 
             // calculating the new patch density size after dispersal, equation 6
             let qnprime: f64 = self.a_q[n] + self.u_q[n];
@@ -782,15 +786,8 @@ impl Environment {
         for pi in 0..I{
             let prior = pi as f64/(I as f64 -1.);
             
-            self.pert_survival[pi] = (1. - self.lambda) * prior * (self.p_stoch[1][1] + self.p_stoch[0][1] * (self.q(0)/self.q(1))) +
-                (1. - self.lambda) * (1. - prior);
-            println!("pertsurvival: {}, pi: {}, pstoch01: {}, 1-lambda: {}, q0/q1: {}, remainder: {}", 
-                self.pert_survival[pi],
-                prior, 
-                self.p_stoch[0][1],
-                (1. - self.lambda),
-                (self.q(0)/self.q(1)),
-                (1. - self.lambda) * (1. - prior))
+            self.pert_survival[pi] = (1. - prior) + prior * (self.p_stoch[1][1] + self.p_stoch[0][1] * (self.q(0)/self.q(1)));
+            
         }
     }
 
@@ -805,7 +802,7 @@ impl Environment {
             for state in 0..N_states{
                 let (s,pi,e) = self.state_invert(state);
 
-                self.V[0][state] = self.r_state(state);
+                self.V[0][state] = self.R[state];
 
                 for g in 0..G{
                     for piprime in 0..I{
