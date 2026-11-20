@@ -923,7 +923,7 @@ where
  giving 
 \begin_inset Formula 
 \[
-e_{1}=\lfloor min(E,max(0,c(s,e^{\prime},g)))\rfloor
+e_{1}=\lfloor min(E,max(0,c(s^{\prime},e^{\prime},g)))\rfloor
 \]
 
 \end_inset
@@ -931,7 +931,7 @@ e_{1}=\lfloor min(E,max(0,c(s,e^{\prime},g)))\rfloor
 
 \begin_inset Formula 
 \[
-p_{2}=max(0,c(s,e^{\prime},g))-e_{1}
+p_{2}=max(0,c(s^{\prime},e^{\prime},g))-e_{1}
 \]
 
 \end_inset
@@ -955,7 +955,7 @@ p_{1}=1-p_{2}.
 which gives a transition probability matrix of 
 \begin_inset Formula 
 \[
-P_{c}(e^{\prime\prime}=e_{1}|s,e^{\prime},g)=p_{1}
+P_{c}(e^{\prime\prime}=e_{1}|s^{\prime},e^{\prime},g)=p_{1}
 \]
 
 \end_inset
@@ -967,7 +967,7 @@ and if
 
 \begin_inset Formula 
 \[
-P_{c}(e^{\prime\prime}=e_{2}|s,e^{\prime},g)=p_{2}
+P_{c}(e^{\prime\prime}=e_{2}|s^{\prime},e^{\prime},g)=p_{2}
 \]
 
 \end_inset
@@ -975,7 +975,7 @@ P_{c}(e^{\prime\prime}=e_{2}|s,e^{\prime},g)=p_{2}
 with probability of survival of 
 \begin_inset Formula 
 \[
-P_{c}(survival|s,e^{\prime\prime})=(1-\frac{E-e^{\prime\prime}}{E}\cdot\mu_{e})\cdot(1-\mu_{base})\cdot
+P_{c}(survival|s^{\prime},e^{\prime\prime})=(1-\frac{E-e^{\prime\prime}}{E}\cdot\mu_{e})\cdot(1-\mu_{base})\cdot
 \]
 
 \end_inset
@@ -992,6 +992,28 @@ where
 \end_layout
 
 \begin_layout Subsubsection
+Summary
+\end_layout
+
+\begin_layout Standard
+As the effects of 
+\begin_inset Formula $g$
+\end_inset
+
+ are all exogenous,
+ not determined by an individual's strategy or the distribution of states in the population,
+ we can summarise the outcome of foraging with a single transition matrix (excluding deaths)
+\begin_inset Formula 
+\[
+F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime}e^{\prime},n)=\sum_{g}P_{c}(e^{\prime\prime}|s,e^{\prime},g)\cdot L(g|q_{n})\cdot P(i^{\prime\prime}|i^{\prime},g)
+\]
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Subsection
 Demographic stochasticity
 \end_layout
 
@@ -1576,66 +1598,11 @@ given that they are in a patch of population density state
 \end_layout
 
 \begin_layout Subsection
-Development and reproduction
-\end_layout
-
-\begin_layout Standard
-Given the baseline rate of death 
-\begin_inset Formula $\lambda$
-\end_inset
-
- and deaths caused by lack of investment in maintenance,
- the posterior proportions of each physiological state in sub-populations of each patch state 
-\begin_inset Formula $n$
-\end_inset
-
- is 
-\begin_inset Formula 
-\begin{equation}
-\rho^{\prime}_{n}(s^{\prime},i,e^{\prime})=\sum_{s}\sum_{i}\sum_{e}P(s^{\prime},e^{\prime}|s,i,e,x)\cdot\rho_{n}(s,i,e)\label{eq:-17}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Where,
- as a reminder,
- 
-\begin_inset Formula $\rho_{n}(s,i,e)$
-\end_inset
-
- is the prior probability distribution over states given the patch is of population size 
-\begin_inset Formula $q_{n}$
-\end_inset
-
- and 
-\begin_inset Formula $P(s^{\prime},e^{\prime}|s,i,e,x)$
-\end_inset
-
- is the probability of transitioning to life stage 
-\begin_inset Formula $s^{\prime}$
-\end_inset
-
- and energy reserves 
-\begin_inset Formula $e^{\prime}$
-\end_inset
-
- given their prior state 
-\begin_inset Formula $\{s,i,e\}$
-\end_inset
-
- and their developmental strategy 
-\begin_inset Formula $x(s,i,e)$
-\end_inset
-
-.
+Strategic investments
 \end_layout
 
 \begin_layout Subsubsection
-Offspring arrivals
+Reproduction
 \end_layout
 
 \begin_layout Standard
@@ -1696,7 +1663,7 @@ where
  is defined as 
 \begin_inset Formula 
 \begin{equation}
-r(q_{n})=\sum^{S}_{s}\sum^{I}_{i}\sum^{E}_{e}[\rho_{n}(s,i,e)\cdot R(s,i,e,x)]\label{eq:-5}
+r(q_{n})=\sum^{S}_{s}\sum^{I}_{i}\sum^{E}_{e}[\rho_{n}(s,i,e)\cdot R(s,i,e,\kappa)]\label{eq:-5}
 \end{equation}
 
 \end_inset
@@ -1715,15 +1682,88 @@ where
 
 ,
  and 
-\begin_inset Formula $R(s,i,e,x)$
+\begin_inset Formula $R(s,i,e,\kappa)$
 \end_inset
 
  is such an individual's reproductive rate (see section 1.4).
+\end_layout
+
+\begin_layout Subsubsection
+Development
+\end_layout
+
+\begin_layout Standard
+The population evolves priors for the transition probabilities between growth cycles,
+ and the distribution of states must again be updated
+\begin_inset Formula 
+\begin{equation}
+\rho^{\prime}_{n}(s^{\prime},i^{\prime},e^{\prime})=\sum_{\pi^{\prime}}\tilde{P}(i^{\prime}|i,\text{time})\cdot P(s^{\prime},e^{\prime}|s,i,e,\kappa)\cdot\rho_{n}(s,i,e).\label{eq:-48}
+\end{equation}
+
+\end_inset
+
+Where,
+ as a reminder,
+ 
+\begin_inset Formula $\rho_{n}(s,i,e)$
+\end_inset
+
+ is the prior probability distribution over states given the patch is of population size 
+\begin_inset Formula $q_{n}$
+\end_inset
+
+ and 
+\begin_inset Formula $P(s^{\prime},e^{\prime}|s,i,e,x)$
+\end_inset
+
+ is the probability of transitioning to life stage 
+\begin_inset Formula $s^{\prime}$
+\end_inset
+
+ and energy reserves 
+\begin_inset Formula $e^{\prime}$
+\end_inset
+
+ given their prior state 
+\begin_inset Formula $\{s,i,e\}$
+\end_inset
+
+ and the resident developmental strategy 
+\begin_inset Formula $\kappa=x(s,i,e)$
+\end_inset
+
+,
+ and where 
+\begin_inset Formula $\tilde{P}(i^{\prime\prime}|i^{\prime},\text{time})$
+\end_inset
+
+ is their belief state transition probabilities given their priors for the transition probabilities,
+ 
+\begin_inset Formula $\tilde{P}(q_{1}|q_{0})$
+\end_inset
+
+,
+ between patch density states between growth cycles.
+ Note,
+ however that in the first instance there will not yet be any evolutionary history for us to calculate these probabilities from and so we will assume that individuals assume patch states remain the same,
+ giving a probability of belief state transition between cycles of 
+\begin_inset Formula $\tilde{P}(i^{\prime\prime}=i^{\prime}|i^{\prime},\text{time})=1.0$
+\end_inset
+
+.
+ Otherwise,
+ after their first iteration of adaptation,
+ they will inherit priors for the transition probabilities between patch population density states at demographic stability given the developmental actions of the rest of the population,
+ patch perturbations,
+ and patch growth from dispersal,
+ since their own previous development action (outlined in section 5.1).
  
 \end_layout
 
 \begin_layout Subsection
-Foraging
+Foraging,
+ observations,
+ and death
 \end_layout
 
 \begin_layout Standard
@@ -1740,7 +1780,7 @@ Individuals forage and find food of mass
  therefore their posterior physiological distribution is
 \begin_inset Formula 
 \begin{equation}
-\hat{\rho_{n}}(s^{\prime},i^{\prime},e^{\prime\prime})=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot\sum_{i}\sum_{e^{\prime}}\sum_{g}\rho^{\prime}_{n}(s^{\prime},i,e^{\prime})\cdot P(e^{\prime\prime}|e^{\prime},g)\cdot P(i^{\prime}|i,g)\cdot L(g|q_{n}),\label{eq:-17-1}
+\rho^{\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime})=F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime},n)\cdot\rho^{\prime}_{n}(s^{\prime},i^{\prime},e^{\prime}),\label{eq:-17-1}
 \end{equation}
 
 \end_inset
@@ -1756,7 +1796,7 @@ after foraging outcomes and maintenance costs are applied,
  is 
 \begin_inset Formula 
 \begin{equation}
-u(q_{n})=q_{n}\cdot\sum_{s^{\prime}}\sum_{i^{\prime}}\sum_{e^{\prime\prime}}\hat{\rho_{n}}(s^{\prime},i^{\prime},e^{\prime\prime})\label{eq:-26}
+u(q_{n})=q_{n}\cdot\sum_{s^{\prime}}\sum_{i^{\prime\prime}}\sum_{e^{\prime\prime}}P_{c}(survival|s^{\prime},e^{\prime\prime})\cdot\rho^{\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime})\label{eq:-26}
 \end{equation}
 
 \end_inset
@@ -1764,7 +1804,7 @@ u(q_{n})=q_{n}\cdot\sum_{s^{\prime}}\sum_{i^{\prime}}\sum_{e^{\prime\prime}}\hat
 
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 Demographic projection
 \end_layout
 
@@ -1841,56 +1881,70 @@ We can then calculate the posterior distribution of patch states
 
 \end_inset
 
-and then the posterior probability distribution over individual states for patches of each population density state 
+and then the posterior probability distribution over individual states for patches of each population density state is weighted by the average contributions of survivors and newborn arrivals
 \begin_inset Formula 
 \begin{equation}
-\rho^{\prime\prime}_{n}(s^{\prime},i^{\prime},e^{\prime\prime})=\sum_{q_{o}}\frac{1}{\eta^{\prime}_{n}}\cdot\eta_{o}\cdot P(q_{n}|q_{o})\cdot[\frac{u(q_{o})}{u(q_{o})+\alpha(q_{o})}\cdot\frac{\hat{\rho_{n}}(s^{\prime},i^{\prime},e^{\prime\prime})}{\sum_{s}\sum_{\pi}\sum_{m}\hat{\rho_{n}}(s^{\prime},i^{\prime},e^{\prime\prime})}+\frac{\alpha(q_{o})}{u(q_{o})+\alpha(q_{o})}\cdot\tilde{\rho}(s^{\prime},i^{\prime},e^{\prime\prime\prime})].\label{eq:-30-1}
+\rho^{\prime\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime})=\sum_{q_{o}}\frac{\eta_{o}\cdot P(q_{n}|q_{o})}{\eta^{\prime}_{n}}\cdot[\frac{u(q_{o})}{u(q_{o})+\alpha(q_{o})}\cdot\rho^{\prime\prime}_{o}(s^{\prime},i^{\prime\prime},e^{\prime\prime})+\frac{\alpha(q_{o})}{u(q_{o})+\alpha(q_{o})}\cdot\tilde{\rho}(s^{\prime},i^{\prime\prime},e^{\prime\prime})],\label{eq:-30-1}
 \end{equation}
 
 \end_inset
 
+which is a lot to take in,
+ but what we are in fact doing within each sum is calculating the probability that an individual within a patch of density 
+\begin_inset Formula $q_{n}$
+\end_inset
 
-\end_layout
+is of physiological state 
+\begin_inset Formula $\{s^{\prime},i^{\prime\prime},e^{\prime\prime}\}$
+\end_inset
 
-\begin_layout Subsection
-Belief updating between growth cycles
-\end_layout
+ and came from a patch of density 
+\begin_inset Formula $q_{o}$
+\end_inset
 
-\begin_layout Standard
-The population evolves priors for the transition probabilities between growth cycles,
- and the distribution of states must again be updated
+with the following formula
 \begin_inset Formula 
-\begin{equation}
-\rho^{\prime\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime})=\sum_{\pi^{\prime}}\tilde{P}(i^{\prime\prime}|i^{\prime},\text{time})\cdot\rho^{\prime\prime}_{n}(s^{\prime},i^{\prime},e^{\prime\prime}).\label{eq:-48}
-\end{equation}
+\[
+P(\{s^{\prime},i^{\prime\prime},e^{\prime\prime}\},q_{o}|q_{n})=\frac{P(q_{o})\cdot P(q_{n}|q_{o})\cdot P(\{s^{\prime},i^{\prime\prime},e^{\prime\prime}\}|q_{o})}{P(q_{n})}
+\]
 
 \end_inset
 
-where 
-\begin_inset Formula $\tilde{P}(i^{\prime\prime}|i^{\prime},\text{time})$
-\end_inset
-
- is their belief state transition probabilities given their priors for the transition probabilities,
- 
-\begin_inset Formula $\tilde{P}(q_{1}|q_{0})$
+where as a reminder 
+\begin_inset Formula $\eta_{o}=P(q_{o})$
 \end_inset
 
 ,
- between patch density states between growth cycles.
- Note,
- however that in the first instance there will not yet be any evolutionary history for us to calculate these probabilities from and so we will assume that individuals assume patch states remain the same,
- giving a probability of belief state transition between cycles of 
-\begin_inset Formula $\tilde{P}(i^{\prime\prime}=i^{\prime}|i^{\prime},\text{time})=1.0$
+ 
+\begin_inset Formula $\eta^{\prime}_{n}=P(q_{n})$
 \end_inset
 
-.
- Otherwise,
- after their first iteration of adaptation,
- they will inherit priors for the transition probabilities between patch population density states at demographic stability given the developmental actions of the rest of the population,
- patch perturbations,
- and patch growth from dispersal,
- since their own previous development action (outlined in section 5.1).
+,
+ and where 
+\begin_inset Formula $P(\{s^{\prime},i^{\prime\prime},e^{\prime\prime}\}|q_{o})=\frac{u(q_{o})}{u(q_{o})+\alpha(q_{o})}\cdot\rho^{\prime\prime}_{o}(s^{\prime},i^{\prime\prime},e^{\prime\prime})+\frac{\alpha(q_{o})}{u(q_{o})+\alpha(q_{o})}\cdot\tilde{\rho}(s^{\prime},i^{\prime\prime},e^{\prime\prime})$
+\end_inset
+
+,
+ as this is the distribution of physiological states in a patch originally of density 
+\begin_inset Formula $q_{o}$
+\end_inset
+
+after births and deaths have occurred,
+ with the assumption that an individual's physiological state is as of yet independent of the patch's new state (i.e.
  
+\begin_inset Formula $P(\{s^{\prime},i^{\prime\prime},e^{\prime\prime}\}|q_{o})=P(\{s^{\prime},i^{\prime\prime},e^{\prime\prime}\}|q_{o},q_{n})$
+\end_inset
+
+).
+ By summing across prior patch states we then get the posterior physiological distribution
+\begin_inset Formula 
+\[
+\rho^{\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime})=P(\{s^{\prime},i^{\prime\prime},e^{\prime\prime}\}|q_{n})=\sum_{q_{o}}P(\{s^{\prime},i^{\prime\prime},e^{\prime\prime}\},q_{o}|q_{n})
+\]
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -1905,7 +1959,7 @@ At the beginning of the next growth cycle,
 
 ,
  
-\begin_inset Formula $\rho^{\prime\prime\prime}_{n}(s^{\prime}=s,i^{\prime\prime}=i,e^{\prime\prime\prime}=e)$
+\begin_inset Formula $\rho^{\prime\prime}_{n}(s^{\prime}=s,i^{\prime\prime}=i,e^{\prime\prime}=e)$
 \end_inset
 
  becomes 
@@ -2127,7 +2181,7 @@ and for a given developmental policy
  which is defined as 
 \begin_inset Formula 
 \[
-M(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,\kappa)=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot\sum_{i^{\prime}}\tilde{P}(i^{\prime\prime}|i^{\prime},time)\cdot P_{pert}(survival|i^{\prime})\cdot\sum_{g}P(g|i)\cdot\sum_{e^{\prime}}P(e^{\prime\prime}|e^{\prime},g)\cdot P(i^{\prime}|i,g)\cdot P(s^{\prime},e^{\prime}|s,i,e,x)
+M(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,\kappa)=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot P_{pert}(survival|i^{\prime})\cdot\sum_{e^{\prime}}\sum_{i^{\prime}}F_{i}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime})\cdot\tilde{P}(i^{\prime}|i,time)\cdot P(s^{\prime},e^{\prime}|s,i,e,\kappa)
 \]
 
 \end_inset
@@ -2135,7 +2189,7 @@ M(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,\kappa)=P_{c}(survival|e^{\
 where 
 \begin_inset Formula 
 \[
-P(g|i)=(i/I)\cdot L(g|q_{1})+(1-(i/I))\cdot L(g|q_{0}))
+F_{i}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime})=(i^{\prime}/I)\cdot F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime},n=1)+(1-(i^{\prime}/I))\cdot F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime},n=0)
 \]
 
 \end_inset
@@ -2354,22 +2408,22 @@ where
 ,
  and the system is both at demographic and evolutionary stability;
  making demographic projection at this stage exceedingly simple.
- First we define the physiological state transition matrix of the cohort given lab conditions for the availability of food
+ First we define the physiological state transition matrix of the cohort given the population density in the lab
 \begin_inset Formula 
 \begin{equation}
-M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})=P_{c}(\text{survival}|e^{\prime\prime},s^{\prime})\cdot\sum_{i^{\prime}}\tilde{P}(i^{\prime\prime}|i^{\prime},time)\cdot\sum_{g}L_{lab}(g|q_{n})\cdot\sum_{e^{\prime}}P(e^{\prime\prime}|e^{\prime},g)\cdot P(i^{\prime}|i,g)\cdot P(s^{\prime},e^{\prime}|s,i,e,x^{*})\label{eq:-11}
+M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot\sum_{e^{\prime}}\sum_{i^{\prime}}F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime},n)\cdot\tilde{P}(i^{\prime}|i,time)\cdot P(s^{\prime},e^{\prime}|s,i,e,\kappa)\label{eq:-11}
 \end{equation}
 
 \end_inset
 
-leaving deaths from transition in patch density till later as these will depend on.
- We can then calculate the distribution of individuals after development
+We can then calculate the distribution of individuals after development leaving deaths from transition in patch density till later as these will depend on lab conditions.
+ 
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\hat{\rho_{n}}(s^{\prime},i^{\prime\prime},e^{\prime\prime})=\sum_{s}\sum_{\pi}\sum_{m}M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})\cdot\rho_{n,t}(s,\pi,m).\label{eq:-17-2}
+\hat{\rho_{n}}(s^{\prime},i^{\prime\prime},e^{\prime\prime})=\sum_{s}\sum_{i}\sum_{e}M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})\cdot\rho_{n,t}(s,i,e).\label{eq:-17-2}
 \end{equation}
 
 \end_inset
@@ -2379,7 +2433,7 @@ leaving deaths from transition in patch density till later as these will depend 
 
 \begin_layout Standard
 Normally at this state we would then account for the addition of arrivals to the population from reproduction and dispersal but as we are only tracking the one cohort we can ignore things like 
-\begin_inset Formula $\frac{\alpha(q_{o})}{u(q_{o})+\alpha(q_{o})}\cdot\tilde{\rho}(s,\pi,m)$
+\begin_inset Formula $\frac{\alpha(q_{o})}{u(q_{o})+\alpha(q_{o})}\cdot\tilde{\rho}(s,i,e)$
 \end_inset
 
 ,
@@ -2390,7 +2444,7 @@ Normally at this state we would then account for the addition of arrivals to the
 is fixed and as we are interested in the proportion that are alive we can ignore the normalisation step entirely giving us
 \begin_inset Formula 
 \begin{equation}
-\rho^{\prime}_{0}(s^{\prime},\pi^{\prime},m^{\prime})=P_{lab}(q_{0}|q_{0},t)\cdot\hat{\rho_{0}}(s^{\prime},i^{\prime\prime},e^{\prime\prime})+P_{lab}(q_{0}|q_{1},t)\cdot\hat{\rho_{1}}(s^{\prime},i^{\prime\prime},e^{\prime\prime})\cdot\frac{q_{0}}{q_{1}},\label{eq:-30-1-1-1}
+\rho^{\prime}_{0}(s^{\prime},i^{\prime},e^{\prime})=P_{lab}(q_{0}|q_{0},t)\cdot\hat{\rho_{0}}(s^{\prime},i^{\prime\prime},e^{\prime\prime})+P_{lab}(q_{0}|q_{1},t)\cdot\hat{\rho_{1}}(s^{\prime},i^{\prime\prime},e^{\prime\prime})\cdot\frac{q_{0}}{q_{1}},\label{eq:-30-1-1-1}
 \end{equation}
 
 \end_inset
@@ -2398,7 +2452,7 @@ is fixed and as we are interested in the proportion that are alive we can ignore
 
 \begin_inset Formula 
 \begin{equation}
-\rho^{\prime}_{1}(s^{\prime},\pi^{\prime},m^{\prime})=P_{lab}(q_{1}|q_{0},t)\cdot\hat{\rho_{0}}(s^{\prime},i^{\prime\prime},e^{\prime\prime})+P_{lab}(q_{1}|q_{1},t)\cdot\hat{\rho_{1}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}),\label{eq:-30-1-1-1-2}
+\rho^{\prime}_{1}(s^{\prime},i^{\prime},e^{\prime})=P_{lab}(q_{1}|q_{0},t)\cdot\hat{\rho_{0}}(s^{\prime},i^{\prime\prime},e^{\prime\prime})+P_{lab}(q_{1}|q_{1},t)\cdot\hat{\rho_{1}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}),\label{eq:-30-1-1-1-2}
 \end{equation}
 
 \end_inset
@@ -2434,7 +2488,7 @@ where
  until 
 \begin_inset Formula 
 \[
-1>N\cdot\sum_{\{s,\pi,m\}}\rho_{0,t}(s,\pi,m)+\rho_{1,t}(s,\pi,m),
+1>N\cdot\sum_{\{s,i,e\}}\rho_{0,t}(s,i,e)+\rho_{1,t}(s,i,e),
 \]
 
 \end_inset
