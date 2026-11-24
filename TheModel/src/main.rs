@@ -130,7 +130,7 @@ struct Environment {
     n_min: f64,
     g_mean: f64,
     g_sd: f64,
-    f_switch: usize, //threshold investment above which fighter phenotype is expressed at maturity
+    f_switch: f64, //threshold investment above which fighter phenotype is expressed at maturity
     r_fighter: f64,
     r_e: f64, // benefit of reserves
     r_baseline: f64,
@@ -401,6 +401,13 @@ impl Environment {
         }
     }
 
+    fn food_sum(&mut self){
+        for state in 0..N_states{
+            for state_prime
+        }
+        self.F[idx(s,iprime, eprime)]
+    }
+
     fn inits(&mut self){
         println!("Initialising priors");
         self.eta = 0.5;
@@ -505,10 +512,21 @@ impl Environment {
                 if s >= S-2{ // development of offspring at maturity (s stays the same)
                     self.dev_m[idx(s, pi, e1)][idx(s, pi, e)][k] = ep1;
                     self.dev_m[idx(s, pi, e2)][idx(s, pi, e)][k] = ep2;
-                } else if s == S-3 {
-                    if investment > self.f_switch as f64 {
-
-                    } else {
+                } else if s == S-3 { // develop into one of two possible morphs
+                    if del_spost > self.f_switch{ // Definitely matures, with some prob of fighter
+                        let pfighter = (del_spost - self.f_switch)/(1. - self.f_switch);
+                        let pscrambler = 1. - pfighter;
+                        self.dev_m[idx(S-1, pi, e1)][idx(s, pi, e)][k]+=ep1*pfighter;
+                        self.dev_m[idx(S-2, pi, e1)][idx(s, pi, e)][k]+=ep1*pscrambler;
+                        self.dev_m[idx(S-1, pi, e2)][idx(s, pi, e)][k]+=ep2*pfighter;
+                        self.dev_m[idx(S-2, pi, e2)][idx(s, pi, e)][k]+=ep2*pscrambler;
+                    } else { // possibly matures into a scrambler
+                        let pscrambler = del_spost / self.f_switch;
+                        let psminus3 = 1. - pscrambler;
+                        self.dev_m[idx(S-3, pi, e1)][idx(s, pi, e)][k]+=ep1*psminus3;
+                        self.dev_m[idx(S-2, pi, e1)][idx(s, pi, e)][k]+=ep1*pscrambler;
+                        self.dev_m[idx(S-3, pi, e2)][idx(s, pi, e)][k]+=ep2*psminus3;
+                        self.dev_m[idx(S-2, pi, e2)][idx(s, pi, e)][k]+=ep2*pscrambler;
 
                     }
                 } else { // development of life stage/morph at juvenile stages
@@ -558,14 +576,15 @@ impl Environment {
                 self.rhohat[n][stateprime] = 0.;
                 let (_sprime, iprime, eprime) = self.state_invert(stateprime);
                 
-                for state in 0..N_states{
-                    let (_s, i, e) = self.state_invert(state);
-                    for g in 0..G{
-                        self.rhohat[n][stateprime] += self.rhon[state][n] *
-                            self.pcsurvival[stateprime] * 
-                            self.pceeg[eprime][e][g] *
-                            self.pipig[iprime][i][g] *
-                            self.L_g_n[g][n];
+                for i in 0..I{
+                    for e in 0..E{
+                        for g in 0..G{
+                            self.rhohat[n][stateprime] += self.rhon[state][n] *
+                                self.pcsurvival[stateprime] * 
+                                self.pceeg[eprime][e][g] *
+                                self.pipig[iprime][i][g] *
+                                self.L_g_n[g][n];
+                        }
                     }
                 }
             }
@@ -698,7 +717,7 @@ impl Environment {
                 .sum();
             println!("rhon sums: {}, {}", rhosum0, rhosum1);
 
-            self.foraging();
+            self.Foraging();
             println!("post foraging eta: {}", self.eta);
             if self.eta.is_nan(){
                 std::process::exit(0);
@@ -904,7 +923,7 @@ impl Environment {
                 self.n_min,
                 self.g_mean,
                 self.g_sd,
-                self.f_switch as f64,
+                self.f_switch,
                 self.r_fighter,
                 self.r_e,
                 self.r_baseline,
@@ -953,21 +972,6 @@ impl Environment {
                 }
             }
 
-            // calculate posterior to foraging
-            for stateprime in 0..N_states{ 
-                let (_sprime, piprime, eprime) = self.state_invert(stateprime);
-                for state in 0..N_states {
-                    let (s, pi, e) = self.state_invert(state);
-                    for g in 0..G {
-                        self.rhohat[0][idx(s, piprime, eprime)] += 
-                            self.pceeg[eprime][e][g] *
-                            self.pipig[piprime][pi][g] *
-                            self.L_g_n[g][0] *
-                            self.rhon[state][0];
-                    }
-                }
-            }
-            self.rhon = self.rhohat.clone();
 
             // calculate posterior distribution to developmnent
             for stateprime in 0..N_states{
@@ -988,6 +992,27 @@ impl Environment {
                 cumul += self.rhohat[0][state] + self.rhohat[1][state];
             }
             println!("popsize post development: {}", cumul);
+            self.rhon = self.rhohat.clone();
+
+            // calculate posterior to foraging
+            for stateprime in 0..N_states{ 
+                let (sprime, iprime, eprime) = self.state_invert(stateprime);
+                
+                for i in 0..I{
+                    for e in 0..E{
+                        for g in 0..G{
+                            self.rhohat[0][stateprime] += self.rhon[idx(sprime,i,e)][0] *
+                                self.pceeg[eprime][e][g] *
+                                self.pipig[iprime][i][g] *
+                                self.L_g_n[g][0];
+                            self.rhohat[1][stateprime] += self.rhon[idx(sprime,i,e)][1] *
+                                self.pceeg[eprime][e][g] *
+                                self.pipig[iprime][i][g] *
+                                self.L_g_n[g][1];
+                        }
+                    }
+                }
+            }
 
             // calculate posterior to deaths
             for state in 0..N_states{
@@ -1071,7 +1096,7 @@ fn main() -> std::io::Result<()>  {
         n_min: 100., // population bin sizes
         g_mean: (G as f64 -1.), // mean food mass
         g_sd: 1., // standard deviation of food mass
-        f_switch: E/2, // threshold m above which fighter phenotype is expressed
+        f_switch: 0.5, // threshold m above which fighter phenotype is expressed
         r_fighter: 2., // fitness benefit of fighter phenotype
         r_e: 1., // fitness benefit of quality
         r_baseline: 5., // baseline fitness

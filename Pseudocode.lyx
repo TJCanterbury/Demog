@@ -539,27 +539,12 @@ P(s^{\prime},e^{\prime}|x,s,i,e)=0.\label{eq:-10}
 \end_layout
 
 \begin_layout Enumerate
-If 
-\begin_inset Formula $s\geq S-1$
-\end_inset
-
-,
- they are of a mature life stage and so no developmental transition can occur,
- so 
-\begin_inset Formula $P(s^{\prime}=s,e^{\prime}=e|x,s,i,e)=1$
-\end_inset
-
-.
- 
-\end_layout
-
-\begin_layout Enumerate
 Else,
  they invest 
 \begin_inset Formula $\Delta e$
 \end_inset
 
- reserves energy into growth,
+ reserves energy into development,
  defined as
 \begin_inset Formula 
 \begin{equation}
@@ -572,23 +557,23 @@ given their developmental strategy.
  This gives them an interpolate posterior energy state distribution of 
 \begin_inset Formula 
 \[
-e_{2}=\lfloor e-\Delta e\rfloor+1,
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
-P(e_{2})=e-\Delta e-\lfloor e-\Delta e\rfloor,
-\]
-
-\end_inset
-
-
-\begin_inset Formula 
-\[
 e_{1}=\lfloor e-\Delta e\rfloor,
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+e_{2}=e_{1}+1,
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+P(e_{2})=(e-\Delta e)-e_{1},
 \]
 
 \end_inset
@@ -601,7 +586,140 @@ P(e_{1})=1-P(e_{2}).
 
 \end_inset
 
-and a probability distribution over posterior life stages of
+
+\end_layout
+
+\begin_layout Enumerate
+If 
+\begin_inset Formula $s\geq S-1$
+\end_inset
+
+,
+ they are of a mature life stage and so no developmental transition can occur,
+ so 
+\begin_inset Formula $P(s^{\prime}=s,e^{\prime}=e|x,s,i,e)=1$
+\end_inset
+
+,
+ their investment instead goes towards reproduction (see the next subsection).
+ 
+\end_layout
+
+\begin_layout Enumerate
+If they are of the pre-adult life stage (
+\begin_inset Formula $s=S-3$
+\end_inset
+
+),
+ depending on the size of 
+\begin_inset Formula $\Delta e$
+\end_inset
+
+ and the investment threshold above which the fighter phenotype can be expressed,
+ 
+\begin_inset Formula $f_{switch}$
+\end_inset
+
+,
+ they have a probability of not transitioning at all 
+\begin_inset Formula $p_{0}$
+\end_inset
+
+,
+ and a probability of transitioning to a mature scrambler 
+\begin_inset Formula $p_{scramb}$
+\end_inset
+
+,
+ or transitioning to a mature fighter 
+\begin_inset Formula $p_{fighter}$
+\end_inset
+
+.
+ If their investment in growth scaled by their maximum possible investment,
+ 
+\begin_inset Formula $e_{g}=\frac{\Delta e}{E}$
+\end_inset
+
+,
+ is greater than or equal to 
+\begin_inset Formula $f_{switch}$
+\end_inset
+
+,
+ these probabilities are defined as 
+\begin_inset Formula 
+\[
+p_{fighter}=\frac{e_{g}-f_{switch}}{1-f_{switch}},p_{scramb}=1-p_{fighter},p_{0}=0.
+\]
+
+\end_inset
+
+else if 
+\begin_inset Formula $e_{g}<f_{switch}$
+\end_inset
+
+
+\begin_inset Formula 
+\[
+p_{fighter}=0,p_{scramb}=\frac{e_{g}}{f_{switch}},p_{0}=1-p_{scramb}.
+\]
+
+\end_inset
+
+giving transition probabilities of 
+\begin_inset Formula 
+\[
+P(s^{\prime}=S-2,e^{\prime}=e_{2}|x,s,i,e)=p_{0}\cdot P(e_{2}),
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+P(s^{\prime}=S-2,e^{\prime}=e_{1}|x,s,i,e)=p_{0}\cdot P(e_{1}),
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+P(s^{\prime}=S-1,e^{\prime}=e_{2}|x,s,i,e)=p_{scramb}\cdot P(e_{2}),
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+P(s^{\prime}=S-1,e^{\prime}=e_{1}|x,s,i,e)=p_{scramb}\cdot P(e_{1}),
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+P(s^{\prime}=S,e^{\prime}=e_{2}|x,s,i,e)=p_{fighter}\cdot P(e_{2}),
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+P(s^{\prime}=S,e^{\prime}=e_{1}|x,s,i,e)=p_{fighter}\cdot P(e_{1}).
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+else they have a probability distribution over posterior life stages of
 \begin_inset Formula 
 \begin{equation}
 s_{2}=s+1,P(s_{2})=\frac{\Delta e}{E},\label{eq:-19-1}
@@ -617,11 +735,7 @@ s_{1}=s,P(s_{1})=1-\frac{\Delta e}{E},
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Enumerate
-We can then interpolate on to the discrete grid,
+which we can then interpolate on to the discrete grid,
  giving transition probabilities of 
 \begin_inset Formula 
 \[
@@ -989,27 +1103,6 @@ where
 \end_inset
 
  is the maximum probability of death given a lack of energy reserves.
-\end_layout
-
-\begin_layout Subsubsection
-Summary
-\end_layout
-
-\begin_layout Standard
-As the effects of 
-\begin_inset Formula $g$
-\end_inset
-
- are all exogenous,
- not determined by an individual's strategy or the distribution of states in the population,
- we can summarise the outcome of foraging with a single transition matrix (excluding deaths)
-\begin_inset Formula 
-\[
-F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime}e^{\prime},n)=\sum_{g}P_{c}(e^{\prime\prime}|s,e^{\prime},g)\cdot L(g|q_{n})\cdot P(i^{\prime\prime}|i^{\prime},g)
-\]
-
-\end_inset
-
  
 \end_layout
 
@@ -1772,21 +1865,37 @@ Individuals forage and find food of mass
 \end_inset
 
 ,
- with likelihood 
-\begin_inset Formula $L(g|q_{n})$
-\end_inset
-
- as outlined above,
- therefore their posterior physiological distribution is
+ updating their posterior physiological distribution given expected foraging outcomes being
 \begin_inset Formula 
 \begin{equation}
-\rho^{\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime})=F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime},n)\cdot\rho^{\prime}_{n}(s^{\prime},i^{\prime},e^{\prime}),\label{eq:-17-1}
+\rho^{\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime})=\rho^{\prime}_{n}(s^{\prime},i^{\prime},e^{\prime})\cdot\sum_{g}[L(g|q_{n})\cdot P_{c}(e^{\prime\prime}|s,e^{\prime},g)\cdot P(i^{\prime\prime}|i^{\prime},g)],\label{eq:-17-1}
 \end{equation}
 
 \end_inset
 
-after foraging outcomes and maintenance costs are applied,
- and deaths occur.
+where the likelihood 
+\begin_inset Formula $L(g|q_{n})$
+\end_inset
+
+ gives the probability of each food mass 
+\begin_inset Formula $g$
+\end_inset
+
+,
+ and where 
+\begin_inset Formula $P_{c}(e^{\prime\prime}|s,e^{\prime},g)$
+\end_inset
+
+ gives the energy reserves after foraging outcomes and maintenance costs are applied,
+ and where 
+\begin_inset Formula $P(i^{\prime\prime}|i^{\prime},g)$
+\end_inset
+
+ gives the posterior belief state given the use of food mass 
+\begin_inset Formula $g$
+\end_inset
+
+ as a cue in Bayesian updating for the population density.
  Therefore,
  given the posterior densities of individuals within patches,
  the posterior of population size of a patch of density state 
@@ -2189,7 +2298,7 @@ M(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,\kappa)=P_{c}(survival|e^{\
 where 
 \begin_inset Formula 
 \[
-F_{i}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime})=(i^{\prime}/I)\cdot F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime},n=1)+(1-(i^{\prime}/I))\cdot F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime},n=0)
+F_{i}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime})=(i^{\prime}/I)\cdot\sum_{g}[L(g|q_{1})\cdot P_{c}(e^{\prime\prime}|s,e^{\prime},g)\cdot P(i^{\prime\prime}|i^{\prime},g)]+(1-(i^{\prime}/I))\cdot\sum_{g}[L(g|q_{0})\cdot P_{c}(e^{\prime\prime}|s,e^{\prime},g)\cdot P(i^{\prime\prime}|i^{\prime},g)]
 \]
 
 \end_inset
@@ -2411,12 +2520,17 @@ where
  First we define the physiological state transition matrix of the cohort given the population density in the lab
 \begin_inset Formula 
 \begin{equation}
-M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot\sum_{e^{\prime}}\sum_{i^{\prime}}F(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime},n)\cdot\tilde{P}(i^{\prime}|i,time)\cdot P(s^{\prime},e^{\prime}|s,i,e,\kappa)\label{eq:-11}
+M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot\sum_{e^{\prime}}\sum_{i^{\prime}}\tilde{P}(i^{\prime}|i,time)\cdot P(s^{\prime},e^{\prime}|s,i,e,\kappa)\cdot\sum_{g}[L_{lab}(g|q_{n})\cdot P_{c}(e^{\prime\prime}|s,e^{\prime},g)\cdot P(i^{\prime\prime}|i^{\prime},g)]\label{eq:-11}
 \end{equation}
 
 \end_inset
 
-We can then calculate the distribution of individuals after development leaving deaths from transition in patch density till later as these will depend on lab conditions.
+where 
+\begin_inset Formula $L_{lab}(g|q_{n})$
+\end_inset
+
+ is the likelihood of different food masses in lab conditions for our different population density treatments.
+ We can then calculate the distribution of individuals after development leaving deaths from transition in patch density till later as these will depend on lab conditions.
  
 \end_layout
 
