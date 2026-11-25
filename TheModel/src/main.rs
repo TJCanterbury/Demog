@@ -142,11 +142,11 @@ struct Environment {
     gammal: f64, // parameter transition prob from low to high
     eta: f64, // proportion of patches that are high density
     eta_prime: f64, //  proportion of patches that are high density, post some event
-    u_q: Vec<f64>, //(i) survivals from development
-    a_q: Vec<f64>, //(i) arrivals from dispersal
-    r_q: Vec<f64>, //(i) arrivals from local births
+    u_q: Vec<f64>, //(n) survivals from development
+    a_q: Vec<f64>, //(n) arrivals from dispersal
+    r_q: Vec<f64>, //(n) arrivals from local births
     R: Vec<Vec<f64>>, //(s,i,e,kappa) fecundity of individual of state (s,i,e) given investment kappa
-    rhon: Vec<Vec<f64>>, //(idx,i) prob. distribution over states for individuals in patches of density qi
+    rhon: Vec<Vec<f64>>, //(n, idx) prob. distribution over states for individuals in patches of density qi
     rhotilde: Vec<f64>, //(idx) distribution of newborns
     L_g_n: Vec<Vec<f64>>,
     pipig: Vec<Vec<Vec<f64>>>, //Trans. prob. og pi prime given pi and g [piprime][pi][g]
@@ -221,7 +221,7 @@ impl Environment {
             self.r_q[n] = 0.0;
 
             for state in 0..N_states{
-                self.r_q[n] += self.rhon[state][n]*self.R[state][self.x[state]];
+                self.r_q[n] += self.rhon[n][state]*self.R[state][self.x[state]];
             }
         }
     }
@@ -314,14 +314,21 @@ impl Environment {
             
             // Define probability of survival given energy reserves
             self.pcsurvival[state] = (1. - (E as f64 - 1. - e as f64)/(E as f64 - 1.) * self.mu_e) * (1. - self.mu_base);
-
+            if self.pcsurvival[state] > 1. {
+                println!("state: {}, s: {}, i: {}, e: {}, pcsurvival: {}", state, s, _i, e, self.pcsurvival[state]);
+            }
+            
             // Define transition probabilities of energy reserves given maintenance costs
             for g in 0..G{
                 
                 let epost = self.c(s as f64, e as f64, g as f64).min(E as f64 -1.).max(0.);
                 let (e1, p1, e2, p2) = self.interpolate_e(epost);
-                self.pceeg[e1][state][g] += p1;
-                self.pceeg[e2][state][g] += p2;
+                self.pceeg[e1]
+                [state]
+                [g] += p1;
+                self.pceeg[e2]
+                [state]
+                [g] += p2;
             }
         }
     }
@@ -396,16 +403,12 @@ impl Environment {
     fn init_rho(&mut self){
         for n in 0..N{
             for state in 0..N_states{
-                self.rhon[state][n] = self.rhotilde[state];
+                println!("initialising rho: n: {}, state: {}, rho: {}", n, state, self.rhotilde[state]);
+                self.rhon[n]
+                [state] = 
+                self.rhotilde[state];
             }
         }
-    }
-
-    fn food_sum(&mut self){
-        for state in 0..N_states{
-            for state_prime
-        }
-        self.F[idx(s,iprime, eprime)]
     }
 
     fn inits(&mut self){
@@ -447,6 +450,7 @@ impl Environment {
         self.init_pgi();
 
         // Init prob of survival given maintenance and transition probabilities of energy reserves given maintenance costs
+        println!("Initialising P(survival|e)");
         self.init_maintenance();
         
         // init prob of survival given perturbations
@@ -462,10 +466,10 @@ impl Environment {
         self.update_pipitime();
             
         let rhosum0:f64  = (0..N_states)
-            .map(|state| self.rhon[state][0])
+            .map(|state| self.rhon[0][state])
             .sum();
         let rhosum1:f64 = (0..N_states)
-            .map(|state| self.rhon[state][1])
+            .map(|state| self.rhon[1][state])
             .sum();
         
         println!("initial rhoi sums: {}, {}", rhosum0, rhosum1);
@@ -497,9 +501,9 @@ impl Environment {
         let (mut s, mut pi, mut e):(usize,usize,usize);
         for state in 0..N_states {
             (s,pi,e) = self.state_invert(state);
-            for k in 0..G{
+            for kappa in 0..Kappa{
                 // After development:
-                investment = (e as f64 * (k as f64)/(G as f64 - 1.)).max(0.);
+                investment = (e as f64 * (kappa as f64)/(Kappa as f64 - 1.)).max(0.);
 
                 // Calculate the change in state expected for the investments del_m and del_s
                 let del_epost = e as f64 - investment;
@@ -510,30 +514,30 @@ impl Environment {
 
                 // Developmental state transitions
                 if s >= S-2{ // development of offspring at maturity (s stays the same)
-                    self.dev_m[idx(s, pi, e1)][idx(s, pi, e)][k] = ep1;
-                    self.dev_m[idx(s, pi, e2)][idx(s, pi, e)][k] = ep2;
+                    self.dev_m[idx(s, pi, e1)][idx(s, pi, e)][kappa] = ep1;
+                    self.dev_m[idx(s, pi, e2)][idx(s, pi, e)][kappa] = ep2;
                 } else if s == S-3 { // develop into one of two possible morphs
                     if del_spost > self.f_switch{ // Definitely matures, with some prob of fighter
                         let pfighter = (del_spost - self.f_switch)/(1. - self.f_switch);
                         let pscrambler = 1. - pfighter;
-                        self.dev_m[idx(S-1, pi, e1)][idx(s, pi, e)][k]+=ep1*pfighter;
-                        self.dev_m[idx(S-2, pi, e1)][idx(s, pi, e)][k]+=ep1*pscrambler;
-                        self.dev_m[idx(S-1, pi, e2)][idx(s, pi, e)][k]+=ep2*pfighter;
-                        self.dev_m[idx(S-2, pi, e2)][idx(s, pi, e)][k]+=ep2*pscrambler;
+                        self.dev_m[idx(S-1, pi, e1)][idx(s, pi, e)][kappa]+=ep1*pfighter;
+                        self.dev_m[idx(S-2, pi, e1)][idx(s, pi, e)][kappa]+=ep1*pscrambler;
+                        self.dev_m[idx(S-1, pi, e2)][idx(s, pi, e)][kappa]+=ep2*pfighter;
+                        self.dev_m[idx(S-2, pi, e2)][idx(s, pi, e)][kappa]+=ep2*pscrambler;
                     } else { // possibly matures into a scrambler
                         let pscrambler = del_spost / self.f_switch;
                         let psminus3 = 1. - pscrambler;
-                        self.dev_m[idx(S-3, pi, e1)][idx(s, pi, e)][k]+=ep1*psminus3;
-                        self.dev_m[idx(S-2, pi, e1)][idx(s, pi, e)][k]+=ep1*pscrambler;
-                        self.dev_m[idx(S-3, pi, e2)][idx(s, pi, e)][k]+=ep2*psminus3;
-                        self.dev_m[idx(S-2, pi, e2)][idx(s, pi, e)][k]+=ep2*pscrambler;
+                        self.dev_m[idx(S-3, pi, e1)][idx(s, pi, e)][kappa]+=ep1*psminus3;
+                        self.dev_m[idx(S-2, pi, e1)][idx(s, pi, e)][kappa]+=ep1*pscrambler;
+                        self.dev_m[idx(S-3, pi, e2)][idx(s, pi, e)][kappa]+=ep2*psminus3;
+                        self.dev_m[idx(S-2, pi, e2)][idx(s, pi, e)][kappa]+=ep2*pscrambler;
 
                     }
                 } else { // development of life stage/morph at juvenile stages
-                    self.dev_m[idx(s1, pi, e1)][idx(s, pi, e)][k]+=ep1*sp1;
-                    self.dev_m[idx(s2, pi, e1)][idx(s, pi, e)][k]+=ep1*sp2;
-                    self.dev_m[idx(s1, pi, e2)][idx(s, pi, e)][k]+=ep2*sp1;
-                    self.dev_m[idx(s2, pi, e2)][idx(s, pi, e)][k]+=ep2*sp2;
+                    self.dev_m[idx(s1, pi, e1)][idx(s, pi, e)][kappa]+=ep1*sp1;
+                    self.dev_m[idx(s2, pi, e1)][idx(s, pi, e)][kappa]+=ep1*sp2;
+                    self.dev_m[idx(s1, pi, e2)][idx(s, pi, e)][kappa]+=ep2*sp1;
+                    self.dev_m[idx(s2, pi, e2)][idx(s, pi, e)][kappa]+=ep2*sp2;
 
                     // println!("post {}, {}, {}, {}, mu: {}", mp1*sp1*mu, mp1*sp2*mu, mp2*sp1*mu, mp2*sp2*mu, mu);
                 }
@@ -562,7 +566,7 @@ impl Environment {
                 // demographic projection
                 for state in 0..N_states{
                     let (_s, i, _e) = self.state_invert(state);
-                    self.rhohat[n][state_prime] += self.pipitime[iprime][i] * self.dev_m[idx(sprime, i, eprime)][state][self.x[state]] * self.rhon[state][n];
+                    self.rhohat[n][state_prime] += self.pipitime[iprime][i] * self.dev_m[idx(sprime, i, eprime)][state][self.x[state]] * self.rhon[n][state];
                 }
             }
         }       
@@ -574,13 +578,12 @@ impl Environment {
         for n in 0..N{
             for stateprime in 0..N_states{
                 self.rhohat[n][stateprime] = 0.;
-                let (_sprime, iprime, eprime) = self.state_invert(stateprime);
+                let (sprime, iprime, eprime) = self.state_invert(stateprime);
                 
                 for i in 0..I{
                     for e in 0..E{
                         for g in 0..G{
-                            self.rhohat[n][stateprime] += self.rhon[state][n] *
-                                self.pcsurvival[stateprime] * 
+                            self.rhohat[n][stateprime] += self.rhon[n][idx(sprime,i,e)] *
                                 self.pceeg[eprime][e][g] *
                                 self.pipig[iprime][i][g] *
                                 self.L_g_n[g][n];
@@ -598,7 +601,7 @@ impl Environment {
                 .map(|state| self.rhohat[n][state]).sum();
             println!("sumhat:{}",sumhat);
             for state in 0..N_states{
-                self.rhon[state][n] = self.rhohat[n][state] / sumhat;
+                self.rhon[n][state] = self.rhohat[n][state] / sumhat;
             }
         }
     }
@@ -611,7 +614,7 @@ impl Environment {
         self.pdet[1].fill(0.0);
 
         // Set rho prime to zero so we can add to it.
-        let mut rhonprime: Vec<Vec<f64>> = vec![vec![0.0; N]; N_states];
+        let mut rhonprime: Vec<Vec<f64>> = vec![vec![0.0; N_states]; N];
 
         // 3.2.2 Patch projection
         // Second expression of equation 4 defining alpha, representing the number of migrants
@@ -649,25 +652,25 @@ impl Environment {
             
         // Now we move on to projection of physiological states:
         for state in 0..N_states {
-            rhonprime[state][1] += (1./self.eta_prime) * self.eta*self.pno[1][1]*((self.u_q[1]/(self.a_q[1] + self.u_q[1]))*self.rhon[state][1] + (self.a_q[1]/(self.a_q[1] + self.u_q[1]))*self.rhotilde[state]);
-            rhonprime[state][1] += (1./self.eta_prime) * (1.-self.eta)*self.pno[1][0]*((self.u_q[0]/(self.a_q[0] + self.u_q[0]))*self.rhon[state][0] + (self.a_q[0]/(self.a_q[0] + self.u_q[0]))*self.rhotilde[state]);
-            rhonprime[state][0] += (1./(1.-self.eta_prime)) * self.eta*self.pno[0][1]*((self.u_q[1]/(self.a_q[1] + self.u_q[1]))*self.rhon[state][1] + (self.a_q[1]/(self.a_q[1] + self.u_q[1]))*self.rhotilde[state]);
-            rhonprime[state][0] += (1./(1.-self.eta_prime)) * (1.-self.eta)*self.pno[0][0]*((self.u_q[0]/(self.a_q[0] + self.u_q[0]))*self.rhon[state][0] + (self.a_q[0]/(self.a_q[0] + self.u_q[0]))*self.rhotilde[state]);
+            rhonprime[1][state] += (1./self.eta_prime) * self.eta*self.pno[1][1]*((self.u_q[1]/(self.a_q[1] + self.u_q[1]))*self.rhon[1][state] + (self.a_q[1]/(self.a_q[1] + self.u_q[1]))*self.rhotilde[state]);
+            rhonprime[1][state] += (1./self.eta_prime) * (1.-self.eta)*self.pno[1][0]*((self.u_q[0]/(self.a_q[0] + self.u_q[0]))*self.rhon[0][state] + (self.a_q[0]/(self.a_q[0] + self.u_q[0]))*self.rhotilde[state]);
+            rhonprime[0][state] += (1./(1.-self.eta_prime)) * self.eta*self.pno[0][1]*((self.u_q[1]/(self.a_q[1] + self.u_q[1]))*self.rhon[1][state] + (self.a_q[1]/(self.a_q[1] + self.u_q[1]))*self.rhotilde[state]);
+            rhonprime[0][state] += (1./(1.-self.eta_prime)) * (1.-self.eta)*self.pno[0][0]*((self.u_q[0]/(self.a_q[0] + self.u_q[0]))*self.rhon[0][state] + (self.a_q[0]/(self.a_q[0] + self.u_q[0]))*self.rhotilde[state]);
                     
             if self.eta_prime == 0. {
-                rhonprime[state][1] = self.rhotilde[state];
+                rhonprime[1][state] = self.rhotilde[state];
             }
             if 1. - self.eta_prime == 0. {
-                rhonprime[state][0] = self.rhotilde[state];
+                rhonprime[0][state] = self.rhotilde[state];
             }
-            if rhonprime[state][0].is_nan(){
+            if rhonprime[0][state].is_nan(){
                 println!("eta: {}", self.eta);
                 println!("u0: {}, a0: {}, q0:{}",self.u_q[0], self.a_q[0], self.q(0));
                 println!("pno11:{}, pno10:{}",self.pno[1][1], self.pno[1][0]);
                 println!("n: {}, etaprime: {}", 0, self.eta_prime);
                 std::process::exit(0);
             }
-            if rhonprime[state][1].is_nan(){
+            if rhonprime[1][state].is_nan(){
                 println!("eta: {}", self.eta);
                 println!("ui: {}, ai: {}, qi:{}",self.u_q[1], self.a_q[1], self.q(1));
                 println!("pno11:{}, pno10:{}",self.pno[1][1], self.pno[1][0]);
@@ -678,7 +681,7 @@ impl Environment {
 
         // print some shit
         let sumthin:f64 = (0..N_states)
-            .map(|state| (self.q(0)/self.q(1))*self.rhon[state][0] + (1.-self.q(0)/self.q(1))*self.rhotilde[state])
+            .map(|state| (self.q(0)/self.q(1))*self.rhon[0][state] + (1.-self.q(0)/self.q(1))*self.rhotilde[state])
             .sum();
         let rhotildesum:f64=(0..N_states)
             .map(|state| self.rhotilde[state])
@@ -710,10 +713,11 @@ impl Environment {
             }
             
             let rhosum0:f64  = (0..N_states)
-                .map(|state| self.rhon[state][0])
+                .map(|state| self.rhon[0][state]
+                    )
                 .sum();
             let rhosum1:f64 = (0..N_states)
-                .map(|state| self.rhon[state][1])
+                .map(|state| self.rhon[1][state])
                 .sum();
             println!("rhon sums: {}, {}", rhosum0, rhosum1);
 
@@ -724,10 +728,10 @@ impl Environment {
             }
             
             let rhosum0:f64  = (0..N_states)
-                .map(|state| self.rhon[state][0])
+                .map(|state| self.rhon[0][state])
                 .sum();
             let rhosum1:f64 = (0..N_states)
-                .map(|state| self.rhon[state][1])
+                .map(|state| self.rhon[1][state])
                 .sum();
             println!("rhon sums: {}, {}", rhosum0, rhosum1);
             
@@ -738,10 +742,10 @@ impl Environment {
             }
             
             let rhosum0:f64  = (0..N_states)
-                .map(|state| self.rhon[state][0])
+                .map(|state| self.rhon[0][state])
                 .sum();
             let rhosum1:f64 = (0..N_states)
-                .map(|state| self.rhon[state][1])
+                .map(|state| self.rhon[1][state])
                 .sum();
             println!("rhon sums: {}, {}", rhosum0, rhosum1);
 
@@ -818,7 +822,7 @@ impl Environment {
 
     fn Best_Response(&mut self) {
         let mut V_max;
-        let mut Vn = vec![0.;G];
+        let mut Vn = vec![0.;Kappa];
         let mut max_k;
         let mut dif_v = 1.;
 
@@ -828,18 +832,18 @@ impl Environment {
                 max_k = self.x[state];
                 V_max = 0.;
                 // find best action kappa given prior states s and m, posterior piprime, and food mass g
-                for k in 0..G{
+                for kappa in 0..Kappa{
                     // k given prior pi^primeprime
-                    Vn[k]=0.;
+                    Vn[kappa]=0.;
                     for state_prime in 0..N_states{
                         // value of action kappa
-                        Vn[k] += self.R[state][k] + self.M[state_prime][state][k] * self.V[1][state_prime];                                
+                        Vn[kappa] += self.R[state][kappa] + self.M[state_prime][state][kappa] * self.V[1][state_prime];                                
                     }
                             
                     // Check if new best response for current state
-                    if Vn[k] >= V_max {
-                        max_k = k;
-                        V_max = Vn[k];
+                    if Vn[kappa] >= V_max {
+                        max_k = kappa;
+                        V_max = Vn[kappa];
                     }
                 }
 
@@ -936,8 +940,8 @@ impl Environment {
                 pi as f64/(I as f64 - 1.), 
                 e as f64, 
                 self.x[state] as f64, 
-                self.rhon[state][0], 
-                self.rhon[state][1], 
+                self.rhon[0][state], 
+                self.rhon[1][state], 
                 self.eta,
                 self.pno[0][0],
                 self.pno[1][0],
@@ -953,8 +957,8 @@ impl Environment {
     fn lifehistory(&mut self, file:&str, plab:Vec<Vec<f64>>){
         // init distribution
         for state in 0..N_states{
-            self.rhon[state][0] = self.rhotilde[state]*(1.-self.eta)*100.*self.q(0);
-            self.rhon[state][1] = self.rhotilde[state]*(self.eta)*100.*self.q(1);
+            self.rhon[0][state] = self.rhotilde[state]*(1.-self.eta)*100.*self.q(0);
+            self.rhon[1][state] = self.rhotilde[state]*(self.eta)*100.*self.q(1);
         }
         let mut popsize: f64 = (1.-self.eta)*100.*self.q(0) + (self.eta)*100.*self.q(1);
         let mut t: f64=1.;
@@ -967,7 +971,7 @@ impl Environment {
             for state in 0..N_states{
                 let (s,pi,m) = self.state_invert(state);
                 for n in 0..N{
-                    let v: Vec<f64> = vec![t, s as f64, (pi as f64)/(I as f64 - 1.), m as f64, n as f64, self.rhon[state][n], self.x[state] as f64];
+                    let v: Vec<f64> = vec![t, s as f64, (pi as f64)/(I as f64 - 1.), m as f64, n as f64, self.rhon[n][state], self.x[state] as f64];
                     let _=try_print(v, &file);
                 }
             }
@@ -980,10 +984,10 @@ impl Environment {
                 for state in 0..N_states{
                     self.rhohat[0][stateprime] += 
                         self.dev_m[stateprime][state][self.x[state]] *
-                        self.rhon[state][0];
+                        self.rhon[0][state];
                     self.rhohat[1][stateprime] += 
                         self.dev_m[stateprime][state][self.x[state]] * 
-                        self.rhon[state][1];
+                        self.rhon[1][state];
                 }
             }
 
@@ -1001,11 +1005,11 @@ impl Environment {
                 for i in 0..I{
                     for e in 0..E{
                         for g in 0..G{
-                            self.rhohat[0][stateprime] += self.rhon[idx(sprime,i,e)][0] *
+                            self.rhohat[0][stateprime] += self.rhon[0][idx(sprime,i,e)] *
                                 self.pceeg[eprime][e][g] *
                                 self.pipig[iprime][i][g] *
                                 self.L_g_n[g][0];
-                            self.rhohat[1][stateprime] += self.rhon[idx(sprime,i,e)][1] *
+                            self.rhohat[1][stateprime] += self.rhon[1][idx(sprime,i,e)] *
                                 self.pceeg[eprime][e][g] *
                                 self.pipig[iprime][i][g] *
                                 self.L_g_n[g][1];
@@ -1015,41 +1019,43 @@ impl Environment {
             }
 
             // calculate posterior to deaths
+            self.rhon[0].fill(0.);
+            self.rhon[1].fill(0.);
             for state in 0..N_states{
-                self.rhon[state].fill(0.);
-                self.rhon[state][0] += self.pcsurvival[state]*(plab[0][1] * self.rhohat[1][state] * (self.q(0)/self.q(1)) + plab[0][0] * self.rhohat[0][state]);
-                self.rhon[state][1] += self.pcsurvival[state]*(plab[1][1] * self.rhohat[1][state] + plab[1][0] * self.rhohat[0][state]);
+                self.rhon[0][state] += self.pcsurvival[state]*(plab[0][1] * self.rhohat[1][state] * (self.q(0)/self.q(1)) + plab[0][0] * self.rhohat[0][state]);
+                self.rhon[1][state] += self.pcsurvival[state]*(plab[1][1] * self.rhohat[1][state] + plab[1][0] * self.rhohat[0][state]);
+                // println!("pcsurvival: {}, plab00: {}, plab01: {}, plab10: {}, plab11: {}", self.pcsurvival[state], plab[0][0], plab[0][1], plab[1][0], plab[1][1]);
             }         
             let mut cumul = 0.;
             for state in 0..N_states{
-                cumul += self.rhon[state][0] + self.rhon[state][1];
+                cumul += self.rhon[0][state] + self.rhon[1][state];
             }
             println!("popsize post plab: {}", cumul);
 
             // calculate posterior to bayesian updating
-            let mut rhoi_prime: Vec<Vec<f64>> = vec![vec![0.0;N]; N_states];
+            let mut rhoi_prime: Vec<Vec<f64>> = vec![vec![0.0;N_states]; N];
             for state in 0..N_states{
                 for n in 0..N{
                     // retrieve state
                     let (s,piprime,e) = self.state_invert(state);
 
                     // update rhoi
-                    rhoi_prime[state][n] = (0..I)
-                        .map(|pi| self.pipitime[piprime][pi] * self.rhon[idx(s,pi,e)][n]).sum();
+                    rhoi_prime[n][state] = (0..I)
+                        .map(|pi| self.pipitime[piprime][pi] * self.rhon[n][idx(s,pi,e)]).sum();
                     
                 }
             }
             self.rhon = rhoi_prime;
             let mut cumul = 0.;
             for state in 0..N_states{
-                cumul += self.rhon[state][0] + self.rhon[state][1];
+                cumul += self.rhon[0][state] + self.rhon[1][state];
             }
             println!("popsize post bayes: {}", cumul);
 
             // update dif
             popsize = 0.;
             for state in 0..N_states{
-                popsize += self.rhon[state][0] + self.rhon[state][1];
+                popsize += self.rhon[0][state] + self.rhon[1][state];
             }
             t+=1.;
         }
@@ -1106,7 +1112,7 @@ fn main() -> std::io::Result<()>  {
         mu_base: 0.1, // Baseline rate of death
         r_q: vec![0.;N], //(n) arrivals from local births
         R: vec![vec![0.;Kappa];N_states], //(s,i,e) fecundity of individual for each state
-        rhon: vec![vec![0.;N];N_states], //(idx,n) prob. distribution over states for individuals in patches of density qi
+        rhon: vec![vec![0.;N_states];N], //(idx,n) prob. distribution over states for individuals in patches of density qi
         rhotilde: vec![0.;N_states], //(idx) state distribution of newborns
         L_g_n: vec![vec![0.;N];G], // L(g|n) likelihood of food mass g given patch density n
         pipig: vec![vec![vec![0.;G];I];I], //Trans. prob. og pi prime given pi and g [piprime][pi][g]
@@ -1129,7 +1135,7 @@ fn main() -> std::io::Result<()>  {
         pipitime: vec![vec![0.;I];I], // (piprime,i) prob of belief transition given time
         p_g_i: vec![vec![0.;I];G], // (g,i) the probability of food mass g given prior i
         pert_survival: vec![0.;I], // (i) probability of survival given prior belief i
-        pceeg: vec![vec![vec![0.;G];E];E], // probability of transitioning to eprime given e and g
+        pceeg: vec![vec![vec![0.;G];N_states];E], // probability of transitioning to eprime given e and g
         pcsurvival: vec![0.;N_states], // probability of survival given reserves state and state dependent strategy
     };
 
