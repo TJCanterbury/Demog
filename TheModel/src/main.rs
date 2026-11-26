@@ -568,7 +568,12 @@ impl Environment {
                     self.rhohat[n][state_prime] += self.pipitime[iprime][i] * self.dev_m[idx(sprime, i, eprime)][state][self.x[state]] * self.rhon[n][state];
                 }
             }
+            // proportion that survived in patches of density n
+            self.u_q[n] = (0..N_states)
+                .map(|state| self.q(n)*self.pcsurvival[state]*self.rhohat[n][state])
+                .sum();
         }       
+
         self.rhon = self.rhohat.clone(); 
     }
 
@@ -590,19 +595,8 @@ impl Environment {
                     }
                 }
             }
-            // proportion that survived in patches of density n
-            self.u_q[n] = (0..N_states)
-                .map(|state| self.q(n)*self.pcsurvival[state]*self.rhohat[n][state])
-                .sum();
-
-            // Update rhoi
-            let sumhat:f64 = (0..N_states)
-                .map(|state| self.rhohat[n][state]).sum();
-            println!("sumhat:{}",sumhat);
-            for state in 0..N_states{
-                self.rhon[n][state] = self.rhohat[n][state] / sumhat;
-            }
         }
+        self.rhon = self.rhohat.clone(); 
     }
 
     fn Growth(&mut self){
@@ -804,12 +798,12 @@ impl Environment {
                         for g in 0..G {
                             for eprime in 0..E{
                                 self.M[stateprime][state][kappa] += 
-                                    self.pcsurvival[stateprime] *
                                     self.pipitime[ipripri][iprime] * 
                                     self.pert_survival[iprime] *
                                     self.p_g_i[g][i] *
                                     self.pceeg[epripri][eprime][g] *
                                     self.pipig[iprime][i][g] *
+                                    self.pcsurvival[idx(sprime, i, eprime)] *
                                     self.dev_m[idx(sprime, i, eprime)][state][kappa];
                             }
                         }
@@ -982,9 +976,11 @@ impl Environment {
                 self.rhohat[1][stateprime] = 0.;
                 for state in 0..N_states{
                     self.rhohat[0][stateprime] += 
+                        self.pcsurvival[stateprime]*
                         self.dev_m[stateprime][state][self.x[state]] *
                         self.rhon[0][state];
                     self.rhohat[1][stateprime] += 
+                        self.pcsurvival[stateprime]*
                         self.dev_m[stateprime][state][self.x[state]] * 
                         self.rhon[1][state];
                 }
@@ -1023,8 +1019,8 @@ impl Environment {
             self.rhon[0].fill(0.);
             self.rhon[1].fill(0.);
             for state in 0..N_states{
-                self.rhon[0][state] += self.pcsurvival[state]*(plab[0][1] * self.rhohat[1][state] * (self.q(0)/self.q(1)) + plab[0][0] * self.rhohat[0][state]);
-                self.rhon[1][state] += self.pcsurvival[state]*(plab[1][1] * self.rhohat[1][state] + plab[1][0] * self.rhohat[0][state]);
+                self.rhon[0][state] += (plab[0][1] * self.rhohat[1][state] * (self.q(0)/self.q(1)) + plab[0][0] * self.rhohat[0][state]);
+                self.rhon[1][state] += (plab[1][1] * self.rhohat[1][state] + plab[1][0] * self.rhohat[0][state]);
                 // println!("pcsurvival: {}, plab00: {}, plab01: {}, plab10: {}, plab11: {}", self.pcsurvival[state], plab[0][0], plab[0][1], plab[1][0], plab[1][1]);
             }         
             let mut cumul = 0.;

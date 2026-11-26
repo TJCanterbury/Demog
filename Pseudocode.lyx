@@ -1854,18 +1854,32 @@ Where,
 \end_layout
 
 \begin_layout Subsection
-Foraging,
- observations,
- and death
+Foraging
 \end_layout
 
 \begin_layout Standard
-Individuals forage and find food of mass 
+Individuals then attempt to forage and surive.
+ If they have few energy reserves,
+ they are likely to die,
+ the population size of a patch after developmental investments of density state 
+\begin_inset Formula $q_{n}$
+\end_inset
+
+ is therefore
+\begin_inset Formula 
+\begin{equation}
+u(q_{n})=q_{n}\cdot\sum_{s^{\prime}}\sum_{i^{\prime\prime}}\sum_{e^{\prime\prime}}P_{c}(survival|s^{\prime},e^{\prime\prime})\cdot\rho^{\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime}).\label{eq:-26}
+\end{equation}
+
+\end_inset
+
+Individuals that survive may find a food of mass 
 \begin_inset Formula $g$
 \end_inset
 
-,
- updating their posterior physiological distribution given expected foraging outcomes being
+ and expend some energy given maintenance costs,
+ updating their energy state and their belief state about the population density of the patch.
+ This then generates the posterior physiological state distribution
 \begin_inset Formula 
 \begin{equation}
 \rho^{\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime})=\rho^{\prime}_{n}(s^{\prime},i^{\prime},e^{\prime})\cdot\sum_{g}[L(g|q_{n})\cdot P_{c}(e^{\prime\prime}|s,e^{\prime},g)\cdot P(i^{\prime\prime}|i^{\prime},g)],\label{eq:-17-1}
@@ -1896,21 +1910,7 @@ where the likelihood
 \end_inset
 
  as a cue in Bayesian updating for the population density.
- Therefore,
- given the posterior densities of individuals within patches,
- the posterior of population size of a patch of density state 
-\begin_inset Formula $q_{n}$
-\end_inset
-
- is 
-\begin_inset Formula 
-\begin{equation}
-u(q_{n})=q_{n}\cdot\sum_{s^{\prime}}\sum_{i^{\prime\prime}}\sum_{e^{\prime\prime}}P_{c}(survival|s^{\prime},e^{\prime\prime})\cdot\rho^{\prime\prime}_{n}(s^{\prime},i^{\prime\prime},e^{\prime\prime})\label{eq:-26}
-\end{equation}
-
-\end_inset
-
-
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -2290,7 +2290,7 @@ and for a given developmental policy
  which is defined as 
 \begin_inset Formula 
 \[
-M(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,\kappa)=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot P_{pert}(survival|i^{\prime})\cdot\sum_{e^{\prime}}\sum_{i^{\prime}}F_{i}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime})\cdot\tilde{P}(i^{\prime}|i,time)\cdot P(s^{\prime},e^{\prime}|s,i,e,\kappa)
+M(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,\kappa)=P_{pert}(survival|i^{\prime})\cdot\sum_{e^{\prime}}\sum_{i^{\prime}}F_{i}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s^{\prime},i^{\prime},e^{\prime})\cdot\tilde{P}(i^{\prime}|i,time)\cdot P_{c}(survival|s^{\prime},e^{\prime})\cdot P(s^{\prime},e^{\prime}|s,i,e,\kappa)
 \]
 
 \end_inset
@@ -2520,7 +2520,7 @@ where
  First we define the physiological state transition matrix of the cohort given the population density in the lab
 \begin_inset Formula 
 \begin{equation}
-M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})=P_{c}(survival|e^{\prime\prime},s^{\prime})\cdot\sum_{e^{\prime}}\sum_{i^{\prime}}\tilde{P}(i^{\prime}|i,time)\cdot P(s^{\prime},e^{\prime}|s,i,e,\kappa)\cdot\sum_{g}[L_{lab}(g|q_{n})\cdot P_{c}(e^{\prime\prime}|s,e^{\prime},g)\cdot P(i^{\prime\prime}|i^{\prime},g)]\label{eq:-11}
+M_{\text{LH}}(s^{\prime},i^{\prime\prime},e^{\prime\prime}|s,i,e,q_{n})=\sum_{e^{\prime}}\sum_{i^{\prime}}\tilde{P}(i^{\prime}|i,time)\cdot P_{c}(survival|s^{\prime},e^{\prime})\cdot P(s^{\prime},e^{\prime}|s,i,e,\kappa)\cdot\sum_{g}[L_{lab}(g|q_{n})\cdot P_{c}(e^{\prime\prime}|s,e^{\prime},g)\cdot P(i^{\prime\prime}|i^{\prime},g)]\label{eq:-11}
 \end{equation}
 
 \end_inset
