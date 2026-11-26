@@ -60,8 +60,8 @@ fn write_csv_header(path: &str) -> Result<(), Box<dyn std::error::Error>> {
         "f_switch",
         "r_fighter",
         "r_e",
-        "r_baseline",
-        "mu",
+        "mu_e",
+        "mu_base",
         "c_max",
         "lambda",
         "gammah",
@@ -133,7 +133,6 @@ struct Environment {
     f_switch: f64, //threshold investment above which fighter phenotype is expressed at maturity
     r_fighter: f64,
     r_e: f64, // benefit of reserves
-    r_baseline: f64,
     lambda: f64, // Dispersal rate
     mu_e: f64, // mortality rate due to low energy reserves
     mu_base: f64, // baseline mortality rate
@@ -180,7 +179,7 @@ impl Environment {
         if n == 0 {
             return self.n_min;
         }else{
-            return self.n_min*5.;
+            return self.n_min*2.;
         }
     }
 
@@ -930,8 +929,8 @@ impl Environment {
                 self.f_switch,
                 self.r_fighter,
                 self.r_e,
-                self.r_baseline,
                 self.mu_e,
+                self.mu_base,
                 self.c_max,
                 self.lambda,
                 self.gammah,
@@ -997,6 +996,8 @@ impl Environment {
             }
             println!("popsize post development: {}", cumul);
             self.rhon = self.rhohat.clone();
+            self.rhohat[0].fill(0.);
+            self.rhohat[1].fill(0.);
 
             // calculate posterior to foraging
             for stateprime in 0..N_states{ 
@@ -1102,10 +1103,9 @@ fn main() -> std::io::Result<()>  {
         n_min: 100., // population bin sizes
         g_mean: (G as f64 -1.), // mean food mass
         g_sd: 1., // standard deviation of food mass
-        f_switch: 0.5, // threshold m above which fighter phenotype is expressed
-        r_fighter: 2., // fitness benefit of fighter phenotype
-        r_e: 1., // fitness benefit of quality
-        r_baseline: 5., // baseline fitness
+        f_switch: 0.3, // threshold m above which fighter phenotype is expressed
+        r_fighter: 4., // fitness benefit of fighter phenotype
+        r_e: 10., // fitness benefit of quality
         u_q: vec![0.;N], //(n) survivals from maintenance
         a_q: vec![0.;N], //(n) arrivals from dispersal
         mu_e: 0.1, // Rate of death given lack of energy reserves
@@ -1119,7 +1119,7 @@ fn main() -> std::io::Result<()>  {
         x: vec![Kappa/2;N_states], // (idx) gives resident strategy -> threshold value above which input energy goes to quality
         dev_m: vec![vec![vec![0.;Kappa];N_states];N_states], // P(idx prime | idx, kappa) developmental transitions
         M: vec![vec![vec![0.;Kappa];N_states];N_states], // P(idx prime | idx, kappa) transitions from full growth cycle
-        c_max: 0., // maximum maintenance investment
+        c_max: 0.01, // maximum maintenance energy cost
         lambda: 0.1, // Dispersal rate
         rhohat: vec![vec![0.;N_states];N], // state distribution after development fatalities, before normalisation
         gammah: 0.05, // parameter determining trans. prob high to low density patch, due to habitat degradation and death of individuals
